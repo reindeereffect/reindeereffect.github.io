@@ -1,0 +1,801 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-04-21 Tue 23:06 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dynamic Programming for Fun and Profit</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Kevin M. Stout" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel='stylesheet' type='text/css' href='/css/syntax.css'>
+	 <link rel='stylesheet' type='text/css' href='/css/main.css'>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div class='site-header'>
+  <a class='site-title' href='/'>R E I N D E E R E F F E C T</a>
+  <div class='nav' style='float:right;'>
+    <a class='page-link' href='/about.html'>About</a>&nbsp;
+    <a class='page-link' href='/links.html'>Links</a>&nbsp;
+    <a class='page-link' href='/tags.html'>Tags</a>
+  </div>
+  <hr style='height:0.5px'>
+</div>
+<div class='post-head'>
+  <div class='post-pubdate'>2018-03-08</div>
+  <h1 class='title'>Dynamic Programming for Fun and Profit</h1>
+</div>
+</div>
+<div id="content">
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#introduction">1. <a href="#introduction">Introduction</a></a></li>
+<li><a href="#analysis-of-the-bopm">2. <a href="#analysis-of-the-bopm">Analysis of the BOPM</a></a></li>
+<li><a href="#implementation">3. <a href="#implementation">Implementation</a></a></li>
+<li><a href="#dynamic-programming">4. <a href="#dynamic-programming">Dynamic Programming</a></a></li>
+<li><a href="#wrapping-up">5. <a href="#wrapping-up">Wrapping Up</a></a></li>
+</ul>
+</div>
+<div class="abstract">
+<p>
+You&rsquo;re certain the price of that stock will take off—your broker says so&#x2014;but 
+you don&rsquo;t want to commit all your money just yet. What are your options?
+</p>
+
+</div>
+
+<div id="outline-container-orge79263a" class="outline-2">
+<h2 id="introduction"><a id="orge79263a"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
+<div class="outline-text-2" id="text-introduction">
+<p>
+You&rsquo;ve just figured out that the coming olive harvest will be a bumper
+crop. With only a little money, how can you profit from this
+information? Aristotle
+<a href="http://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0058:book=1:section=1259a">tells
+the story</a> of Thales of Miletus who, with a minor down payment, secured
+a limited monopoly on a large number of olive presses. When the harvest
+came in, he was able to rent out use of his presses at a significant
+profit. The wise philosopher&rsquo;s maneuver is an early example of an
+<i>option</i>.
+</p>
+
+<p>
+An option is the right, but not the obligation, to buy or sell a certain
+amount of some asset at a specific price on or before a specific date.
+For example, suppose you purchased an option to buy (a <i>call option</i>)
+100 shares of XYZZY Corp. (the <i>underlying asset</i>) at $50 per share (the
+<i>strike price</i>) up to some time 30 days from now (the <i>expiration</i>).
+Also, suppose XYZZY is trading at $45. At any time right up to the
+expiration, you could buy 100 shares of XYZZY, and, no matter how high
+its price rises, you would pay $5000. You could also do nothing (a wise
+move if the price never breaks $50). You could also sell this <i>option
+contract</i> to someone else before it expires. But suppose the price per
+share rose to $75. If you decided to <i>exercise</i> your option, you would,
+for a $25/share discount, become the proud owner of 100 shares of XYZZY.
+If you then immediately sold, you would walk away with $2500, less
+commissions, taxes, and whatever you paid for the contract in the first
+place (called the <i>premium</i>).
+</p>
+
+<p>
+Now, what is a fair premium to pay to play this game? This is hardly a
+trivial question, and people have spilled barrels of ink attempting to
+answer it and lost entire fortunes getting it wrong. The approach we&rsquo;ll
+focus on today is the <a href="https://en.wikipedia.org/wiki/BOPM">Binomial
+Options Pricing Model</a> (BOPM).
+</p>
+
+<p>
+Below,
+</p>
+
+<ol class="org-ol">
+<li>We&rsquo;ll discuss the mathematics of the BOPM;</li>
+<li>Implement a naïve routine based on our analysis;</li>
+<li>Refine our analysis of the problem and use it to gain useful
+performance;</li>
+<li>Discuss the principles of dynamic programming; and,</li>
+<li>Use the traditional dynamic programming mindset to improve
+performance yet again.</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org5ec6db5" class="outline-2">
+<h2 id="analysis-of-the-bopm"><a id="org5ec6db5"></a><span class="section-number-2">2</span> <a href="#analysis-of-the-bopm">Analysis of the BOPM</a></h2>
+<div class="outline-text-2" id="text-analysis-of-the-bopm">
+<p>
+At any given time up to expiration, the value of an option is the
+greater of:
+</p>
+
+<ul class="org-ul">
+<li>the expected payoff from exercising it immediately, or,</li>
+<li>the expected payoff from continuing to hold it until some later time</li>
+</ul>
+
+<p>
+discounted by the
+<a href="https://www.investopedia.com/terms/r/risk-freerate.asp"><i>risk free
+rate</i></a> (the theoretical return on an investment with no risk). At
+expiration, we may exercise the option or let it expire. What we choose
+at any given time is ultimately due to the expected behavior of the
+underlying asset, without which options are meaningless. We&rsquo;ll start by
+modeling the underlying&rsquo;s behavior.
+</p>
+
+<p>
+Suppose we divide time into discrete trading days, and at the end of
+each day \(n\), the price of the underlying may go up or down by some
+factor \(u_n\) or \(d_n\), respectively. Then the <i>spot price</i> at the
+beginning of the next day, \(S_{n+1}\), is
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_3_0.png" alt="2018-03-08-options-valuation_3_0.png" />
+</p>
+</div>
+
+<p>
+If we further assume that, every step, there is a probability \(p_n\) of an
+upward movement, then, in combination with what we have so far, we can
+generate a tree of prices over a period of time. For simplicity, let&rsquo;s
+consider an option that expires in three days:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_5_0.png" alt="2018-03-08-options-valuation_5_0.png" />
+</p>
+</div>
+
+<p>
+As the underlying asset&rsquo;s value changes, so does the value of our call
+option. So, if tomorrow the underlying&rsquo;s value drops, so does the
+option&rsquo;s. At expiration, we have a choice to make: We can either
+exercise the option, or not. The value of the option at expiration is
+the discount that we achieve when we exercise, or 0 if no discount is
+possible. So,
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_7_0.png" alt="2018-03-08-options-valuation_7_0.png" />
+</p>
+</div>
+
+<p>
+So, after a sequence of going up, then down and down, the spot price
+will be
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_9_0.png" alt="2018-03-08-options-valuation_9_0.png" />
+</p>
+</div>
+
+<p>
+And the value of the option on that day, if events play out that way,
+would be determined solely by the strike price&rsquo;s relationship to the
+spot price. But what about the day before? At that point, the future
+underlying value is still unknown, but we have those probabilities to
+guide us: we can compute an expecation of tomorrow&rsquo;s value (assuming we
+hold), and compare it to today&rsquo;s value (assuming we exercise). Using the
+same path in the tree, but stopping the day before expiration, the spot
+price is:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_11_0.png" alt="2018-03-08-options-valuation_11_0.png" />
+</p>
+</div>
+
+<p>
+Tomorrow, the value of the option may rise or fall in accordance with
+the underlying&rsquo;s value; applying the probability \(p_{n-1}\) of an upward
+movement today,
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_13_0.png" alt="2018-03-08-options-valuation_13_0.png" />
+</p>
+</div>
+
+<p>
+Today&rsquo;s value is then:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_15_0.png" alt="2018-03-08-options-valuation_15_0.png" />
+</p>
+</div>
+
+<p>
+We can apply this all the way back to today to determine its fair value.
+There&rsquo;s just one more thing to take into account: Option valuation is
+done in comparison with a hypothetical &ldquo;risk free&rdquo; investment. If you
+invest an initial amount of money \(P_0\) for an annual rate of \(r\) per
+year, then after \(t\) years your total value is given by the formula for
+continuous compounding:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_17_0.png" alt="2018-03-08-options-valuation_17_0.png" />
+</p>
+</div>
+
+<p>
+Now, suppose you were quoted the value of that investment at some point
+in the future \(t\); what would that mean in today&rsquo;s terms? Another way to
+phrase this is, how much would you have to invest now to have attained
+that value at that point? Well, rearranging for \(P_0\),
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_19_0.png" alt="2018-03-08-options-valuation_19_0.png" />
+</p>
+</div>
+
+<p>
+This gives the value of \(P(t)\)
+<a href="https://www.investopedia.com/terms/d/discounting.asp"><i>discounted</i></a>
+to today by the expected return rate. Modifying our formula for today&rsquo;s
+option value,
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_21_0.png" alt="2018-03-08-options-valuation_21_0.png" />
+</p>
+</div>
+
+<p>
+where \(\Delta t\) is the fraction of the compounding period that one day
+represents.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org5c1940e" class="outline-2">
+<h2 id="implementation"><a id="org5c1940e"></a><span class="section-number-2">3</span> <a href="#implementation">Implementation</a></h2>
+<div class="outline-text-2" id="text-implementation">
+<p>
+We now have enough to write some code. First, we&rsquo;ll model the price of
+the underlying asset:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">from</span> math <span class="org-keyword">import</span> *
+
+<span class="org-keyword">class</span> <span class="org-type">asset</span>:
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, price, u, d, dt=1, r=1):
+        <span class="org-keyword">self</span>.price = price
+        <span class="org-keyword">self</span>.u, <span class="org-keyword">self</span>.d = u, d    
+        <span class="org-keyword">self</span>.dt = dt
+
+        <span class="org-keyword">self</span>.r = r
+        <span class="org-keyword">self</span>.p = (exp(r * dt) - <span class="org-keyword">self</span>.d) / (<span class="org-keyword">self</span>.u - <span class="org-keyword">self</span>.d)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">reprice</span>(<span class="org-keyword">self</span>, price):
+        <span class="org-keyword">return</span> asset(price, <span class="org-keyword">self</span>.u, <span class="org-keyword">self</span>.d, <span class="org-keyword">self</span>.dt, <span class="org-keyword">self</span>.r)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">up</span>(<span class="org-keyword">self</span>): <span class="org-keyword">return</span> <span class="org-keyword">self</span>.reprice(<span class="org-keyword">self</span>.price * <span class="org-keyword">self</span>.u)
+    <span class="org-keyword">def</span> <span class="org-function-name">down</span>(<span class="org-keyword">self</span>): <span class="org-keyword">return</span> <span class="org-keyword">self</span>.reprice(<span class="org-keyword">self</span>.price * <span class="org-keyword">self</span>.d)
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">allow asset up/down factors stated in terms of volatility</span>
+<span class="org-keyword">def</span> <span class="org-function-name">assetv</span>(price, vol, dt=1, r=1):
+    <span class="org-variable-name">u</span> = exp(vol * sqrt(dt))
+    <span class="org-variable-name">d</span> = 1/u
+    <span class="org-keyword">return</span> asset(price, u, d, dt=dt, r=r)</pre>
+</div>
+
+<p>
+And then we&rsquo;ll model the option in terms of an underlying asset:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">optval</span>(underlying, strike, t_exp, t=0, put=<span class="org-constant">False</span>):
+    <span class="org-keyword">if</span> t &gt; t_exp: <span class="org-keyword">return</span> 0
+
+    <span class="org-variable-name">ex_call</span> = underlying.price - strike
+    <span class="org-variable-name">ex_put</span>  = -ex_call
+    <span class="org-variable-name">exercise</span> = ex_put <span class="org-keyword">if</span> put <span class="org-keyword">else</span> ex_call
+
+    <span class="org-variable-name">dt</span> = underlying.dt
+    <span class="org-variable-name">C_up</span> = optval(underlying.up(),   strike, t_exp, t + dt, put)
+    <span class="org-variable-name">C_dn</span> = optval(underlying.down(), strike, t_exp, t + dt, put)
+
+    <span class="org-variable-name">p</span> = underlying.p
+
+    <span class="org-variable-name">E_C_next</span> = p * C_up + (1 - p) * C_dn
+    <span class="org-variable-name">E_C_next_d</span> = E_C_next / exp(underlying.r * dt)
+
+    <span class="org-keyword">return</span> <span class="org-builtin">max</span>(E_C_next_d, exercise)</pre>
+</div>
+
+<p>
+If we were being absolutely scrupulous about modeling concepts, we&rsquo;d
+create a <code>market</code> class to which any number of assets and options could
+be added. An instance of <code>market</code> would set the risk free rate, and the
+securities that it contains would be created with the market as context
+and, thus, have access to that rate. In addition, the market&rsquo;s risk free
+rate could vary over time and all the securities in the market would
+respond. While that level of modeling would be a great deal of fun, at
+the moment it is well beyond the scope of this article.
+</p>
+
+<p>
+Suppose in our ambition we want to use a scale of one trading day; there
+are 252 trading days on average in one year, so <code>dt = 1/252</code>. How long
+does it take to value an option that expires in five trading days? Ten?
+Thirty? We&rsquo;ll start small. First, let&rsquo;s represent XYZZY:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">SPOT</span> = 45
+<span class="org-variable-name">STRIKE</span> = 50
+<span class="org-variable-name">a</span> = asset(SPOT, 1.01, 0.99, dt=1/252, r=0.06)</pre>
+</div>
+
+<p>
+Now let&rsquo;s see how long it takes to value options with different
+expirations in the near future:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_29_0.png" alt="2018-03-08-options-valuation_29_0.png" />
+</p>
+</div>
+
+<p>
+We can tell by inspection that the time complexity of our code is
+exponential. Extrapolating, we can estimate the time to value a thirty
+day option at 2.03 hours; a ninety day option we could value in 260.66
+million millenia. When determining the value of an option takes longer
+than the option&rsquo;s lifetime, something clearly has to change. We can
+either use a coarser evaluation interval (given considerations of
+numerical stability, this may not be unreasonable) or look for an
+algorithmic speedup. Let&rsquo;s go for the algorithmic speedup.
+</p>
+
+<p>
+First off, note that we used constant factors for \(u(t)\) and \(d(t)\).
+Because of that, it makes no difference whether the spot price moves
+down and then up or up and then down; indeed, the only thing that
+matters at all is the total number of upward and downward movements.
+Thus, we can collapse the internal structure of our price tree:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_32_0.png" alt="2018-03-08-options-valuation_32_0.png" />
+</p>
+</div>
+
+<p>
+Where the probability of an upward (rightward) movement is \(p\) and that
+of a downward (leftward) movement is \(1−p\).
+</p>
+
+<p>
+While the total number of nodes in the original price tree varied
+exponentially with the number of steps, the number of nodes in our new
+tree varies quadratically. It&rsquo;s also clear that our original code is
+doing a fantastic amount of rework. How can we fix this? Let&rsquo;s maintain
+a cache of the valuations at each node as we go along, and reuse them as
+opportunities arise; this tactic is called <i>memoization</i>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">cache</span> = {}
+<span class="org-keyword">def</span> <span class="org-function-name">optval2</span>(underlying, strike, t_exp, t=0, put=<span class="org-constant">False</span>):
+    <span class="org-keyword">global</span> cache
+    <span class="org-keyword">if</span> t &gt; t_exp: <span class="org-keyword">return</span> 0
+
+    <span class="org-variable-name">key</span> = (t, underlying.price)
+    <span class="org-keyword">if</span> key <span class="org-keyword">in</span> cache: <span class="org-keyword">return</span> cache[key]
+
+    <span class="org-variable-name">ex_call</span> = underlying.price - strike
+    <span class="org-variable-name">ex_put</span>  = -ex_call
+    <span class="org-variable-name">exercise</span> = ex_put <span class="org-keyword">if</span> put <span class="org-keyword">else</span> ex_call
+
+    <span class="org-variable-name">dt</span> = underlying.dt
+    <span class="org-variable-name">C_up</span> = optval2(underlying.up(),   strike, t_exp, t + dt, put)
+    <span class="org-variable-name">C_dn</span> = optval2(underlying.down(), strike, t_exp, t + dt, put)
+
+    <span class="org-variable-name">p</span> = underlying.p
+
+    <span class="org-variable-name">E_C_next</span> = p * C_up + (1 - p) * C_dn
+    <span class="org-variable-name">E_C_next_d</span> = E_C_next / exp(underlying.r * dt)
+
+    <span class="org-variable-name">cache</span>[key] = <span class="org-builtin">max</span>(E_C_next_d, exercise)
+    <span class="org-keyword">return</span> cache[key]</pre>
+</div>
+
+<p>
+And memoization in this instance is a fantastic time saver:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_36_0.png" alt="2018-03-08-options-valuation_36_0.png" />
+</p>
+</div>
+
+<p>
+With that, we can easily determine that the value of such an option
+expiring in 90 days is $0.46 per share, and we can learn this in 452.76
+ms.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org707bf3f" class="outline-2">
+<h2 id="dynamic-programming"><a id="org707bf3f"></a><span class="section-number-2">4</span> <a href="#dynamic-programming">Dynamic Programming</a></h2>
+<div class="outline-text-2" id="text-dynamic-programming">
+<p>
+Now that we&rsquo;ve achieved an impressive speedup over the original version,
+let&rsquo;s take a step back and look at what&rsquo;s going on. Firstly, the
+valuation problem can be decomposed into shorter-term valuation
+problems, and we then combine the solutions to those problems to arrive
+at an overall solution. When a problem can be solved recursively in this
+manner, we say that it has <i>optimal substructure</i>. This property is what
+led us to the original recursive solution in the first place.
+</p>
+
+<p>
+Next, we made a number of simplifications (namely, holding \(u\), \(d\), and
+\(p\) constant over time rather than letting them vary) that, together,
+allowed us to collapse the tree of subproblems into the binary lattice
+that we saw. Whenever we see more than one path to any particular
+subproblem, we say that there exist <i>overlapping subproblems</i>; the more
+prevalent they are, the more benefit is to be had from caching and
+reusing intermediate results. In the case of our valuation problem, the
+number of paths into each level of the lattice grows quadratically with
+depth; that high degree of overlap is the source of the speedup that
+memoization netted us.
+</p>
+
+<p>
+In a nutshell, the family of problem solving strategies revolving around
+reusing the intermediate results that arise from the overlapping
+subproblems of a problem that has optimal substructure is
+<a href="https://en.wikipedia.org/wiki/Dynamic_programming"><i>dynamic
+programming</i></a>, and it finds use in such disparate domains as finance,
+bioinformatics, and software engineering.
+</p>
+
+<p>
+The specific approach that we used, wherein a recursive solution
+combines results from deeper in the problem lattice, is top-down dynamic
+programming. While the top-down forumulation is certainly elegant, still
+better performance can be attained from a bottom-up iterative approach,
+where processing explicitly proceeds from the smallest subproblems to
+the next smallest and so on to the finished result, with a table or
+other convenient structure being used to maintain the intermediate
+results as they are built. In fact, when we discuss dynamic programming
+algorithms, it&rsquo;s often the bottom up style that we have in mind. Rather
+than the divide-and-conquer mindset of the recursive approach, in the
+bottom-up version we explicitly start with the smallest parts of the
+problem and systematically build up to the complete solution.
+</p>
+
+<p>
+For the option valuation problem, a bottom-up solution might look like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">optval3</span>(underlying, strike, t_exp, t=0, put=<span class="org-constant">False</span>):
+    <span class="org-variable-name">t_exp</span> = <span class="org-builtin">int</span>((t_exp - t) / a.dt)
+    <span class="org-variable-name">spot</span> = underlying.price
+    <span class="org-variable-name">p</span> = underlying.p
+    <span class="org-variable-name">u</span> = underlying.u
+    <span class="org-variable-name">d</span> = underlying.d
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">there's no value in holding past expiration</span>
+    <span class="org-variable-name">C</span> = [0 <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(t_exp + 2)]
+    <span class="org-variable-name">disc</span> = exp(a.r * a.dt)
+
+    <span class="org-variable-name">exval_call</span> = <span class="org-keyword">lambda</span> Nu, i: spot * u**Nu * d**(i - Nu) - strike
+    <span class="org-variable-name">exval_put</span> = <span class="org-keyword">lambda</span> Nu, i: -exval_call(Nu, i)
+    <span class="org-variable-name">exval</span> = exval_put <span class="org-keyword">if</span> put <span class="org-keyword">else</span> exval_call
+
+    <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(t_exp, -1, -1):
+        <span class="org-variable-name">xs</span> = (<span class="org-builtin">max</span>(0, exval(Nu, i)) <span class="org-keyword">for</span> Nu <span class="org-keyword">in</span> <span class="org-builtin">range</span>(i+1))
+        <span class="org-variable-name">hs</span> = (((1 - p) * C[i] + p * C[i + 1]) / disc <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(<span class="org-builtin">len</span>(C) - 1))
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">we only need sub-valuations one day in advance</span>
+        <span class="org-variable-name">C</span> = <span class="org-builtin">list</span>(<span class="org-builtin">map</span>(<span class="org-builtin">max</span>, xs, hs))
+
+    <span class="org-keyword">return</span> C[0]</pre>
+</div>
+
+<p>
+And though the computational complexity is still quadratic, it exhibits
+a clear performance advantage over the memoized implementation:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-03-08-options-valuation_43_0.png" alt="2018-03-08-options-valuation_43_0.png" />
+</p>
+</div>
+
+<p>
+Now we can compute the 90-day option&rsquo;s value in only 4.69 ms;
+furthermore, we can find the value of an option expiring in 180 days
+($1.30) in only 16.92 ms.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1d65e46" class="outline-2">
+<h2 id="wrapping-up"><a id="org1d65e46"></a><span class="section-number-2">5</span> <a href="#wrapping-up">Wrapping Up</a></h2>
+<div class="outline-text-2" id="text-wrapping-up">
+<p>
+Why does this matter? Well, for one, options serve a vital role in the
+world of finance, and being able to determine the fair value of an
+option quickly is of great practical value. More importantly for us,
+though, examining one way of modeling this problem in some detail led us
+into a powerful approach to tackling a wide array of real world
+problems. We&rsquo;ll surely revisit dynamic programming in the near future.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr style='height:0.5px'>
+<small>R E I N D E E R E F F E C T</small>
+</div>
+</body>
+</html>
