@@ -1,0 +1,19 @@
+#+TITLE: Tags
+#+OPTIONS: toc:nil
+#+TOC_NO_HEADING: t
+
+* dynamic-programming
+- [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
+
+* matrix-product
+- [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
+
+* numpy
+- [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
+
+* options
+- [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
+
+* state-machines
+- [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
+

@@ -1,0 +1,4 @@
+#! /bin/bash
+emacs -batch $1 --eval '
+(progn (org-sort-entries :sort-order ?a)
+       (save-buffer))'

@@ -1,0 +1,58 @@
+#! /bin/bash
+function get_tags() {
+    org=$1
+    egrep '#\+FILETAGS' $1 | cut -d: -f2- | sed -re 's/\s+//g; s/:/\n/g' | egrep .
+}
+
+function get_title() {
+    egrep -i '#\+TITLE' $1 | cut -d: -f2- | sed -re 's/^\s+//'
+}
+
+function enum_orgs() {
+    find . -type f -name '*.org'
+}
+
+function tag_info() {
+    pushd $1 >/dev/null
+
+    enum_orgs | while read org; do
+	get_tags $org | while read tag; do
+	    echo $tag $org `get_title $org`
+	done
+    done | sort
+
+    popd >/dev/null
+}
+
+function fmt_entries() {
+    awk '
+    $1 {
+       dest=$2; tag=$1; $1=""; $2=""; title=$0;
+          t[tag][title]=dest;
+    }
+
+    END {
+        for (tag in t) {
+	    print "* "tag
+    	    for (title in t[tag]) {
+	    	printf("- [[%s][%s]]\n", t[tag][title], title);
+	    }
+	   print "";
+    	}
+    }
+    ' | sed -re 's/\[\s+/[/g'
+}
+
+function fmt_header() {
+    cat <<EOF
+#+TITLE: Tags
+#+OPTIONS: toc:nil
+#+TOC_NO_HEADING: t
+
+EOF
+}
+
+################################################################################
+
+fmt_header
+tag_info $1 | fmt_entries

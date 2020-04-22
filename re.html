@@ -1,0 +1,2977 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-04-21 Tue 22:50 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REINDEEREFFECT Tools</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Kevin M. Stout" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel='stylesheet' type='text/css' href='/css/syntax.css'>
+	 <link rel='stylesheet' type='text/css' href='/css/main.css'>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div class='site-header'>
+  <a class='site-title' href='/'>R E I N D E E R E F F E C T</a>
+  <div class='nav' style='float:right;'>
+    <a class='page-link' href='/about.html'>About</a>&nbsp;
+    <a class='page-link' href='/links.html'>Links</a>&nbsp;
+    <a class='page-link' href='/tags.html'>Tags</a>
+  </div>
+  <hr style='height:0.5px'>
+</div>
+<div class='post-head'>
+  <div class='post-pubdate'></div>
+  <h1 class='title'>REINDEEREFFECT Tools</h1>
+</div>
+</div>
+<div id="content">
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org1434bbc">1. Introduction</a></li>
+<li><a href="#org6e24a29">2. Usage</a>
+<ul>
+<li><a href="#org78d2031">2.1. Setup</a></li>
+<li><a href="#orgc43f108">2.2. Build</a></li>
+<li><a href="#org8360be6">2.3. Literate Programming</a></li>
+</ul>
+</li>
+<li><a href="#orgaedc0bb">3. Description</a>
+<ul>
+<li><a href="#orga7b431c">3.1. HTML Export</a></li>
+<li><a href="#orgd0a66b0">3.2. Publishing</a></li>
+<li><a href="#orgdca013d">3.3. Site Organization</a></li>
+<li><a href="#orga39ac31">3.4. Page Layout and Formating</a>
+<ul>
+<li><a href="#org4dd8c73">3.4.1. Table of Contents</a></li>
+<li><a href="#org4b12cd5">3.4.2. Front Matter</a></li>
+<li><a href="#org17f8e52">3.4.3. Site Footer</a></li>
+</ul>
+</li>
+<li><a href="#org800bb4a">3.5. Generated Pages</a>
+<ul>
+<li><a href="#org9fd4cae">3.5.1. Index</a></li>
+<li><a href="#orge9f441a">3.5.2. Tags</a></li>
+</ul>
+</li>
+<li><a href="#orgd36e78f">3.6. Clickable Headlines</a></li>
+<li><a href="#org3f93c01">3.7. Literate Programming</a></li>
+</ul>
+</li>
+<li><a href="#orge9f3117">4. File Listings</a>
+<ul>
+<li><a href="#orgb0a82ce">4.1. default.el</a></li>
+<li><a href="#orga3ab13c">4.2. Makefile</a></li>
+<li><a href="#org2ed91c7">4.3. bin/index</a></li>
+<li><a href="#org067f6e9">4.4. bin/sort-entries</a></li>
+<li><a href="#orgde8c188">4.5. bin/tags</a></li>
+<li><a href="#org26ca6c6">4.6. bin/jk2org</a></li>
+<li><a href="#org46aeaca">4.7. org/css/main.css</a></li>
+<li><a href="#org405fa0f">4.8. css/syntax.css</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-org1434bbc" class="outline-2">
+<h2 id="org1434bbc"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+I&rsquo;ve recently occupied myself with converting my blog (handful of articles
+though it has) from Jekyll to Org-mode. In the process, I&rsquo;ve created what seems
+a reasonable org-to-html publishing setup; crafted a handful of scripts for such
+things as generating index and tags pages; and built on Org&rsquo;s Noweb references
+to give better support for literate programming.
+</p>
+
+<p>
+This document gives full listings of all files that make up RE&rsquo;s custom static
+site generator (except Emacs and Org, that is). Additionally, some aspects, like
+the literate programming system itself, are broken out and discussed separately.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6e24a29" class="outline-2">
+<h2 id="org6e24a29"><span class="section-number-2">2</span> Usage</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org78d2031" class="outline-3">
+<h3 id="org78d2031"><span class="section-number-3">2.1</span> Setup</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Ensure this file is in the workspace root directory and &rsquo;C-c C-v t&rsquo; to tangle
+the files described below.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc43f108" class="outline-3">
+<h3 id="orgc43f108"><span class="section-number-3">2.2</span> Build</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+In the base directory,
+</p>
+
+<ul class="org-ul">
+<li><code>make</code> will update <code>html</code> based on modification times</li>
+<li><code>make force</code> will rebuild everything in <code>html</code></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org8360be6" class="outline-3">
+<h3 id="org8360be6"><span class="section-number-3">2.3</span> Literate Programming</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Minimal support for Noweb-style literate programming is provided, built atop
+Org&rsquo;s existing support. In particular, chunk headers and references are set per
+the usual conventions:
+</p>
+
+<ul class="org-ul">
+<li>Initial definitions are set like</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org1f23233"><div id='chunk'>&langle;<span class='noweb-def' id='chunk-1241'>chunk</span>&rangle; &equiv; <span class='chunk-chain'><a href='#chunk-1327'>&darr;</a></span></div>  ...</pre>
+</div>
+
+<ul class="org-ul">
+<li>Continued definitions are set like</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org871c8f2"><div id='chunk-1327'>&langle;<a href='#chunk' class='noweb-ref'>chunk</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#chunk-1241'>&uarr;</a></span></div>  ...</pre>
+</div>
+
+<p>
+Note that the chunk header becomes a hyperlink referring to the first part of
+the definition of <code>chunk</code>. Also, where there are continued definitions, there
+are working links near the right margin to access the previous and next chunk in
+the definition chain.
+</p>
+
+<ul class="org-ul">
+<li>Chunk references are also set with working links:</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python">&langle;<a class='noweb-ref' href='#chunk'>chunk</a>&rangle;</pre>
+</div>
+
+<p>
+For chunk chains, references point to the head.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgaedc0bb" class="outline-2">
+<h2 id="orgaedc0bb"><span class="section-number-2">3</span> Description</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-orga7b431c" class="outline-3">
+<h3 id="orga7b431c"><span class="section-number-3">3.1</span> HTML Export</h3>
+<div class="outline-text-3" id="text-3-1">
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgeee04eb"><div id='default/export'>&langle;<span class='noweb-def' id='default/export-1807'>default/export</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-keyword">setq</span> org-export-with-smart-quotes t)
+  (<span class="org-keyword">setq</span> org-export-with-timestamps t)
+  (<span class="org-keyword">setq-default</span> org-html-with-latex t)
+  (<span class="org-keyword">setq</span> org-export-use-babel t)
+  (<span class="org-keyword">setq</span> org-global-properties
+         '((<span class="org-string">"header-args"</span> . <span class="org-string">":exports both :eval no-export :noweb no-export"</span>)))
+  (<span class="org-keyword">setq</span> org-html-htmlize-output-type 'css)</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd0a66b0" class="outline-3">
+<h3 id="orgd0a66b0"><span class="section-number-3">3.2</span> Publishing</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Each page consists, generally, of an org file and any number of supporting files
+of different types. Org&rsquo;s publishing system requires us to separate files into
+classes, or projects, based on common processing requirements. We use
+<code>org-publish-project-alist</code> to express this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org5be170c"><div id='default/publishing'>&langle;<span class='noweb-def' id='default/publishing-2438'>default/publishing</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-keyword">setq</span> org-publish-project-alist
+        '(
+          &langle;<a class='noweb-ref' href='#org to html'>org to html</a>&rangle;
+                                          <span class="org-comment-delimiter">;</span><span class="org-comment">&langle;<a class='noweb-ref' href='#supporting files'>supporting files</a>&rangle;</span>
+          ))</pre>
+</div>
+
+<p>
+Org files we want converted to HTML:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgef585a2"><div id='org to html'>&langle;<span class='noweb-def' id='org to html-2621'>org to html</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-string">"org-to-html"</span>
+   <span class="org-builtin">:base-directory</span> <span class="org-string">""</span>
+   <span class="org-builtin">:publishing-directory</span> <span class="org-string">""</span>
+   <span class="org-builtin">:publishing-function</span> org-html-publish-to-html
+   <span class="org-builtin">:section-numbers</span> t
+   &langle;<a class='noweb-ref' href='#header formatting options'>header formatting options</a>&rangle;
+   <span class="org-builtin">:recursive</span> t
+   &langle;<a class='noweb-ref' href='#TOC options'>TOC options</a>&rangle;
+  )</pre>
+</div>
+
+<p>
+Other things should just be copied over:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org9e4af60"><div id='supporting files'>&langle;<span class='noweb-def' id='supporting files-2904'>supporting files</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-string">"supporting"</span>
+   <span class="org-builtin">:base-directory</span> <span class="org-string">""</span>
+   <span class="org-builtin">:base-extension</span> <span class="org-string">"png</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">jpg</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">css</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">html</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">py"</span>
+   <span class="org-builtin">:publishing-directory</span> <span class="org-string">""</span>
+   <span class="org-builtin">:publishing-function</span> org-publish-attachment
+   <span class="org-builtin">:recursive</span> t)</pre>
+</div>
+
+<p>
+Note that in both cases, the source and destination directories are the same.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgdca013d" class="outline-3">
+<h3 id="orgdca013d"><span class="section-number-3">3.3</span> Site Organization</h3>
+</div>
+<div id="outline-container-orga39ac31" class="outline-3">
+<h3 id="orga39ac31"><span class="section-number-3">3.4</span> Page Layout and Formating</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+We&rsquo;ll begin with the basic layout for anything on the site:
+</p>
+
+
+<div class="figure">
+<p><img src="./page-layout.png" alt="page-layout.png" />
+</p>
+</div>
+
+<p>
+Setting the header is discussed in <a href="#org4b12cd5">3.4.2</a>, the footer in <a href="#org17f8e52">3.4.3</a>.
+</p>
+
+
+<p>
+<img src="./post-layout.png" alt="post-layout.png" />
+and
+</p>
+</div>
+<div id="outline-container-org4dd8c73" class="outline-4">
+<h4 id="org4dd8c73"><span class="section-number-4">3.4.1</span> Table of Contents</h4>
+<div class="outline-text-4" id="text-3-4-1">
+<div class="org-src-container">
+<pre class="src src-elisp" id="org1213851"><div id='TOC options'>&langle;<span class='noweb-def' id='TOC options-3506'>TOC options</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-builtin">:with-toc</span> t
+  <span class="org-builtin">:html-toc-no-heading</span> t</pre>
+</div>
+
+<p>
+There&rsquo;s no need for any of our tables of content to have a headline declaring it
+to be one, so let&rsquo;s make it go away. The following creates a keyword,
+<code>TOC_NO_HEADING</code>, that we can add to any org file, as well as the option
+<code>html-toc-no-heading</code>, that we can set as we desire:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org6a8e941"><div id='default/formatting/toc-no-head'>&langle;<span class='noweb-def' id='default/formatting/toc-no-head-3868'>default/formatting/toc-no-head</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-keyword">require</span> '<span class="org-constant">ox-html</span>)
+  
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">Adding keyword TOC_NO_HEADING to html export keywords:</span>
+  (<span class="org-keyword">push</span> '(<span class="org-builtin">:html-toc-no-heading</span> <span class="org-string">"TOC_NO_HEADING"</span> nil nil t)
+        (org-export-backend-options (org-export-get-backend 'html)))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">my-org-html-toc-no-heading</span> (args)
+    <span class="org-doc">"Avoid toc heading in html export if the keyword TOC_HO_HEADING is t or yes.</span>
+  <span class="org-doc"> Works as a :filter-args advice for `</span><span class="org-doc"><span class="org-constant">org-html-toc</span></span><span class="org-doc">' with argument list ARGS."</span>
+    (<span class="org-keyword">let*</span> ((depth (nth 0 args))
+           (info (nth 1 args))
+           (scope (nth 2 args)))
+      (<span class="org-keyword">when</span> (<span class="org-keyword">and</span> (assoc-string (plist-get info <span class="org-builtin">:html-toc-no-heading</span>)
+                               '(t yes)
+                               t)
+                 (null scope))
+        (<span class="org-keyword">setq</span> scope (plist-get info <span class="org-builtin">:parse-tree</span>)))
+      (list depth info scope)))
+  
+  (advice-add 'org-html-toc <span class="org-builtin">:filter-args</span> #'my-org-html-toc-no-heading)</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4b12cd5" class="outline-4">
+<h4 id="org4b12cd5"><span class="section-number-4">3.4.2</span> Front Matter</h4>
+<div class="outline-text-4" id="text-3-4-2">
+<p>
+The front matter consists of a site header and a post header:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org4b97b60"><div id='default/formatting/frontmatter'>&langle;<span class='noweb-def' id='default/formatting/frontmatter-4772'>default/formatting/frontmatter</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-keyword">setq</span> org-html-preamble-format
+        '((<span class="org-string">"en"</span>
+           <span class="org-string">"</span>
+  <span class="org-string">&langle;<a class='noweb-ref' href='#site-header'>site-header</a>&rangle;</span>
+  <span class="org-string">&langle;<a class='noweb-ref' href='#post-header'>post-header</a>&rangle;</span>
+  <span class="org-string"> "</span>)))
+  
+  (<span class="org-keyword">setq</span> org-export-date-timestamp-format <span class="org-string">"%Y-%m-%d"</span>)</pre>
+</div>
+
+<p>
+The site header consists of
+</p>
+<ul class="org-ul">
+<li>a link to the posts index</li>
+<li>a small collection of links to informational pages:
+<ul class="org-ul">
+<li>about</li>
+<li>tags</li>
+<li>useful links</li>
+</ul></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-html" id="org92f38ca"><div id='site-header'>&langle;<span class='noweb-def' id='site-header-5126'>site-header</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  &lt;<span class="org-function-name">div</span> <span class="org-variable-name">class</span>='site-header'&gt;
+    &lt;<span class="org-function-name">a</span> <span class="org-variable-name">class</span>='site-title' <span class="org-variable-name">href</span>='/'&gt;R E I N D E E R E F F E C T&lt;/<span class="org-function-name">a</span>&gt;
+    &lt;<span class="org-function-name">div</span> <span class="org-variable-name">class</span>='nav' <span class="org-variable-name">style</span>='float:right;'&gt;
+      &lt;<span class="org-function-name">a</span> <span class="org-variable-name">class</span>='page-link' <span class="org-variable-name">href</span>='/about.html'&gt;About&lt;/<span class="org-function-name">a</span>&gt;<span class="org-variable-name">&amp;nbsp;</span>
+      &lt;<span class="org-function-name">a</span> <span class="org-variable-name">class</span>='page-link' <span class="org-variable-name">href</span>='/links.html'&gt;Links&lt;/<span class="org-function-name">a</span>&gt;<span class="org-variable-name">&amp;nbsp;</span>
+      &lt;<span class="org-function-name">a</span> <span class="org-variable-name">class</span>='page-link' <span class="org-variable-name">href</span>='/tags.html'&gt;Tags&lt;/<span class="org-function-name">a</span>&gt;
+    &lt;/<span class="org-function-name">div</span>&gt;
+    &lt;<span class="org-function-name">hr</span> <span class="org-variable-name">style</span>='height:0.5px'&gt;
+  &lt;/<span class="org-function-name">div</span>&gt;</pre>
+</div>
+
+<p>
+The post header:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html" id="org69eaee0"><div id='post-header'>&langle;<span class='noweb-def' id='post-header-5540'>post-header</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  &lt;<span class="org-function-name">div</span> <span class="org-variable-name">class</span>='post-head'&gt;
+    &lt;<span class="org-function-name">div</span> <span class="org-variable-name">class</span>='post-pubdate'&gt;<span class="org-variable-name">%d</span>&lt;/<span class="org-function-name">div</span>&gt;
+    &lt;<span class="org-function-name">h1</span> <span class="org-variable-name">class</span>='title'&gt;<span class="org-variable-name"><span class="org-underline"><span class="org-bold">%t</span></span></span>&lt;/<span class="org-function-name">h1</span>&gt;
+  &lt;/<span class="org-function-name">div</span>&gt;</pre>
+</div>
+
+<p>
+To exercise control over the title, we disable Org&rsquo;s default handling of page
+titles:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgaf07076"><div id='header formatting options'>&langle;<span class='noweb-def' id='header formatting options-5771'>header formatting options</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-builtin">:with-title</span> nil
+  <span class="org-builtin">:html-head</span>    <span class="org-string">"&lt;link rel='stylesheet' type='text/css' href='/css/syntax.css'&gt;</span>
+  <span class="org-string">&lt;link rel='stylesheet' type='text/css' href='/css/main.css'&gt;"</span></pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org17f8e52" class="outline-4">
+<h4 id="org17f8e52"><span class="section-number-4">3.4.3</span> Site Footer</h4>
+<div class="outline-text-4" id="text-3-4-3">
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgd1499fc"><div id='default/formatting/backmatter'>&langle;<span class='noweb-def' id='default/formatting/backmatter-6007'>default/formatting/backmatter</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">re-org-html-postamble</span> (plist)
+    <span class="org-doc">"&lt;hr style='height:0.5px'&gt;</span>
+  <span class="org-doc">&lt;small&gt;R E I N D E E R E F F E C T&lt;/small&gt;"</span>)
+  
+  (<span class="org-keyword">setq</span> org-html-postamble 're-org-html-postamble)</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org800bb4a" class="outline-3">
+<h3 id="org800bb4a"><span class="section-number-3">3.5</span> Generated Pages</h3>
+<div class="outline-text-3" id="text-3-5">
+</div>
+<div id="outline-container-org9fd4cae" class="outline-4">
+<h4 id="org9fd4cae"><span class="section-number-4">3.5.1</span> Index</h4>
+<div class="outline-text-4" id="text-3-5-1">
+<p>
+The post index is structured as a series of entries, ordered
+reverse-chronologically. Each entry gives a post&rsquo;s
+</p>
+<ul class="org-ul">
+<li>title</li>
+<li>publication date</li>
+<li>abstract (if available)</li>
+</ul>
+
+<p>
+To generate this page, we use a shell script to harvest the appropriate
+information and generate the top-level <code>index.org</code> <i>before</i> the actual
+org-publishing begins.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="orga068c0a"><div id='generate index'>&langle;<span class='noweb-def' id='generate index-6603'>generate index</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  &langle;<a class='noweb-ref' href='#index generation functions'>index generation functions</a>&rangle;
+  <span class="org-builtin">echo</span> <span class="org-string">'#+OPTIONS: toc:nil title:nil'</span>
+  <span class="org-builtin">pushd</span> $<span class="org-variable-name">1</span> &gt;/dev/null
+  find ./???? -type f -name <span class="org-string">'*.org'</span> | sort -r | <span class="org-keyword">while </span><span class="org-builtin">read</span> post; <span class="org-keyword">do</span>
+      entry $<span class="org-variable-name">post</span>
+  <span class="org-keyword">done</span>
+  <span class="org-builtin">popd</span> &gt;/dev/null</pre>
+</div>
+
+<p>
+Each entry consists of a post&rsquo;s publication date, title, and abstract (if present):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="org429e8b6"><div id='index generation functions'>&langle;<span class='noweb-def' id='index generation functions-6927'>index generation functions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#index generation functions-7595'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">entry</span>() {
+      cat &lt;&lt;EOF
+  <span class="org-sh-heredoc">#+begin_index-entry</span>
+  <span class="org-sh-heredoc">        #+begin_pubdate</span>
+  <span class="org-sh-heredoc">                `property DATE $1`</span>
+  <span class="org-sh-heredoc">        #+end_pubdate</span>
+  <span class="org-sh-heredoc">        #+begin_title</span>
+  <span class="org-sh-heredoc">                `post-title $1`</span>
+  <span class="org-sh-heredoc">        #+end_title</span>
+  <span class="org-sh-heredoc">        #+begin_abstract</span>
+  <span class="org-sh-heredoc">                `post-abstract $1`</span>
+  <span class="org-sh-heredoc">        #+end_abstract</span>
+  <span class="org-sh-heredoc">#+end_index-entry</span>
+  <span class="org-sh-heredoc">EOF</span>
+  }</pre>
+</div>
+
+<p>
+On HTML export, each such
+</p>
+
+<pre class="example">
+#+begin_foo
+...
+#+end_foo
+
+</pre>
+
+<p>
+will become
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span class="org-function-name">div</span> <span class="org-variable-name">class</span>=<span class="org-string">"foo"</span>&gt;
+  ...
+&lt;/<span class="org-function-name">div</span>&gt;</pre>
+</div>
+
+<p>
+The order of elements emitted by <code>entry</code> conveniently reflects how I want the
+entries to eventually appear, thus saving DOM-manipulation shennanigans
+later.
+</p>
+
+<p>
+To fill in the rest of the structure, we need to retrieve each post&rsquo;s title:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="org7020eea"><div id='index generation functions-7595'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-6927'>&uarr;</a><a href='#index generation functions-7729'>&darr;</a></span></div>  
+  <span class="org-keyword">function</span> <span class="org-function-name">post-title</span>() {
+      <span class="org-builtin">echo</span> <span class="org-string">"[[$1][`property TITLE $1`]]"</span>
+  }</pre>
+</div>
+
+<p>
+tags:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="orgc2ad6aa"><div id='index generation functions-7729'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7595'>&uarr;</a><a href='#index generation functions-8014'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">post-tags</span>() {
+      extract-tags $<span class="org-variable-name">1</span> | <span class="org-keyword">while </span><span class="org-builtin">read</span> tag; <span class="org-keyword">do</span>
+          <span class="org-builtin">echo</span> -n <span class="org-string">"[[./tags.org::*$tag][$tag]] "</span>
+      <span class="org-keyword">done</span>
+  }
+  
+  <span class="org-keyword">function</span> <span class="org-function-name">extract-tags</span>() {
+      property FILETAGS $<span class="org-variable-name">1</span> | sed -re <span class="org-string">'s/:/ /g; s/^\s+//; s/\s+$//'</span>
+  }</pre>
+</div>
+
+<p>
+and abstract:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="orgab55f75"><div id='index generation functions-8014'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7729'>&uarr;</a><a href='#index generation functions-8206'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">post-abstract</span>() {
+      awk <span class="org-string">'</span>
+  <span class="org-string">/#\+END_abstract/   {emit=0}</span>
+  <span class="org-string">emit                {print}</span>
+  <span class="org-string">/#\+BEGIN_abstract/ {emit=1}</span>
+  <span class="org-string">'</span> $<span class="org-variable-name">1</span>
+  }</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-sh" id="orgc681149"><div id='index generation functions-8206'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-8014'>&uarr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">property</span>() {
+      egrep <span class="org-string">"#\+${1}:"</span> $<span class="org-variable-name">2</span> | cut -d: -f2- | sed -re <span class="org-string">'s/^\s+//; s/\s+$//'</span>
+  }</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge9f441a" class="outline-4">
+<h4 id="orge9f441a"><span class="section-number-4">3.5.2</span> Tags</h4>
+</div>
+</div>
+<div id="outline-container-orgd36e78f" class="outline-3">
+<h3 id="orgd36e78f"><span class="section-number-3">3.6</span> Clickable Headlines</h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+Rather than force the reader to refer to the table of contents to get a direct
+link to an article section, make each section headline an href to itself. To
+work, requires that the <code>ID</code> or <code>CUSTOM_ID</code> property be set.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org40ec362"><div id='default/formatting/headlines'>&langle;<span class='noweb-def' id='default/formatting/headlines-8611'>default/formatting/headlines</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">my-org-html-format-headline-function</span>
+      (todo todo-type priority text tags info)
+    <span class="org-doc">"Format a headline with a link to itself."</span>
+    (<span class="org-keyword">let*</span> ((headline (get-text-property 0 <span class="org-builtin">:parent</span> text))
+           (id (<span class="org-keyword">or</span> (org-element-property <span class="org-builtin">:CUSTOM_ID</span> headline)
+                   <span class="org-comment-delimiter">;; </span><span class="org-comment">(org-export-get-reference headline info)</span>
+                   (org-element-property <span class="org-builtin">:ID</span> headline)))
+           (link (<span class="org-keyword">if</span> id
+                     (format <span class="org-string">"&lt;a href=\"#%s\"&gt;%s&lt;/a&gt;"</span> id text)
+                   text))
+           (default-format 'org-html-format-headline-default-function))
+      (org-html-format-headline-default-function todo todo-type priority link tags info)))
+  
+  (<span class="org-keyword">setq</span> org-html-format-headline-function 'my-org-html-format-headline-function)</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3f93c01" class="outline-3">
+<h3 id="org3f93c01"><span class="section-number-3">3.7</span> Literate Programming</h3>
+<div class="outline-text-3" id="text-3-7">
+<p>
+Chunk definitions in literate org files exist as named source blocks. Since we
+aim to eventually link initial and continuation chunks together, we need to
+maintain just enough data for the task, i.e., a name and some kind of ID or
+sequence number. Since we also need a way to easily find full
+We only need a small amount of information about each source block, i.e., the
+name and its starting position (or positions, if there are continuation blocks).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org600e280"><div id='literate'>&langle;<span class='noweb-def' id='literate-9805'>literate</span>&rangle; &equiv; <span class='chunk-chain'><a href='#literate-10121'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-name</span> (src)
+    (org-element-property <span class="org-builtin">:name</span> src))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-id</span> (src)
+    (org-element-property <span class="org-builtin">:begin</span> src))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;def</span> (src)
+    (cons (src-&gt;block-name src)
+          (src-&gt;block-id src)))</pre>
+</div>
+
+<p>
+With that, we can build a tracker all the named source blocks:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org36f30f9"><div id='literate-10121'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-9805'>&uarr;</a><a href='#literate-10429'>&darr;</a></span></div>  (<span class="org-keyword">setq</span> block-defs '())
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">init-block-defs</span> ()
+    (<span class="org-keyword">setq</span> block-defs
+          (org-element-map
+              (org-element-parse-buffer)
+              'src-block
+            'src-&gt;def)))</pre>
+</div>
+
+<p>
+and then define a handful of utilities that will be useful later for generating
+the fragment navigation links:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="org0226593"><div id='literate-10429'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10121'>&uarr;</a><a href='#literate-11187'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-ids</span> (src)
+    (<span class="org-keyword">let</span> ((name (org-element-property <span class="org-builtin">:name</span> src)))
+      (mapcar 'cdr (seq-filter (<span class="org-keyword">lambda</span> (x)
+                                 (string= (car x) name))
+                               block-defs))))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;prev-block-id</span> (src)
+    (<span class="org-keyword">let*</span> ((id0 (src-&gt;block-id src))
+           (ids (seq-filter (<span class="org-keyword">lambda</span> (id)
+                              (&lt; id id0))
+                            (src-&gt;block-ids src))))
+      (<span class="org-keyword">when</span> ids (apply 'max ids))))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;next-block-id</span> (src)
+    (<span class="org-keyword">let*</span> ((id0 (src-&gt;block-id src))
+           (ids (seq-filter (<span class="org-keyword">lambda</span> (id)
+                              (&gt; id id0))
+                            (src-&gt;block-ids src))))
+      (<span class="org-keyword">when</span> ids (apply 'min ids))))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;first-block-id</span> (src)
+    (apply 'min (src-&gt;block-ids src)))</pre>
+</div>
+
+<p>
+To prevent cross-talk between org files, we have to clear it before doing
+anything of consequence:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgb4f916c"><div id='literate-11187'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10429'>&uarr;</a><a href='#literate-11444'>&darr;</a></span></div>  (add-hook 'org-export-before-parsing-hook
+            (<span class="org-keyword">lambda</span> (backend) (init-block-defs)))</pre>
+</div>
+
+<p>
+Handling the noweb syntax comes in two parts:
+</p>
+<ul class="org-ul">
+<li>handling references</li>
+<li>handling definitions</li>
+</ul>
+
+<p>
+To deal with references, 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="orge382887"><div id='literate-11444'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-11187'>&uarr;</a><a href='#literate-11706'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">noweb-links</span> (src)
+    (replace-regexp-in-string
+     <span class="org-string">"&amp;lt;&amp;lt;</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">[</span><span class="org-string"><span class="org-negation-char">^</span></span><span class="org-string">&amp;]+</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">&amp;gt;&amp;gt;"</span>
+     <span class="org-string">"&amp;langle;&lt;a class='noweb-ref' href='#\\1'&gt;\\1&lt;/a&gt;&amp;rangle;"</span>
+     src))</pre>
+</div>
+
+<p>
+Definitions take the form of entire code blocks:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-elisp" id="orgb13f217"><div id='literate-11706'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-11444'>&uarr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">indent</span> (src)
+    (replace-regexp-in-string <span class="org-string">"^"</span> <span class="org-string">"  "</span> src))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">block-intro</span> (src)
+    (<span class="org-keyword">let*</span> ((name (src-&gt;block-name src))
+           (label (format <span class="org-string">"%s-%s"</span> name (src-&gt;block-id src)))
+           (next (src-&gt;next-block-id src))
+           (next-link (<span class="org-keyword">if</span> next
+                          (format <span class="org-string">"&lt;a href='#%s-%s'&gt;&amp;darr;&lt;/a&gt;"</span> name next)
+                        <span class="org-string">""</span>))
+           (prev (src-&gt;prev-block-id src))
+           (prev-link (<span class="org-keyword">if</span> prev
+                          (format <span class="org-string">"&lt;a href='#%s-%s'&gt;&amp;uarr;&lt;/a&gt;"</span> name prev)
+                        <span class="org-string">""</span>))
+           (chunk-nav (format <span class="org-string">"&lt;span class='chunk-chain'&gt;%s%s&lt;/span&gt;"</span>
+                              prev-link
+                              next-link)))
+      (<span class="org-keyword">if</span> name
+          (<span class="org-keyword">if</span> prev
+              (format
+               <span class="org-string">"&lt;div id='%s'&gt;&amp;langle;&lt;a href='#%s' class='noweb-ref'&gt;%s&lt;/a&gt;&amp;rangle; +&amp;equiv; %s&lt;/div&gt;"</span>
+               label
+               name
+               name chunk-nav)
+          (format
+           <span class="org-string">"&lt;div id='%s'&gt;&amp;langle;&lt;span class='noweb-def' id='%s'&gt;%s&lt;/span&gt;&amp;rangle; &amp;equiv; %s&lt;/div&gt;"</span>
+           name
+           label
+           name chunk-nav))
+        <span class="org-string">""</span>)))       
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">block-caption</span> (src-block info)
+    (<span class="org-keyword">let</span> ((caption (org-export-get-caption src-block)))
+      (<span class="org-keyword">if</span> (not caption) <span class="org-string">""</span>
+        (<span class="org-keyword">let</span> ((listing-number
+               (format
+                <span class="org-string">"&lt;span class=\"listing-number\"&gt;%s &lt;/span&gt;"</span>
+                (format
+                 (org-html--translate <span class="org-string">"Listing %d:"</span> info)
+                 (org-export-get-ordinal
+                  src-block info nil #'org-html--has-caption-p)))))
+          (format <span class="org-string">"&lt;label class=\"org-src-name\"&gt;%s%s&lt;/label&gt;"</span>
+                  listing-number
+                  (org-trim (org-export-data caption info)))))))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">block-label</span> (src-block info)
+    (<span class="org-keyword">let</span> ((lbl (<span class="org-keyword">and</span> (org-element-property <span class="org-builtin">:name</span> src-block)
+                    (org-export-get-reference src-block info))))
+      (<span class="org-keyword">if</span> lbl (format <span class="org-string">" id=\"%s\""</span> lbl) <span class="org-string">""</span>)))
+  
+  (<span class="org-keyword">defun</span> <span class="org-function-name">org-html-src-block</span> (src-block _contents info)
+    <span class="org-doc">"Transcode a SRC-BLOCK element from Org to HTML.</span>
+  <span class="org-doc"> CONTENTS holds the contents of the item.  INFO is a plist holding</span>
+  <span class="org-doc"> contextual information."</span>
+    (<span class="org-keyword">if</span> (org-export-read-attribute <span class="org-builtin">:attr_html</span> src-block <span class="org-builtin">:textarea</span>)
+        (org-html--textarea-block src-block)
+      (<span class="org-keyword">let*</span> ((lang (org-element-property <span class="org-builtin">:language</span> src-block))
+             (name (org-element-property <span class="org-builtin">:name</span> src-block))
+             (intro (block-intro src-block))
+             (code (org-html-format-code src-block info))
+             (fixed-code (string-trim-right (noweb-links (<span class="org-keyword">if</span> (string= intro <span class="org-string">""</span>)
+                                                            code
+                                                          (indent code)))))
+             (label (block-label src-block info)))
+        (<span class="org-keyword">if</span> (not lang)
+            (format <span class="org-string">"&lt;pre class=\"example\"%s&gt;%s&lt;/pre&gt;"</span> label code)
+          (format <span class="org-string">"&lt;div class=\"org-src-container\"&gt;\n%s%s\n&lt;/div&gt;"</span>
+                 (block-caption src-block info)
+                  (format <span class="org-string">"&lt;pre class=\"src src-%s\"%s&gt;%s%s&lt;/pre&gt;"</span>
+                          lang 
+                          label
+                          intro
+                          fixed-code))))))</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge9f3117" class="outline-2">
+<h2 id="orge9f3117"><span class="section-number-2">4</span> File Listings</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Following are complete file listings, with all chunk references expanded.
+</p>
+</div>
+<div id="outline-container-orgb0a82ce" class="outline-3">
+<h3 id="orgb0a82ce"><span class="section-number-3">4.1</span> default.el</h3>
+<div class="outline-text-3" id="text-4-1">
+<div class="org-src-container">
+<pre class="src src-elisp">(<span class="org-keyword">require</span> '<span class="org-constant">subr-x</span>)
+(<span class="org-keyword">setq</span> org-export-with-smart-quotes t)
+(<span class="org-keyword">setq</span> org-export-with-timestamps t)
+(<span class="org-keyword">setq-default</span> org-html-with-latex t)
+(<span class="org-keyword">setq</span> org-export-use-babel t)
+(<span class="org-keyword">setq</span> org-global-properties
+       '((<span class="org-string">"header-args"</span> . <span class="org-string">":exports both :eval no-export :noweb no-export"</span>)))
+(<span class="org-keyword">setq</span> org-html-htmlize-output-type 'css)
+(<span class="org-keyword">setq</span> org-publish-project-alist
+      '(
+        (<span class="org-string">"org-to-html"</span>
+         <span class="org-builtin">:base-directory</span> <span class="org-string">""</span>
+         <span class="org-builtin">:publishing-directory</span> <span class="org-string">""</span>
+         <span class="org-builtin">:publishing-function</span> org-html-publish-to-html
+         <span class="org-builtin">:section-numbers</span> t
+         <span class="org-builtin">:with-title</span> nil
+         <span class="org-builtin">:html-head</span>    <span class="org-string">"&lt;link rel='stylesheet' type='text/css' href='/css/syntax.css'&gt;</span>
+<span class="org-string">         &lt;link rel='stylesheet' type='text/css' href='/css/main.css'&gt;"</span>
+         <span class="org-builtin">:recursive</span> t
+         <span class="org-builtin">:with-toc</span> t
+         <span class="org-builtin">:html-toc-no-heading</span> t
+        )
+                                        <span class="org-comment-delimiter">;</span><span class="org-comment">("supporting"</span>
+                                        <span class="org-comment-delimiter">; </span><span class="org-comment">:base-directory ""</span>
+                                        <span class="org-comment-delimiter">; </span><span class="org-comment">:base-extension "png\\|jpg\\|css\\|html\\|py"</span>
+                                        <span class="org-comment-delimiter">; </span><span class="org-comment">:publishing-directory ""</span>
+                                        <span class="org-comment-delimiter">; </span><span class="org-comment">:publishing-function org-publish-attachment</span>
+                                        <span class="org-comment-delimiter">; </span><span class="org-comment">:recursive t)</span>
+        ))
+
+(<span class="org-keyword">setq</span> org-html-preamble-format
+      '((<span class="org-string">"en"</span>
+         <span class="org-string">"</span>
+<span class="org-string">&lt;div class='site-header'&gt;</span>
+<span class="org-string">  &lt;a class='site-title' href='/'&gt;R E I N D E E R E F F E C T&lt;/a&gt;</span>
+<span class="org-string">  &lt;div class='nav' style='float:right;'&gt;</span>
+<span class="org-string">    &lt;a class='page-link' href='/about.html'&gt;About&lt;/a&gt;&amp;nbsp;</span>
+<span class="org-string">    &lt;a class='page-link' href='/links.html'&gt;Links&lt;/a&gt;&amp;nbsp;</span>
+<span class="org-string">    &lt;a class='page-link' href='/tags.html'&gt;Tags&lt;/a&gt;</span>
+<span class="org-string">  &lt;/div&gt;</span>
+<span class="org-string">  &lt;hr style='height:0.5px'&gt;</span>
+<span class="org-string">&lt;/div&gt;</span>
+<span class="org-string">&lt;div class='post-head'&gt;</span>
+<span class="org-string">  &lt;div class='post-pubdate'&gt;%d&lt;/div&gt;</span>
+<span class="org-string">  &lt;h1 class='title'&gt;%t&lt;/h1&gt;</span>
+<span class="org-string">&lt;/div&gt;</span>
+<span class="org-string"> "</span>)))
+
+(<span class="org-keyword">setq</span> org-export-date-timestamp-format <span class="org-string">"%Y-%m-%d"</span>)
+(<span class="org-keyword">require</span> '<span class="org-constant">ox-html</span>)
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">Adding keyword TOC_NO_HEADING to html export keywords:</span>
+(<span class="org-keyword">push</span> '(<span class="org-builtin">:html-toc-no-heading</span> <span class="org-string">"TOC_NO_HEADING"</span> nil nil t)
+      (org-export-backend-options (org-export-get-backend 'html)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">my-org-html-toc-no-heading</span> (args)
+  <span class="org-doc">"Avoid toc heading in html export if the keyword TOC_HO_HEADING is t or yes.</span>
+<span class="org-doc"> Works as a :filter-args advice for `</span><span class="org-doc"><span class="org-constant">org-html-toc</span></span><span class="org-doc">' with argument list ARGS."</span>
+  (<span class="org-keyword">let*</span> ((depth (nth 0 args))
+         (info (nth 1 args))
+         (scope (nth 2 args)))
+    (<span class="org-keyword">when</span> (<span class="org-keyword">and</span> (assoc-string (plist-get info <span class="org-builtin">:html-toc-no-heading</span>)
+                             '(t yes)
+                             t)
+               (null scope))
+      (<span class="org-keyword">setq</span> scope (plist-get info <span class="org-builtin">:parse-tree</span>)))
+    (list depth info scope)))
+
+(advice-add 'org-html-toc <span class="org-builtin">:filter-args</span> #'my-org-html-toc-no-heading)
+(<span class="org-keyword">defun</span> <span class="org-function-name">re-org-html-postamble</span> (plist)
+  <span class="org-doc">"&lt;hr style='height:0.5px'&gt;</span>
+<span class="org-doc">&lt;small&gt;R E I N D E E R E F F E C T&lt;/small&gt;"</span>)
+
+(<span class="org-keyword">setq</span> org-html-postamble 're-org-html-postamble)
+(<span class="org-keyword">defun</span> <span class="org-function-name">my-org-html-format-headline-function</span>
+    (todo todo-type priority text tags info)
+  <span class="org-doc">"Format a headline with a link to itself."</span>
+  (<span class="org-keyword">let*</span> ((headline (get-text-property 0 <span class="org-builtin">:parent</span> text))
+         (id (<span class="org-keyword">or</span> (org-element-property <span class="org-builtin">:CUSTOM_ID</span> headline)
+                 <span class="org-comment-delimiter">;; </span><span class="org-comment">(org-export-get-reference headline info)</span>
+                 (org-element-property <span class="org-builtin">:ID</span> headline)))
+         (link (<span class="org-keyword">if</span> id
+                   (format <span class="org-string">"&lt;a href=\"#%s\"&gt;%s&lt;/a&gt;"</span> id text)
+                 text))
+         (default-format 'org-html-format-headline-default-function))
+    (org-html-format-headline-default-function todo todo-type priority link tags info)))
+
+(<span class="org-keyword">setq</span> org-html-format-headline-function 'my-org-html-format-headline-function)
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-name</span> (src)
+  (org-element-property <span class="org-builtin">:name</span> src))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-id</span> (src)
+  (org-element-property <span class="org-builtin">:begin</span> src))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;def</span> (src)
+  (cons (src-&gt;block-name src)
+        (src-&gt;block-id src)))
+(<span class="org-keyword">setq</span> block-defs '())
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">init-block-defs</span> ()
+  (<span class="org-keyword">setq</span> block-defs
+        (org-element-map
+            (org-element-parse-buffer)
+            'src-block
+          'src-&gt;def)))
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-ids</span> (src)
+  (<span class="org-keyword">let</span> ((name (org-element-property <span class="org-builtin">:name</span> src)))
+    (mapcar 'cdr (seq-filter (<span class="org-keyword">lambda</span> (x)
+                               (string= (car x) name))
+                             block-defs))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;prev-block-id</span> (src)
+  (<span class="org-keyword">let*</span> ((id0 (src-&gt;block-id src))
+         (ids (seq-filter (<span class="org-keyword">lambda</span> (id)
+                            (&lt; id id0))
+                          (src-&gt;block-ids src))))
+    (<span class="org-keyword">when</span> ids (apply 'max ids))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;next-block-id</span> (src)
+  (<span class="org-keyword">let*</span> ((id0 (src-&gt;block-id src))
+         (ids (seq-filter (<span class="org-keyword">lambda</span> (id)
+                            (&gt; id id0))
+                          (src-&gt;block-ids src))))
+    (<span class="org-keyword">when</span> ids (apply 'min ids))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;first-block-id</span> (src)
+  (apply 'min (src-&gt;block-ids src)))
+(add-hook 'org-export-before-parsing-hook
+          (<span class="org-keyword">lambda</span> (backend) (init-block-defs)))
+(<span class="org-keyword">defun</span> <span class="org-function-name">noweb-links</span> (src)
+  (replace-regexp-in-string
+   <span class="org-string">"&amp;lt;&amp;lt;</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">[</span><span class="org-string"><span class="org-negation-char">^</span></span><span class="org-string">&amp;]+</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">&amp;gt;&amp;gt;"</span>
+   <span class="org-string">"&amp;langle;&lt;a class='noweb-ref' href='#\\1'&gt;\\1&lt;/a&gt;&amp;rangle;"</span>
+   src))
+(<span class="org-keyword">defun</span> <span class="org-function-name">indent</span> (src)
+  (replace-regexp-in-string <span class="org-string">"^"</span> <span class="org-string">"  "</span> src))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">block-intro</span> (src)
+  (<span class="org-keyword">let*</span> ((name (src-&gt;block-name src))
+         (label (format <span class="org-string">"%s-%s"</span> name (src-&gt;block-id src)))
+         (next (src-&gt;next-block-id src))
+         (next-link (<span class="org-keyword">if</span> next
+                        (format <span class="org-string">"&lt;a href='#%s-%s'&gt;&amp;darr;&lt;/a&gt;"</span> name next)
+                      <span class="org-string">""</span>))
+         (prev (src-&gt;prev-block-id src))
+         (prev-link (<span class="org-keyword">if</span> prev
+                        (format <span class="org-string">"&lt;a href='#%s-%s'&gt;&amp;uarr;&lt;/a&gt;"</span> name prev)
+                      <span class="org-string">""</span>))
+         (chunk-nav (format <span class="org-string">"&lt;span class='chunk-chain'&gt;%s%s&lt;/span&gt;"</span>
+                            prev-link
+                            next-link)))
+    (<span class="org-keyword">if</span> name
+        (<span class="org-keyword">if</span> prev
+            (format
+             <span class="org-string">"&lt;div id='%s'&gt;&amp;langle;&lt;a href='#%s' class='noweb-ref'&gt;%s&lt;/a&gt;&amp;rangle; +&amp;equiv; %s&lt;/div&gt;"</span>
+             label
+             name
+             name chunk-nav)
+        (format
+         <span class="org-string">"&lt;div id='%s'&gt;&amp;langle;&lt;span class='noweb-def' id='%s'&gt;%s&lt;/span&gt;&amp;rangle; &amp;equiv; %s&lt;/div&gt;"</span>
+         name
+         label
+         name chunk-nav))
+      <span class="org-string">""</span>)))       
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">block-caption</span> (src-block info)
+  (<span class="org-keyword">let</span> ((caption (org-export-get-caption src-block)))
+    (<span class="org-keyword">if</span> (not caption) <span class="org-string">""</span>
+      (<span class="org-keyword">let</span> ((listing-number
+             (format
+              <span class="org-string">"&lt;span class=\"listing-number\"&gt;%s &lt;/span&gt;"</span>
+              (format
+               (org-html--translate <span class="org-string">"Listing %d:"</span> info)
+               (org-export-get-ordinal
+                src-block info nil #'org-html--has-caption-p)))))
+        (format <span class="org-string">"&lt;label class=\"org-src-name\"&gt;%s%s&lt;/label&gt;"</span>
+                listing-number
+                (org-trim (org-export-data caption info)))))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">block-label</span> (src-block info)
+  (<span class="org-keyword">let</span> ((lbl (<span class="org-keyword">and</span> (org-element-property <span class="org-builtin">:name</span> src-block)
+                  (org-export-get-reference src-block info))))
+    (<span class="org-keyword">if</span> lbl (format <span class="org-string">" id=\"%s\""</span> lbl) <span class="org-string">""</span>)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">org-html-src-block</span> (src-block _contents info)
+  <span class="org-doc">"Transcode a SRC-BLOCK element from Org to HTML.</span>
+<span class="org-doc"> CONTENTS holds the contents of the item.  INFO is a plist holding</span>
+<span class="org-doc"> contextual information."</span>
+  (<span class="org-keyword">if</span> (org-export-read-attribute <span class="org-builtin">:attr_html</span> src-block <span class="org-builtin">:textarea</span>)
+      (org-html--textarea-block src-block)
+    (<span class="org-keyword">let*</span> ((lang (org-element-property <span class="org-builtin">:language</span> src-block))
+           (name (org-element-property <span class="org-builtin">:name</span> src-block))
+           (intro (block-intro src-block))
+           (code (org-html-format-code src-block info))
+           (fixed-code (string-trim-right (noweb-links (<span class="org-keyword">if</span> (string= intro <span class="org-string">""</span>)
+                                                          code
+                                                        (indent code)))))
+           (label (block-label src-block info)))
+      (<span class="org-keyword">if</span> (not lang)
+          (format <span class="org-string">"&lt;pre class=\"example\"%s&gt;%s&lt;/pre&gt;"</span> label code)
+        (format <span class="org-string">"&lt;div class=\"org-src-container\"&gt;\n%s%s\n&lt;/div&gt;"</span>
+               (block-caption src-block info)
+                (format <span class="org-string">"&lt;pre class=\"src src-%s\"%s&gt;%s%s&lt;/pre&gt;"</span>
+                        lang 
+                        label
+                        intro
+                        fixed-code))))))</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga3ab13c" class="outline-3">
+<h3 id="orga3ab13c"><span class="section-number-3">4.2</span> Makefile</h3>
+<div class="outline-text-3" id="text-4-2">
+<div class="org-src-container">
+<pre class="src src-makefile"><span class="org-makefile-targets">all</span>: generated
+        emacs --script default.el --eval <span class="org-string">'(org-publish-all)'</span>
+
+<span class="org-makefile-targets">force</span>: generated
+        emacs --script default.el --eval <span class="org-string">'(org-publish-all t)'</span>
+
+<span class="org-makefile-targets">generated</span>: tags index
+
+<span class="org-makefile-targets">tags</span>:
+        bin/tags . &gt; tags.org
+        bin/sort-entries tags.org
+
+<span class="org-makefile-targets">index</span>:
+        bin/index . &gt; index.org</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2ed91c7" class="outline-3">
+<h3 id="org2ed91c7"><span class="section-number-3">4.3</span> bin/index</h3>
+<div class="outline-text-3" id="text-4-3">
+<div class="org-src-container">
+<pre class="src src-sh"><span class="org-keyword">function</span> <span class="org-function-name">entry</span>() {
+    cat &lt;&lt;EOF
+<span class="org-sh-heredoc">#+begin_index-entry</span>
+<span class="org-sh-heredoc">        #+begin_pubdate</span>
+<span class="org-sh-heredoc">                `property DATE $1`</span>
+<span class="org-sh-heredoc">        #+end_pubdate</span>
+<span class="org-sh-heredoc">        #+begin_title</span>
+<span class="org-sh-heredoc">                `post-title $1`</span>
+<span class="org-sh-heredoc">        #+end_title</span>
+<span class="org-sh-heredoc">        #+begin_abstract</span>
+<span class="org-sh-heredoc">                `post-abstract $1`</span>
+<span class="org-sh-heredoc">        #+end_abstract</span>
+<span class="org-sh-heredoc">#+end_index-entry</span>
+<span class="org-sh-heredoc">EOF</span>
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">post-title</span>() {
+    <span class="org-builtin">echo</span> <span class="org-string">"[[$1][`property TITLE $1`]]"</span>
+}
+<span class="org-keyword">function</span> <span class="org-function-name">post-tags</span>() {
+    extract-tags $<span class="org-variable-name">1</span> | <span class="org-keyword">while </span><span class="org-builtin">read</span> tag; <span class="org-keyword">do</span>
+        <span class="org-builtin">echo</span> -n <span class="org-string">"[[./tags.org::*$tag][$tag]] "</span>
+    <span class="org-keyword">done</span>
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">extract-tags</span>() {
+    property FILETAGS $<span class="org-variable-name">1</span> | sed -re <span class="org-string">'s/:/ /g; s/^\s+//; s/\s+$//'</span>
+}
+<span class="org-keyword">function</span> <span class="org-function-name">post-abstract</span>() {
+    awk <span class="org-string">'</span>
+<span class="org-string">/#\+END_abstract/   {emit=0}</span>
+<span class="org-string">emit                {print}</span>
+<span class="org-string">/#\+BEGIN_abstract/ {emit=1}</span>
+<span class="org-string">'</span> $<span class="org-variable-name">1</span>
+}
+<span class="org-keyword">function</span> <span class="org-function-name">property</span>() {
+    egrep <span class="org-string">"#\+${1}:"</span> $<span class="org-variable-name">2</span> | cut -d: -f2- | sed -re <span class="org-string">'s/^\s+//; s/\s+$//'</span>
+}
+<span class="org-builtin">echo</span> <span class="org-string">'#+OPTIONS: toc:nil title:nil'</span>
+<span class="org-builtin">pushd</span> $<span class="org-variable-name">1</span> &gt;/dev/null
+find ./???? -type f -name <span class="org-string">'*.org'</span> | sort -r | <span class="org-keyword">while </span><span class="org-builtin">read</span> post; <span class="org-keyword">do</span>
+    entry $<span class="org-variable-name">post</span>
+<span class="org-keyword">done</span>
+<span class="org-builtin">popd</span> &gt;/dev/null</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org067f6e9" class="outline-3">
+<h3 id="org067f6e9"><span class="section-number-3">4.4</span> bin/sort-entries</h3>
+<div class="outline-text-3" id="text-4-4">
+<div class="org-src-container">
+<pre class="src src-sh">emacs -batch $<span class="org-variable-name">1</span> --eval <span class="org-string">'</span>
+<span class="org-string">(progn (org-sort-entries :sort-order ?a)</span>
+<span class="org-string">       (save-buffer))'</span></pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgde8c188" class="outline-3">
+<h3 id="orgde8c188"><span class="section-number-3">4.5</span> bin/tags</h3>
+<div class="outline-text-3" id="text-4-5">
+<div class="org-src-container">
+<pre class="src src-sh"><span class="org-keyword">function</span> <span class="org-function-name">get_tags</span>() {
+    <span class="org-variable-name">org</span>=$<span class="org-variable-name">1</span>
+    egrep <span class="org-string">'#\+FILETAGS'</span> $<span class="org-variable-name">1</span> | cut -d: -f2- | sed -re <span class="org-string">'s/\s+//g; s/:/\n/g'</span> | egrep .
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">get_title</span>() {
+    egrep -i <span class="org-string">'#\+TITLE'</span> $<span class="org-variable-name">1</span> | cut -d: -f2- | sed -re <span class="org-string">'s/^\s+//'</span>
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">enum_orgs</span>() {
+    find . -type f -name <span class="org-string">'*.org'</span>
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">tag_info</span>() {
+    <span class="org-builtin">pushd</span> $<span class="org-variable-name">1</span> &gt;/dev/null
+
+    enum_orgs | <span class="org-keyword">while </span><span class="org-builtin">read</span> org; <span class="org-keyword">do</span>
+        get_tags $<span class="org-variable-name">org</span> | <span class="org-keyword">while </span><span class="org-builtin">read</span> tag; <span class="org-keyword">do</span>
+            <span class="org-builtin">echo</span> $<span class="org-variable-name">tag</span> $<span class="org-variable-name">org</span> <span class="org-sh-quoted-exec">`get_title $org`</span>
+        <span class="org-keyword">done</span>
+    <span class="org-keyword">done</span> | sort
+
+    <span class="org-builtin">popd</span> &gt;/dev/null
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">fmt_entries</span>() {
+    awk <span class="org-string">'</span>
+<span class="org-string">    $1 {</span>
+<span class="org-string">       dest=$2; tag=$1; $1=""; $2=""; title=$0;</span>
+<span class="org-string">          t[tag][title]=dest;</span>
+<span class="org-string">    }</span>
+
+<span class="org-string">    END {</span>
+<span class="org-string">        for (tag in t) {</span>
+<span class="org-string">            print "* "tag</span>
+<span class="org-string">            for (title in t[tag]) {</span>
+<span class="org-string">                printf("- [[%s][%s]]\n", t[tag][title], title);</span>
+<span class="org-string">            }</span>
+<span class="org-string">           print "";</span>
+<span class="org-string">        }</span>
+<span class="org-string">    }</span>
+<span class="org-string">    '</span> | sed -re <span class="org-string">'s/\[\s+/[/g'</span>
+}
+
+<span class="org-keyword">function</span> <span class="org-function-name">fmt_header</span>() {
+    cat &lt;&lt;EOF
+<span class="org-sh-heredoc">#+TITLE: Tags</span>
+<span class="org-sh-heredoc">#+OPTIONS: toc:nil</span>
+<span class="org-sh-heredoc">#+TOC_NO_HEADING: t</span>
+
+<span class="org-sh-heredoc">EOF</span>
+}
+
+<span class="org-comment-delimiter">################################################################################</span>
+
+fmt_header
+tag_info $<span class="org-variable-name">1</span> | fmt_entries</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org26ca6c6" class="outline-3">
+<h3 id="org26ca6c6"><span class="section-number-3">4.6</span> bin/jk2org</h3>
+<div class="outline-text-3" id="text-4-6">
+<div class="org-src-container">
+<pre class="src src-sh">pandoc -f markdown -t org $<span class="org-variable-name">1</span> | sed -re <span class="org-string">'s|/aux/2018.*files/|aux/|g'</span> | grep -v CAPTION</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org46aeaca" class="outline-3">
+<h3 id="org46aeaca"><span class="section-number-3">4.7</span> org/css/main.css</h3>
+<div class="outline-text-3" id="text-4-7">
+<div class="org-src-container">
+<pre class="src src-css">
+<span class="org-css-selector">.chunk-chain </span>{
+    <span class="org-css-property">float</span>:right;
+}
+
+<span class="org-css-selector">.noweb-def, .noweb-ref </span>{
+    <span class="org-css-property">font-style</span>: italic;
+    <span class="org-css-property">font-family</span>: serif;
+    <span class="org-css-property">font-size</span>: 16px;
+}
+
+<span class="org-css-selector">body </span>{
+    <span class="org-css-property">font-family</span>     : serif; 
+    <span class="org-css-property">margin</span>          : 40px auto;
+    <span class="org-css-property">margin-top</span>      : 10px;
+    <span class="org-css-property">max-width</span>       : 650px;
+    <span class="org-css-property">max-width</span>       : 800px;
+    <span class="org-css-property">line-height</span>     : 1.5;
+    <span class="org-css-property">font-size</span>       : 16px;
+    <span class="org-css-property">font-weight</span>     : 300;
+    <span class="org-css-property">color</span>           : <span class="custom-5">#444</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-4">#eeeeee</span>;
+    <span class="org-css-property">padding</span>         : 0 10px
+}
+
+<span class="org-css-selector">h1 </span>{
+    <span class="org-css-property">font-size</span>     : 42px;
+    <span class="org-css-property">letter-spacing</span>: -1.75px;
+    <span class="org-css-property">line-height</span>   : 1;
+}
+
+<span class="org-css-selector">h2 </span>{
+    <span class="org-css-property">font-size</span>     : 32px;
+    <span class="org-css-property">letter-spacing</span>: -1.25px;
+    <span class="org-css-property">line-height</span>   : 1;
+}
+
+<span class="org-css-selector">h1, h2, h3, h4, h5, h6 </span>{
+    <span class="org-css-property">line-height</span>: 1;
+    <span class="org-css-property">font-weight</span>: 300;
+    <span class="org-css-property">margin</span>     : 40px 0 20px;
+}
+
+<span class="org-css-selector">h4 </span>{
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+
+<span class="org-css-selector">.title </span>{
+    <span class="org-css-property">text-align</span>: left;
+}
+
+<span class="org-css-selector">.post-head </span>{
+    <span class="org-css-property">margin-top</span>: 30px;
+}
+
+<span class="org-css-selector">.post-head h1 </span>{
+    <span class="org-css-property">margin-top</span>: 0px;
+}
+
+<span class="org-css-selector">.site-header </span>{
+    <span class="org-css-property">margin-top</span>: 0px;
+    <span class="org-css-property">border-bottom</span>: 10px;
+}
+
+<span class="org-css-selector">a         </span>{ <span class="org-css-property">color</span>: <span class="custom-3">#2a7ae2</span>; <span class="org-css-property">text-decoration</span>: none; }
+<span class="org-css-selector">a:hover   </span>{ <span class="org-css-property">color</span>: <span class="custom-2">#000</span>;    <span class="org-css-property">text-decoration</span>: underline; }
+<span class="org-css-selector">a:visited </span>{ <span class="org-css-property">color</span>: <span class="custom-1">#205caa</span>; }
+
+<span class="org-css-selector">h2 a </span>{ <span class="org-css-property">color</span>: <span class="custom-5">#444</span>; }
+<span class="org-css-selector">h2 a:visited </span>{ <span class="org-css-property">color</span>: <span class="custom-5">#444</span>; }
+
+<span class="org-css-selector">blockquote </span>{
+    <span class="org-css-property">border-left</span>   : 4px solid <span class="custom">#e8e8e8</span>;
+    <span class="org-css-property">padding-left</span>  : 20px;
+    <span class="org-css-property">font-size</span>     : 18px;
+    <span class="org-css-property">opacity</span>       : .6;
+    <span class="org-css-property">letter-spacing</span>: -1px;
+    <span class="org-css-property">font-style</span>    : italic;
+    <span class="org-css-property">margin</span>        : 30px 0;
+}
+
+<span class="org-css-selector">img </span>{
+    <span class="org-css-property">max-width</span>: 100%;
+    <span class="org-css-property">height</span>: auto;
+}
+
+<span class="org-css-selector">pre </span>{
+    <span class="org-css-property">border</span>: 0px;
+}
+
+<span class="org-css-selector">pre.src </span>{
+    <span class="org-css-property">font-size</span>: 15px;
+    <span class="org-css-property">padding</span>: 8pt;
+}
+
+<span class="org-css-selector">pre.src:hover:before </span>{
+    <span class="org-css-property">display</span>: none;
+}
+
+<span class="org-css-selector">.index-entry p </span>{
+    <span class="org-css-property">display</span>: inline;
+}
+
+<span class="org-css-selector">.index-entry .title </span>{
+    <span class="org-css-property">font-size</span>: 24px; 
+}
+
+<span class="org-css-selector">.index-entry </span>{
+    <span class="org-css-property">margin-top</span>: 30px;
+}
+
+<span class="org-css-selector">table </span>{ <span class="org-css-property">margin</span>: auto; }</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org405fa0f" class="outline-3">
+<h3 id="org405fa0f"><span class="section-number-3">4.8</span> css/syntax.css</h3>
+<div class="outline-text-3" id="text-4-8">
+<div class="org-src-container">
+<pre class="src src-css"><span class="org-css-selector">body </span>{
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-bold </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">bold </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-bold-italic </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">bold-italic </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-border </span>{
+}
+<span class="org-css-selector">.org-buffer-menu-buffer </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">buffer-menu-buffer </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-builtin </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-builtin-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+}
+<span class="org-css-selector">.org-button </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">button </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-c-annotation </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">c-annotation-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+}
+<span class="org-css-selector">.org-calendar-month-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">calendar-month-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+}
+<span class="org-css-selector">.org-calendar-today </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">calendar-today </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-calendar-weekday-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">calendar-weekday-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+}
+<span class="org-css-selector">.org-calendar-weekend-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">calendar-weekend-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-comint-highlight-input </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">comint-highlight-input </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-comint-highlight-prompt </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">comint-highlight-prompt </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-comment </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-comment-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-comment-delimiter </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-comment-delimiter-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-compilation-column-number </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-column-number </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-66">#50a14f</span>;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-compilation-error </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-error </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-compilation-info </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-info </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-compilation-line-number </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-line-number </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+}
+<span class="org-css-selector">.org-compilation-mode-line-exit </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-mode-line-exit </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-compilation-mode-line-fail </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-mode-line-fail </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-compilation-mode-line-run </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-mode-line-run </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-62">#ff8c00</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-compilation-warning </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">compilation-warning </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-62">#ff8c00</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-completions-annotations </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">completions-annotations </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-completions-common-part </span>{
+}
+<span class="org-css-selector">.org-completions-first-difference </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">completions-first-difference </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-constant </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-constant-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+}
+<span class="org-css-selector">.org-css-property </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">css-property </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+}
+<span class="org-css-selector">.org-css-selector </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">css-selector </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+}
+<span class="org-css-selector">.org-cua-global-mark </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">cua-global-mark </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-60">#ffff00</span>;
+}
+<span class="org-css-selector">.org-cua-rectangle </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">cua-rectangle </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-58">#b03060</span>;
+}
+<span class="org-css-selector">.org-cua-rectangle-noselect </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">cua-rectangle-noselect </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-57">#696969</span>;
+}
+<span class="org-css-selector">.org-cursor </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">cursor </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-61">#000000</span>;
+}
+<span class="org-css-selector">.org-custom-button </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-button </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-56">#d3d3d3</span>;
+}
+<span class="org-css-selector">.org-custom-button-mouse </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-button-mouse </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-55">#e5e5e5</span>;
+}
+<span class="org-css-selector">.org-custom-button-pressed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-button-pressed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-56">#d3d3d3</span>;
+}
+<span class="org-css-selector">.org-custom-button-pressed-unraised </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-button-pressed-unraised </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-54">#8b008b</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-custom-button-unraised </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-button-unraised </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-custom-changed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-changed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-custom-comment </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-comment </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-52">#d9d9d9</span>;
+}
+<span class="org-css-selector">.org-custom-comment-tag </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-comment-tag </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-51">#00008b</span>;
+}
+<span class="org-css-selector">.org-custom-documentation </span>{
+}
+<span class="org-css-selector">.org-custom-face-tag </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-face-tag </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-custom-group-subtitle </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-group-subtitle </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-custom-group-tag </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-group-tag </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-size</span>: 120%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-custom-group-tag-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-group-tag-1 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-size</span>: 120%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-custom-invalid </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-invalid </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-60">#ffff00</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-custom-link </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-link </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-custom-modified </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-modified </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-custom-rogue </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-rogue </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-50">#ffc0cb</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-61">#000000</span>;
+}
+<span class="org-css-selector">.org-custom-saved </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-saved </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-custom-set </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-set </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-59">#ffffff</span>;
+}
+<span class="org-css-selector">.org-custom-state </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-state </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+}
+<span class="org-css-selector">.org-custom-themed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-themed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-custom-variable-button </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-variable-button </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-custom-variable-tag </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-variable-tag </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-custom-visibility </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">custom-visibility </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">font-size</span>: 80%;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-diary </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diary </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-diff-added </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-added </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-48">#90ee90</span>;
+}
+<span class="org-css-selector">.org-diff-changed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-changed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-47">#b0c4de</span>;
+}
+<span class="org-css-selector">.org-diff-context </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-context </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-46">#333333</span>;
+}
+<span class="org-css-selector">.org-diff-file-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-file-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-45">#b3b3b3</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-diff-function </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-function </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-44">#cccccc</span>;
+}
+<span class="org-css-selector">.org-diff-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-44">#cccccc</span>;
+}
+<span class="org-css-selector">.org-diff-hunk-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-hunk-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-44">#cccccc</span>;
+}
+<span class="org-css-selector">.org-diff-index </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-index </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-45">#b3b3b3</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-diff-indicator-added </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-indicator-added </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-diff-indicator-changed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-indicator-changed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-diff-indicator-removed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-indicator-removed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-diff-nonexistent </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-nonexistent </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-45">#b3b3b3</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-diff-refine-added </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-refine-added </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-43">#aaffaa</span>;
+}
+<span class="org-css-selector">.org-diff-refine-changed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-refine-changed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-42">#ffff55</span>;
+}
+<span class="org-css-selector">.org-diff-refine-removed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-refine-removed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-41">#ffbbbb</span>;
+}
+<span class="org-css-selector">.org-diff-removed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">diff-removed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-40">#f4a460</span>;
+}
+<span class="org-css-selector">.org-dired-directory </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-directory </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-dired-flagged </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-flagged </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-dired-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-39">#c18401</span>;
+}
+<span class="org-css-selector">.org-dired-ignored </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-ignored </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-dired-mark </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-mark </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+}
+<span class="org-css-selector">.org-dired-marked </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-marked </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-62">#ff8c00</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-dired-perm-write </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-perm-write </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-dired-symlink </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-symlink </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+}
+<span class="org-css-selector">.org-dired-warning </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">dired-warning </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-doc </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-doc-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-66">#50a14f</span>;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-eldoc-highlight-function-argument </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eldoc-highlight-function-argument </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-epa-field-body </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-field-body </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-epa-field-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-field-name </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-epa-mark </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-mark </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-epa-string </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-string </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-51">#00008b</span>;
+}
+<span class="org-css-selector">.org-epa-validity-disabled </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-validity-disabled </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-epa-validity-high </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-validity-high </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-epa-validity-low </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-validity-low </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-epa-validity-medium </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">epa-validity-medium </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-error </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">error </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-escape-glyph </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">escape-glyph </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+}
+<span class="org-css-selector">.org-eww-form-checkbox </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-form-checkbox </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-56">#d3d3d3</span>;
+}
+<span class="org-css-selector">.org-eww-form-file </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-form-file </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-36">#808080</span>;
+}
+<span class="org-css-selector">.org-eww-form-select </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-form-select </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-56">#d3d3d3</span>;
+}
+<span class="org-css-selector">.org-eww-form-submit </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-form-submit </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-36">#808080</span>;
+}
+<span class="org-css-selector">.org-eww-form-text </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-form-text </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-35">#505050</span>;
+}
+<span class="org-css-selector">.org-eww-form-textarea </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-form-textarea </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-34">#C0C0C0</span>;
+}
+<span class="org-css-selector">.org-eww-invalid-certificate </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-invalid-certificate </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-eww-valid-certificate </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">eww-valid-certificate </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-file-name-shadow </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">file-name-shadow </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-fixed-pitch </span>{
+}
+<span class="org-css-selector">.org-fixed-pitch-serif </span>{
+}
+<span class="org-css-selector">.org-flyspell-duplicate </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">flyspell-duplicate </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-flyspell-incorrect </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">flyspell-incorrect </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-fringe </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">fringe </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-33">#f2f2f2</span>;
+}
+<span class="org-css-selector">.org-function-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-function-name-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+}
+<span class="org-css-selector">.org-glyphless-char </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">glyphless-char </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-size</span>: 60%;
+}
+<span class="org-css-selector">.org-gnus-group-mail-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-1 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-32">#104e8b</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-mail-1-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-1-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-32">#104e8b</span>;
+}
+<span class="org-css-selector">.org-gnus-group-mail-2 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-2 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-31">#1874cd</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-mail-2-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-2-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-31">#1874cd</span>;
+}
+<span class="org-css-selector">.org-gnus-group-mail-3 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-3 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-30">#1c86ee</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-mail-3-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-3-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-30">#1c86ee</span>;
+}
+<span class="org-css-selector">.org-gnus-group-mail-low </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-low </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-29">#8b0a50</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-mail-low-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-mail-low-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-29">#8b0a50</span>;
+}
+<span class="org-css-selector">.org-gnus-group-news-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-1 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-28">#8b3626</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-1-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-1-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-28">#8b3626</span>;
+}
+<span class="org-css-selector">.org-gnus-group-news-2 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-2 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-27">#cd4f39</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-2-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-2-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-27">#cd4f39</span>;
+}
+<span class="org-css-selector">.org-gnus-group-news-3 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-3 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-26">#ee5c42</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-3-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-3-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-26">#ee5c42</span>;
+}
+<span class="org-css-selector">.org-gnus-group-news-4 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-4 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-4-empty </span>{
+}
+<span class="org-css-selector">.org-gnus-group-news-5 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-5 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-5-empty </span>{
+}
+<span class="org-css-selector">.org-gnus-group-news-6 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-6 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-6-empty </span>{
+}
+<span class="org-css-selector">.org-gnus-group-news-low </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-low </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-group-news-low-empty </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-group-news-low-empty </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+}
+<span class="org-css-selector">.org-gnus-splash </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-splash </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-25">#888888</span>;
+}
+<span class="org-css-selector">.org-gnus-summary-cancelled </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-cancelled </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-60">#ffff00</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-61">#000000</span>;
+}
+<span class="org-css-selector">.org-gnus-summary-high-ancient </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-high-ancient </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-24">#4169e1</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-summary-high-read </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-high-read </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-summary-high-ticked </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-high-ticked </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-23">#b22222</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-summary-high-undownloaded </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-high-undownloaded </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-summary-high-unread </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-high-unread </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-gnus-summary-low-ancient </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-low-ancient </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-24">#4169e1</span>;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-gnus-summary-low-read </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-low-read </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-gnus-summary-low-ticked </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-low-ticked </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-23">#b22222</span>;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-gnus-summary-low-undownloaded </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-low-undownloaded </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-gnus-summary-low-unread </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-low-unread </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-gnus-summary-normal-ancient </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-normal-ancient </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-24">#4169e1</span>;
+}
+<span class="org-css-selector">.org-gnus-summary-normal-read </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-normal-read </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+}
+<span class="org-css-selector">.org-gnus-summary-normal-ticked </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-normal-ticked </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-23">#b22222</span>;
+}
+<span class="org-css-selector">.org-gnus-summary-normal-undownloaded </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-normal-undownloaded </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+}
+<span class="org-css-selector">.org-gnus-summary-normal-unread </span>{
+}
+<span class="org-css-selector">.org-gnus-summary-selected </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">gnus-summary-selected </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-header-line </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">header-line </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-header-line-highlight </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">header-line-highlight </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-21">#b4eeb4</span>;
+}
+<span class="org-css-selector">.org-help-argument-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">help-argument-name </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-highlight </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">highlight </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-21">#b4eeb4</span>;
+}
+<span class="org-css-selector">.org-holiday </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">holiday </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-50">#ffc0cb</span>;
+}
+<span class="org-css-selector">.org-homoglyph </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">homoglyph </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+}
+<span class="org-css-selector">.org-info-header-node </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-header-node </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-info-header-xref </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-header-xref </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-info-index-match </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-index-match </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-60">#ffff00</span>;
+}
+<span class="org-css-selector">.org-info-menu-header </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-menu-header </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-info-menu-star </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-menu-star </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-info-node </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-node </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-info-quoted </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">Info-quoted </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-info-title-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-title-1 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-size</span>: 172%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-info-title-2 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-title-2 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-size</span>: 144%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-info-title-3 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-title-3 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-size</span>: 120%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-info-title-4 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-title-4 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-info-xref </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">info-xref </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-internal-border </span>{
+}
+<span class="org-css-selector">.org-isearch </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">isearch </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-20">#b0e2ff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-19">#cd00cd</span>;
+}
+<span class="org-css-selector">.org-isearch-fail </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">isearch-fail </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-18">#ffc1c1</span>;
+}
+<span class="org-css-selector">.org-italic </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">italic </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-keyword </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-keyword-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+}
+<span class="org-css-selector">.org-lazy-highlight </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">lazy-highlight </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-17">#afeeee</span>;
+}
+<span class="org-css-selector">.org-line-number-current-line </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">line-number-current-line </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-link </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">link </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-link-visited </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">link-visited </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-54">#8b008b</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-match </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">match </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-60">#ffff00</span>;
+}
+<span class="org-css-selector">.org-menu </span>{
+}
+<span class="org-css-selector">.org-message-cited-text </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-cited-text </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-message-header-cc </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-cc </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-16">#191970</span>;
+}
+<span class="org-css-selector">.org-message-header-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-name </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-15">#6495ed</span>;
+}
+<span class="org-css-selector">.org-message-header-newsgroups </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-newsgroups </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-51">#00008b</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">font-style</span>: italic;
+}
+<span class="org-css-selector">.org-message-header-other </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-other </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-14">#4682b4</span>;
+}
+<span class="org-css-selector">.org-message-header-subject </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-subject </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-13">#000080</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-message-header-to </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-to </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-16">#191970</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-message-header-xheader </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-header-xheader </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-message-mml </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-mml </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+}
+<span class="org-css-selector">.org-message-separator </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">message-separator </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+}
+<span class="org-css-selector">.org-minibuffer-prompt </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">minibuffer-prompt </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-mm-command-output </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">mm-command-output </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-12">#cd0000</span>;
+}
+<span class="org-css-selector">.org-mode-line </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">mode-line </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-mode-line-buffer-id </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">mode-line-buffer-id </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-mode-line-emphasis </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">mode-line-emphasis </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-mode-line-highlight </span>{
+}
+<span class="org-css-selector">.org-mode-line-inactive </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">mode-line-inactive </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-mouse </span>{
+}
+<span class="org-css-selector">.org-mouse-drag-and-drop-region </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">mouse-drag-and-drop-region </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-11">#ffec8b</span>;
+}
+<span class="org-css-selector">.org-negation-char </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-negation-char-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-next-error </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">next-error </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-11">#ffec8b</span>;
+}
+<span class="org-css-selector">.org-nobreak-hyphen </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">nobreak-hyphen </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+}
+<span class="org-css-selector">.org-nobreak-space </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">nobreak-space </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-37">#a52a2a</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-agenda-calendar-event </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-calendar-event </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-org-agenda-calendar-sexp </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-calendar-sexp </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-org-agenda-clocking </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-clocking </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-60">#ffff00</span>;
+}
+<span class="org-css-selector">.org-org-agenda-column-dateline </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-column-dateline </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-55">#e5e5e5</span>;
+}
+<span class="org-css-selector">.org-org-agenda-current-time </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-current-time </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-10">#b8860b</span>;
+}
+<span class="org-css-selector">.org-org-agenda-date </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-date </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-size</span>: 110%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-agenda-date-today </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-date-today </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-size</span>: 110%;
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-agenda-date-weekend </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-date-weekend </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+    <span class="org-css-property">font-size</span>: 110%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-agenda-diary </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-diary </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-org-agenda-dimmed-todo </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-dimmed-todo-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-agenda-done </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-done </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+}
+<span class="org-css-selector">.org-org-agenda-filter-category </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-filter-category </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-org-agenda-filter-effort </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-filter-effort </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-org-agenda-filter-regexp </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-filter-regexp </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-org-agenda-filter-tags </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-filter-tags </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-org-agenda-restriction-lock </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-restriction-lock </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-9">#eeeeee</span>;
+}
+<span class="org-css-selector">.org-org-agenda-structure </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-agenda-structure </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-size</span>: 110%;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-archived </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-archived </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-block </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-block </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-block-begin-line </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-block-begin-line </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-org-block-end-line </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-block-end-line </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-org-checkbox </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-checkbox </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-checkbox-statistics-done </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-checkbox-statistics-done </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-checkbox-statistics-todo </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-checkbox-statistics-todo </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-clock-overlay </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-clock-overlay </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-56">#d3d3d3</span>;
+}
+<span class="org-css-selector">.org-org-code </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-code </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-column </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-column </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-55">#e5e5e5</span>;
+}
+<span class="org-css-selector">.org-org-column-title </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-column-title </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-55">#e5e5e5</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-date </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-date </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-8">#a020f0</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-date-selected </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-date-selected </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-org-default </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-default </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-org-document-info </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-document-info </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-16">#191970</span>;
+}
+<span class="org-css-selector">.org-org-document-info-keyword </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-document-info-keyword </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-document-title </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-document-title </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-16">#191970</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-done </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-done </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-drawer </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-drawer </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-org-ellipsis </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-ellipsis </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-10">#b8860b</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-footnote </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-footnote </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-8">#a020f0</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-formula </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-formula </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-23">#b22222</span>;
+}
+<span class="org-css-selector">.org-org-headline-done </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-headline-done </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-7">#bc8f8f</span>;
+}
+<span class="org-css-selector">.org-org-hide </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-hide </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-59">#ffffff</span>;
+}
+<span class="org-css-selector">.org-org-latex-and-related </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-latex-and-related </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-6">#8b4513</span>;
+}
+<span class="org-css-selector">.org-org-level-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-1 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-2 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-2 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-6">#8b4513</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-3 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-3 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-4 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-4 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-5 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-5 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-39">#c18401</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-6 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-6 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-7 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-7 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-level-8 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-level-8 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-66">#50a14f</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-link </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-link </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-list-dt </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-list-dt </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-macro </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-macro </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-6">#8b4513</span>;
+}
+<span class="org-css-selector">.org-org-meta-line </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-meta-line </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-org-mode-line-clock </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-mode-line-clock </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-22">#f0f0f1</span>;
+}
+<span class="org-css-selector">.org-org-mode-line-clock-overrun </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-mode-line-clock-overrun </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-org-priority </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-priority </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+}
+<span class="org-css-selector">.org-org-property-value </span>{
+}
+<span class="org-css-selector">.org-org-quote </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-quote </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-scheduled </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-scheduled </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+}
+<span class="org-css-selector">.org-org-scheduled-previously </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-scheduled-previously </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-23">#b22222</span>;
+}
+<span class="org-css-selector">.org-org-scheduled-today </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-scheduled-today </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+}
+<span class="org-css-selector">.org-org-sexp-date </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-sexp-date </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-8">#a020f0</span>;
+}
+<span class="org-css-selector">.org-org-special-keyword </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-special-keyword </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+}
+<span class="org-css-selector">.org-org-table </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-table </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-org-tag </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-tag </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-tag-group </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-tag-group </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-target </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-target </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-org-time-grid </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-time-grid </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-10">#b8860b</span>;
+}
+<span class="org-css-selector">.org-org-todo </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-todo </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-org-upcoming-deadline </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-upcoming-deadline </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-23">#b22222</span>;
+}
+<span class="org-css-selector">.org-org-verbatim </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-verbatim </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-verse </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-verse </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-org-warning </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">org-warning </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-1 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-2 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-2 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-6">#8b4513</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-3 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-3 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-63">#a626a4</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-4 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-4 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-5 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-5 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-39">#c18401</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-6 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-6 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-7 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-7 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-outline-8 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">outline-8 </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-66">#50a14f</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-package-description </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-description </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-package-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-name </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-package-status-avail-obso </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-avail-obso </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-package-status-available </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-available </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-73">#383a42</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-72">#fafafa</span>;
+}
+<span class="org-css-selector">.org-package-status-built-in </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-built-in </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+}
+<span class="org-css-selector">.org-package-status-dependency </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-dependency </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-package-status-disabled </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-disabled </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-package-status-external </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-external </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+}
+<span class="org-css-selector">.org-package-status-held </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-held </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-69">#008b8b</span>;
+}
+<span class="org-css-selector">.org-package-status-incompat </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-incompat </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-package-status-installed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-installed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-67">#a0a1a7</span>;
+}
+<span class="org-css-selector">.org-package-status-unsigned </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">package-status-unsigned </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-preprocessor </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-preprocessor-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+}
+<span class="org-css-selector">.org-query-replace </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">query-replace </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-20">#b0e2ff</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-19">#cd00cd</span>;
+}
+<span class="org-css-selector">.org-read-multiple-choice </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">read-multiple-choice-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-regexp-grouping-backslash </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-regexp-grouping-backslash </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-regexp-grouping-construct </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-regexp-grouping-construct </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-region </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">region </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-11">#ffec8b</span>;
+}
+<span class="org-css-selector">.org-rmail-header-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">rmail-header-name </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-68">#0184bc</span>;
+}
+<span class="org-css-selector">.org-rmail-highlight </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">rmail-highlight </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-21">#b4eeb4</span>;
+}
+<span class="org-css-selector">.org-scroll-bar </span>{
+}
+<span class="org-css-selector">.org-secondary-selection </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">secondary-selection </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-60">#ffff00</span>;
+}
+<span class="org-css-selector">.org-sgml-namespace </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">sgml-namespace </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-71">#e44649</span>;
+}
+<span class="org-css-selector">.org-shadow </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">shadow </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-show-paren-match </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">show-paren-match </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-5">#00ffff</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-show-paren-match-expression </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">show-paren-match-expression </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-5">#00ffff</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-show-paren-mismatch </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">show-paren-mismatch </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-4">#ff1493</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-shr-link </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">shr-link </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-70">#3a5fcd</span>;
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-shr-strike-through </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">shr-strike-through </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: line-through;
+}
+<span class="org-css-selector">.org-string </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-string-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-66">#50a14f</span>;
+}
+<span class="org-css-selector">.org-success </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">success </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-64">#228b22</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-table-cell </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">table-cell </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-55">#e5e5e5</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-tool-bar </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">tool-bar </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-3">#bfbfbf</span>;
+}
+<span class="org-css-selector">.org-tooltip </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">tooltip </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-61">#000000</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-2">#ffffe0</span>;
+}
+<span class="org-css-selector">.org-trailing-whitespace </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">trailing-whitespace </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-tty-menu-disabled </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">tty-menu-disabled-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-56">#d3d3d3</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-53">#0000ff</span>;
+}
+<span class="org-css-selector">.org-tty-menu-enabled </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">tty-menu-enabled-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-60">#ffff00</span>;
+    <span class="org-css-property">background-color</span>: <span class="custom-53">#0000ff</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-tty-menu-selected </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">tty-menu-selected-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-type </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-type-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-39">#c18401</span>;
+}
+<span class="org-css-selector">.org-underline </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">underline </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">text-decoration</span>: underline;
+}
+<span class="org-css-selector">.org-variable-name </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-variable-name-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-6">#8b4513</span>;
+}
+<span class="org-css-selector">.org-variable-pitch </span>{
+}
+<span class="org-css-selector">.org-vc-conflict-state </span>{
+}
+<span class="org-css-selector">.org-vc-edited-state </span>{
+}
+<span class="org-css-selector">.org-vc-locally-added-state </span>{
+}
+<span class="org-css-selector">.org-vc-locked-state </span>{
+}
+<span class="org-css-selector">.org-vc-missing-state </span>{
+}
+<span class="org-css-selector">.org-vc-needs-update-state </span>{
+}
+<span class="org-css-selector">.org-vc-removed-state </span>{
+}
+<span class="org-css-selector">.org-vc-state-base </span>{
+}
+<span class="org-css-selector">.org-vc-up-to-date-state </span>{
+}
+<span class="org-css-selector">.org-vertical-border </span>{
+}
+<span class="org-css-selector">.org-warning </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">warning </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-62">#ff8c00</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-warning-1 </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">font-lock-warning-face </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-widget-button </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">widget-button </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">font-weight</span>: bold;
+}
+<span class="org-css-selector">.org-widget-button-pressed </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">widget-button-pressed </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-65">#ff0000</span>;
+}
+<span class="org-css-selector">.org-widget-documentation </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">widget-documentation </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-49">#006400</span>;
+}
+<span class="org-css-selector">.org-widget-field </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">widget-field </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-52">#d9d9d9</span>;
+}
+<span class="org-css-selector">.org-widget-inactive </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">widget-inactive </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-38">#7f7f7f</span>;
+}
+<span class="org-css-selector">.org-widget-single-line-field </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">widget-single-line-field </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">background-color</span>: <span class="custom-52">#d9d9d9</span>;
+}
+<span class="org-css-selector">.org-window-divider </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">window-divider </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-1">#999999</span>;
+}
+<span class="org-css-selector">.org-window-divider-first-pixel </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">window-divider-first-pixel </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom-44">#cccccc</span>;
+}
+<span class="org-css-selector">.org-window-divider-last-pixel </span>{
+    <span class="org-comment-delimiter">/* </span><span class="org-comment">window-divider-last-pixel </span><span class="org-comment-delimiter">*/</span>
+    <span class="org-css-property">color</span>: <span class="custom">#666666</span>;
+}
+
+<span class="org-css-selector">a </span>{
+    <span class="org-css-property">color</span>: inherit;
+    <span class="org-css-property">background-color</span>: inherit;
+    <span class="org-css-property">font</span>: inherit;
+    <span class="org-css-property">text-decoration</span>: inherit;
+}
+<span class="org-css-selector">a:hover </span>{
+    <span class="org-css-property">text-decoration</span>: underline;
+}</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr style='height:0.5px'>
+<small>R E I N D E E R E F F E C T</small>
+</div>
+</body>
+</html>

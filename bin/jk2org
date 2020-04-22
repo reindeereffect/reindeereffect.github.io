@@ -1,0 +1,2 @@
+#! /bin/bash
+pandoc -f markdown -t org $1 | sed -re 's|/aux/2018.*files/|aux/|g' | grep -v CAPTION

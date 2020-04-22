@@ -1,0 +1,2016 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-04-21 Tue 22:50 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sudoku of Any Size</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Kevin M. Stout" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel='stylesheet' type='text/css' href='/css/syntax.css'>
+	 <link rel='stylesheet' type='text/css' href='/css/main.css'>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div class='site-header'>
+  <a class='site-title' href='/'>R E I N D E E R E F F E C T</a>
+  <div class='nav' style='float:right;'>
+    <a class='page-link' href='/about.html'>About</a>&nbsp;
+    <a class='page-link' href='/links.html'>Links</a>&nbsp;
+    <a class='page-link' href='/tags.html'>Tags</a>
+  </div>
+  <hr style='height:0.5px'>
+</div>
+<div class='post-head'>
+  <div class='post-pubdate'>2020-04-11</div>
+  <h1 class='title'>Sudoku of Any Size</h1>
+</div>
+</div>
+<div id="content">
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5ecea88">1. Introduction</a></li>
+<li><a href="#org87df303">2. The Board</a>
+<ul>
+<li><a href="#orga8d437b">2.1. Board Divisions</a></li>
+<li><a href="#orgd0cc5fa">2.2. Logical Representation</a></li>
+<li><a href="#org8e0934f">2.3. Textual Representation</a>
+<ul>
+<li><a href="#org1082adf">2.3.1. Converting from Strings</a></li>
+<li><a href="#org92d3819">2.3.2. Converting to Strings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org91fc916">3. Solving Sudoku</a>
+<ul>
+<li><a href="#orgfbe1920">3.1. Forced Moves</a>
+<ul>
+<li><a href="#org61482f9">3.1.1. Single-Candidate</a></li>
+<li><a href="#org0aaab4a">3.1.2. Single Cell</a></li>
+</ul>
+</li>
+<li><a href="#org3488e8b">3.2. Searching</a></li>
+</ul>
+</li>
+<li><a href="#org1d76bea">4. Generating Sudoku</a></li>
+<li><a href="#org7e5676f">5. Utility Library</a></li>
+<li><a href="#org125fa45">6. Command Line Tools</a>
+<ul>
+<li><a href="#orgf19886d">6.1. The Solver</a></li>
+<li><a href="#org282291c">6.2. The Generator</a></li>
+<li><a href="#org87517bc">6.3. The Formatter</a>
+<ul>
+<li><a href="#orgddbb7a4">6.3.1. Conversion to Latex</a></li>
+<li><a href="#org26dc30c">6.3.2. The Latex Package</a></li>
+<li><a href="#orgb8a94c1">6.3.3. Converting Boards to Images</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org334b413">7. Putting It All Together</a></li>
+<li><a href="#org3fda27c">8. Wrapping Up</a></li>
+</ul>
+</div>
+<p>
+:0:
+</p>
+<div id="outline-container-org5ecea88" class="outline-2">
+<h2 id="org5ecea88"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Quarantine is in full swing, and after watching a disturbing amount of TV, you
+plowed through a book of Sudoku puzzles that turned up in the basement. Now
+they&rsquo;re gone, and you&rsquo;re looking for something more. Bigger. Monstrous, you
+might say. Unfortunately, the giant Sudoku puzzles (think 16&times;16 or
+25&times;25) are not quite so easy to find in any quantity. It turns out,
+though, that with a little effort, you can make machines churn them out while
+you sleep.
+</p>
+
+<p>
+In this article we will
+</p>
+<ul class="org-ul">
+<li>consider the structure of the Sudoku board</li>
+<li>use that structure to capture, in a general way, common heuristics for
+solving Sudoku puzzles</li>
+<li>employ both constraint propagation and backtracking to create a suitably
+fast Sudoku solver</li>
+<li>use that solver as building block for generating Sudoku puzzles of any size
+we might desire</li>
+</ul>
+
+<p>
+At the end, we&rsquo;ll have implemented a library for dealing with Sudoku, as
+well as a small collection of command line tools for generating, solving,
+and formatting puzzles.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org87df303" class="outline-2">
+<h2 id="org87df303"><span class="section-number-2">2</span> The Board</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-orga8d437b" class="outline-3">
+<h3 id="orga8d437b"><span class="section-number-3">2.1</span> Board Divisions</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+The Sudoku board consists of a 9x9 grid of cells, with a 3x3 grid of boxes, each
+containing a 3x3 grid of cells, overlaid:
+</p>
+
+
+<div class="figure">
+<p><img src="images/cells.png" alt="cells.png" />
+</p>
+</div>
+
+
+<p>
+where the cells have been numbered in row-major order. Each cell is a member of
+a set of three divisions, namely 
+</p>
+
+<ul class="org-ul">
+<li>rows:</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="images/row-divs.png" alt="row-divs.png" />
+</p>
+</div>
+
+<p>
+where \(\mathit{row} = \lfloor\mathit{cell}/9\rfloor\)
+</p>
+
+<ul class="org-ul">
+<li>columns:</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="images/col-divs.png" alt="col-divs.png" />
+</p>
+</div>
+
+<p>
+where \(\mathit{col} = \mathit{cell}\bmod 9\)
+</p>
+
+<ul class="org-ul">
+<li>boxes:</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="images/box-divs.png" alt="box-divs.png" />
+</p>
+</div>
+
+<p>
+where \(\mathit{box}(\mathit{cell}) = 3\times\lfloor\mathit{row}(cell)/3\rfloor + \mathit{col}(\mathit{cell})/3\).
+</p>
+
+<p>
+Of these, the most interesting division of the board is into boxes. A Sudoku
+board can be viewed as a \(3\times 3\) grid of boxes, each a \(3\times 3\) grid of
+cells, resulting in a grid of \(3^4\) cells arranged into \(3^2\) rows and \(3^2\)
+columns, for a grand total of \(3\times3^2\) distinct divisions. Furthermore, when the
+board is complete, each cell will contain a number from 1 to 9 (or \(3^2\))
+inclusive. Every interesting dimension of the board is describable in terms of
+power of 3, which we can think of as the <i>order</i> of a board. We can now think
+of Sudoku (or Sudoku-like) boards a bit more generally. Given a board of order
+\(\omega\), for any \(\mathit{cell}\in [1,\omega^4]\), we can find the row number
+as
+</p>
+
+<p>
+\[\mathit{row}(\mathit{cell}) = \left\lfloor\frac{\mathit{cell}}{\omega^2}\right\rfloor,\]
+</p>
+
+<p>
+the column number as
+</p>
+
+<p>
+\[\mathit{col}(\mathit{cell}) = \mathit{cell}\bmod \omega^2,\]
+</p>
+
+<p>
+and the box number as
+</p>
+
+<p>
+\[\mathit{box}(\mathit{cell}) = \omega\times\left\lfloor\frac{\mathit{row}(cell)}{\omega}\right\rfloor + \left\lfloor\frac{\mathit{col}(\mathit{cell})}{\omega}\right\rfloor.\]
+</p>
+
+<p>
+This generalization allows us to handle larger boards with ease. For simplicity,
+the discussion and examples below will center on conventional order 3 boards,
+unless otherwise specified; even so, the principles remain the same for other orders.
+</p>
+
+<p>
+If we sequentially number divisions in the following manner:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">division</th>
+<th scope="col" class="org-left">start</th>
+<th scope="col" class="org-left">end</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">rows</td>
+<td class="org-left">0</td>
+<td class="org-left">\(\omega^2 - 1\)</td>
+</tr>
+
+<tr>
+<td class="org-left">columns</td>
+<td class="org-left">\(\omega^2\)</td>
+<td class="org-left">\(2\omega^2 - 1\)</td>
+</tr>
+
+<tr>
+<td class="org-left">boxes</td>
+<td class="org-left">\(2\omega^2\)</td>
+<td class="org-left">\(3\omega^2 - 1\)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+then we can write a function to compute a mapping from cells to divisions, as
+well as an inverse mapping from divisions to cells:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgcc7f6f7"><div id='functions'>&langle;<span class='noweb-def' id='functions-3684'>functions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#functions-4222'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">board_divs</span>(order):
+      <span class="org-doc">'''</span>
+  <span class="org-doc">    generates a dictionary (cell2divs) mapping cells to their various divisions </span>
+  <span class="org-doc">    in boards of the given order. Also generates a complementary mapping, </span>
+  <span class="org-doc">    div2cells. Returns (cell2divs, div2cells).</span>
+  <span class="org-doc">    '''</span>
+      <span class="org-variable-name">n</span> = order**2
+      <span class="org-variable-name">box</span> = <span class="org-keyword">lambda</span> i, j: i//order * order + j//order
+      <span class="org-variable-name">cell2divs</span> = <span class="org-builtin">dict</span>(<span class="org-builtin">enumerate</span>((i,
+                                  n + j,
+                                  2*n + box(i, j))
+                                 <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(n)
+                                 <span class="org-keyword">for</span> j <span class="org-keyword">in</span> <span class="org-builtin">range</span>(n)))
+  
+      <span class="org-keyword">return</span> cell2divs, transpose(cell2divs)</pre>
+</div>
+
+<p>
+where
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgd50903f"><div id='functions-4222'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-3684'>&uarr;</a><a href='#functions-9027'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">transpose</span>(m):
+      <span class="org-doc">'''</span>
+  <span class="org-doc">    given a binary matrix represented as a dictionary whose values are sets,</span>
+  <span class="org-doc">    and where a 1 at (i,j) is indicated by</span>
+  
+  <span class="org-doc">        j in m[i]</span>
+  
+  <span class="org-doc">    return the transpose of m.</span>
+  <span class="org-doc">    '''</span>
+  
+      <span class="org-variable-name">t</span> = {}
+      <span class="org-keyword">for</span> i, js <span class="org-keyword">in</span> m.items():
+          <span class="org-keyword">for</span> j <span class="org-keyword">in</span> js:
+              t.setdefault(j, <span class="org-builtin">set</span>()).add(i)
+  
+      <span class="org-keyword">return</span> t</pre>
+</div>
+
+<p>
+In addition to allowing us to more concisely formulate algorithms operating on
+Sudoku boards, operating in terms of cells and divisions opens the door to
+adapting the program we develop here to Sudoku variants featuring
+irregularly-shaped divisions (like <a href="http://www.dailysudoku.com/sudoku/archive.shtml?type=squiggly">squiggly Sudoku</a>).
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd0cc5fa" class="outline-3">
+<h3 id="orgd0cc5fa"><span class="section-number-3">2.2</span> Logical Representation</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+Our Sudoku solver will need a convenient representation of the board state at
+any given time, as well as a ways to sensibly change that state. For that, we&rsquo;ll
+define a simple class:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orged70a96"><div id='data types'>&langle;<span class='noweb-def' id='data types-5141'>data types</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">class</span> <span class="org-type">board</span>:
+      <span class="org-doc">'Utility class for representing and tracking board state.'</span>
+      &langle;<a class='noweb-ref' href='#board initialization'>board initialization</a>&rangle;
+      &langle;<a class='noweb-ref' href='#cell marking'>cell marking</a>&rangle;
+      &langle;<a class='noweb-ref' href='#copying'>copying</a>&rangle;</pre>
+</div>
+
+<p>
+Each cell is either known or unknown. For the known cells, we need only track
+their values. For the unknown cells, however, we need to either track or compute
+the values that they may possibly take. Since the requirements for the two cell
+classes are different, we handle them separately. 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orga24a752"><div id='board initialization'>&langle;<span class='noweb-def' id='board initialization-5631'>board initialization</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, known, unknown, cell2divs, div2cells):
+      <span class="org-doc">'''</span>
+  <span class="org-doc">    known   dictionary mapping known cells to their respective values</span>
+  <span class="org-doc">    unknown dictionary mapping unknown cells to sets of possible values</span>
+  
+  <span class="org-doc">    cell2divs, div2cells</span>
+  <span class="org-doc">            complementary mappings describing the board structure, such as those</span>
+  <span class="org-doc">            produced by board_divs</span>
+  <span class="org-doc">    '''</span>
+      <span class="org-keyword">assert</span> <span class="org-keyword">not</span> <span class="org-builtin">set</span>(known) &amp; <span class="org-builtin">set</span>(unknown)
+      <span class="org-keyword">self</span>.known = known
+      <span class="org-keyword">self</span>.unknown = unknown
+      <span class="org-keyword">self</span>.cell2divs = cell2divs
+      <span class="org-keyword">self</span>.div2cells = div2cells</pre>
+</div>
+
+<p>
+Solving a Sudoku involves repeatedly <i>marking</i> the board until no empty cells
+remain, subject to the constraint that each division contains one each of the
+numbers from 1 to 9 inclusive. With each marking, we assert knowledge about a
+previously unknown cell, and the possible values that can be taken by unknown
+cells sharing a division become more constrained. To track this,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org1d9ad36"><div id='cell marking'>&langle;<span class='noweb-def' id='cell marking-6581'>cell marking</span>&rangle; &equiv; <span class='chunk-chain'><a href='#cell marking-7521'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">mark</span>(<span class="org-keyword">self</span>, cell, val):
+      <span class="org-doc">'set cell to val, updating unknowns as necessary'</span>
+      <span class="org-keyword">self</span>.known[cell] = val
+      <span class="org-keyword">self</span>.unknown.pop(cell, <span class="org-constant">None</span>)
+  
+      <span class="org-keyword">for</span> div <span class="org-keyword">in</span> <span class="org-keyword">self</span>.cell2divs[cell]:
+          <span class="org-keyword">for</span> cell2 <span class="org-keyword">in</span> <span class="org-keyword">self</span>.div2cells[div]:
+              <span class="org-keyword">self</span>.elim(cell2, val)
+  
+  <span class="org-keyword">def</span> <span class="org-function-name">elim</span>(<span class="org-keyword">self</span>, cell, val):
+      <span class="org-doc">"remove val from cell's possibilities"</span>
+      <span class="org-keyword">self</span>.unknown.get(cell, <span class="org-builtin">set</span>()).discard(val)</pre>
+</div>
+
+<p>
+This is the basic mechanism of <i>constraint propagation</i> that ultimately allows
+us to develop usefully fast solution techniques. For brevity, whenever we speak
+of marking a cell, we&rsquo;ll assume that the possibilities for other cells are
+updated as necessary, too.
+</p>
+
+<p>
+Sometimes we may not know that a given marking will work out&#x2014;perhaps we&rsquo;re
+guessing&#x2014;so we should support marking cells speculatively and recovering when
+we realize how wrong we are. The simplest method is to mark a copy of the
+current board state:  
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org1be164d"><div id='cell marking-7521'>&langle;<a href='#cell marking' class='noweb-ref'>cell marking</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#cell marking-6581'>&uarr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">marked</span>(<span class="org-keyword">self</span>, cell, val):
+      <span class="org-doc">'returns a new board, with cell marked as val and possibilities eliminated'</span>
+      <span class="org-variable-name">new</span> = <span class="org-keyword">self</span>.copy()
+      new.mark(cell, val)
+      <span class="org-keyword">return</span> new</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org585be6d"><div id='imports'>&langle;<span class='noweb-def' id='imports-7750'>imports</span>&rangle; &equiv; <span class='chunk-chain'><a href='#imports-17513'>&darr;</a></span></div>  <span class="org-keyword">import</span> copy</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org8f9b8a8"><div id='copying'>&langle;<span class='noweb-def' id='copying-7812'>copying</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">copy</span>(<span class="org-keyword">self</span>):
+      <span class="org-doc">'copies board'</span>
+      <span class="org-keyword">return</span> <span class="org-keyword">self</span>.__class__(copy.deepcopy(<span class="org-keyword">self</span>.known),
+                            copy.deepcopy(<span class="org-keyword">self</span>.unknown),
+                            <span class="org-keyword">self</span>.cell2divs,
+                            <span class="org-keyword">self</span>.div2cells)</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8e0934f" class="outline-3">
+<h3 id="org8e0934f"><span class="section-number-3">2.3</span> Textual Representation</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Our finished program must accept a textual board representation as input, and
+it must emit a textual representation of the completed board as output. Also,
+any supported format must be flexible enough to handle Sudoku boards of any
+order. 
+</p>
+</div>
+
+<div id="outline-container-org1082adf" class="outline-4">
+<h4 id="org1082adf"><span class="section-number-4">2.3.1</span> Converting from Strings</h4>
+<div class="outline-text-4" id="text-2-3-1">
+<p>
+We&rsquo;ll impose the following requirements on strings that represent Sudoku boards
+of any order \(\omega\):
+</p>
+
+<ul class="org-ul">
+<li>Each cell will be represented by an integer (if known) or a &rsquo;.&rsquo; (if unknown).</li>
+<li>The number of cells must be \(\omega^4\), where \(\omega\) is some integer.</li>
+<li>Cells can be separated by any other character.</li>
+<li>Values for known cells must be in \([1, \omega^2]\).</li>
+</ul>
+
+<p>
+These rules will allow us to handle
+</p>
+
+<pre class="example">
+1 3 | . .
+. . | 3 1
+----+----
+3 1 | . .
+. 2 | 1 3
+</pre>
+
+<p>
+as easily as 
+</p>
+
+<pre class="example">
+1 3 . .
+. . 3 1
+3 1 . .
+. 2 1 3
+</pre>
+
+<p>
+or
+</p>
+
+<pre class="example">
+1 3 . . . . 3 1 3 1 . . . 2 1 3
+</pre>
+
+<p>
+They also allow us to compute the order directly from the number of cells.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org1213a33"><div id='functions-9027'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-4222'>&uarr;</a><a href='#functions-10103'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">load_board</span>(s, validate_vals=<span class="org-constant">True</span>):
+      <span class="org-doc">'''</span>
+  <span class="org-doc">    given a string representing a board, returns a board object. For a board of</span>
+  <span class="org-doc">    a given order:</span>
+  
+  <span class="org-doc">    - Order is computed as the fourth root of board length, and it must be an </span>
+  <span class="org-doc">      integer.</span>
+  
+  <span class="org-doc">    - Each cell must be represented by an integer in [1, order**2] inclusive, </span>
+  <span class="org-doc">      or `.' to denote unknown cells. This check can be disabled by setting</span>
+  <span class="org-doc">      validate_vals to False.</span>
+  
+  <span class="org-doc">    - Cells must be separated from each other by any sequences of characters in</span>
+  <span class="org-doc">      /[^0-9.]+/.</span>
+  
+  <span class="org-doc">    On failure, raises ValueError.</span>
+  <span class="org-doc">    '''</span>
+  
+      <span class="org-variable-name">vals</span> = [cell
+              <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> <span class="org-string">''</span>.join(c <span class="org-keyword">if</span> c <span class="org-keyword">in</span> <span class="org-string">'0123456789.'</span> <span class="org-keyword">else</span> <span class="org-string">' '</span>
+                                  <span class="org-keyword">for</span> c <span class="org-keyword">in</span> s).strip().split()
+              <span class="org-keyword">if</span> cell.isdigit() <span class="org-keyword">or</span> cell == <span class="org-string">'.'</span>]
+  
+      <span class="org-variable-name">order</span> = <span class="org-builtin">int</span>(<span class="org-builtin">len</span>(vals) ** 0.25)
+      <span class="org-variable-name">n</span> = order**2
+      <span class="org-keyword">if</span> <span class="org-builtin">len</span>(vals) != order**4: <span class="org-keyword">raise</span> <span class="org-type">ValueError</span>
+  
+      <span class="org-variable-name">bd</span> = blank(order)
+  
+      <span class="org-keyword">for</span> (cell, val_) <span class="org-keyword">in</span> <span class="org-builtin">enumerate</span>(vals):
+          <span class="org-keyword">if</span> val_ == <span class="org-string">'.'</span>: <span class="org-keyword">continue</span>
+          <span class="org-variable-name">val</span> = <span class="org-builtin">int</span>(val_)
+          <span class="org-keyword">if</span> validate_vals <span class="org-keyword">and</span> (val &lt; 1 <span class="org-keyword">or</span> val &gt; n): <span class="org-keyword">raise</span> <span class="org-type">ValueError</span>
+          bd.mark(cell, val)
+  
+      <span class="org-keyword">return</span> bd</pre>
+</div>
+
+<p>
+where
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org98e0ce9"><div id='functions-10103'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-9027'>&uarr;</a><a href='#functions-10905'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">blank</span>(order):
+    <span class="org-variable-name">n</span> = order**2
+    <span class="org-variable-name">possible_vals</span> = <span class="org-builtin">set</span>(<span class="org-builtin">range</span>(1, n + 1))
+    <span class="org-keyword">return</span> board({},
+                {i:<span class="org-builtin">set</span>(possible_vals) <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(n**2)},
+                *board_divs(order))</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org92d3819" class="outline-4">
+<h4 id="org92d3819"><span class="section-number-4">2.3.2</span> Converting to Strings</h4>
+<div class="outline-text-4" id="text-2-3-2">
+<p>
+Once we&rsquo;ve solved a puzzle or otherwise modified a board, we&rsquo;d like to get a
+readable representation back out. Given that there are further use cases for a
+completed Sudoku board, like deriving Sudoku puzzles of varying difficulty, it
+should be loadable via <code>load_board</code>, like:
+</p>
+
+<pre class="example">
+8 3 7 | 1 2 6 | 9 5 4
+9 5 4 | 3 8 7 | 1 6 2
+2 1 6 | 4 5 9 | 3 7 8
+------+-------+------
+7 . 9 | . 4 5 | 8 1 3
+3 4 5 | 9 1 8 | 6 2 7
+1 . 8 | . 7 3 | 4 9 5
+------+-------+------
+4 8 1 | 5 6 2 | 7 . 9
+5 9 3 | 7 . 1 | 2 8 6
+6 7 2 | 8 9 4 | 5 3 1
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org427e5ae"><div id='functions-10905'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-10103'>&uarr;</a><a href='#functions-12594'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">dump_board</span>(bd):
+      <span class="org-doc">'returns a "pretty printed" string representation of board bd'</span>
+  
+      <span class="org-variable-name">order</span> = <span class="org-builtin">int</span>((<span class="org-builtin">len</span>(bd.known) + <span class="org-builtin">len</span>(bd.unknown)) ** 0.25)
+      <span class="org-variable-name">n</span> = order**2
+  
+      <span class="org-variable-name">svals</span> = [<span class="org-builtin">str</span>(bd.known[i] <span class="org-keyword">if</span> i <span class="org-keyword">in</span> bd.known <span class="org-keyword">else</span> <span class="org-string">'.'</span>)
+               <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(n**2)]
+  
+      <span class="org-variable-name">width</span> = <span class="org-builtin">max</span>(<span class="org-builtin">map</span>(<span class="org-builtin">len</span>, svals))
+      <span class="org-variable-name">fmt</span> = <span class="org-keyword">lambda</span> cell: (<span class="org-string">'%%%ds'</span> % width) % cell
+  
+      <span class="org-variable-name">n_x_n</span> = [svals[i*n : i*n + n] <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(n)]
+      <span class="org-variable-name">cols_grpd</span> = [<span class="org-string">' | '</span>.join(<span class="org-string">' '</span>.join(<span class="org-builtin">map</span>(fmt, row[j*order : j*order + order]))
+                             <span class="org-keyword">for</span> j <span class="org-keyword">in</span> <span class="org-builtin">range</span>(order))
+                   <span class="org-keyword">for</span> row <span class="org-keyword">in</span> n_x_n]    
+      <span class="org-variable-name">rows_grpd</span> = [<span class="org-string">'\n'</span>.join(cols_grpd[i*order : i*order + order])
+                   <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(order)]
+  
+      <span class="org-variable-name">rule</span> = <span class="org-string">'\n'</span> + <span class="org-string">''</span>.join(<span class="org-string">'+'</span> <span class="org-keyword">if</span> c == <span class="org-string">'|'</span> <span class="org-keyword">else</span> <span class="org-string">'-'</span> <span class="org-keyword">for</span> c <span class="org-keyword">in</span> cols_grpd[0]) + <span class="org-string">'\n'</span>
+  
+      <span class="org-keyword">return</span> rule.join(rows_grpd)</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org91fc916" class="outline-2">
+<h2 id="org91fc916"><span class="section-number-2">3</span> Solving Sudoku</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Having a suitable representation of the board state, we can now work out how to
+solve a Sudoku puzzle. All of the techniques discussed here rely on the
+constraint propagation that <a href="#org1d9ad36"><code>board.mark</code></a> performs automatically.
+</p>
+</div>
+
+<div id="outline-container-orgfbe1920" class="outline-3">
+<h3 id="orgfbe1920"><span class="section-number-3">3.1</span> Forced Moves</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Consider how a human might approach a grid like
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-1.png" alt="ex-1-1.png" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-org61482f9" class="outline-4">
+<h4 id="org61482f9"><span class="section-number-4">3.1.1</span> Single-Candidate</h4>
+<div class="outline-text-4" id="text-3-1-1">
+<p>
+Let&rsquo;s immediately reject the idea of blindly trying numbers until something
+works. Instead, let&rsquo;s annotate the board with the remaining possibilities for
+each unknown cell, revealing our true situation:
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-2.png" alt="ex-1-2.png" />
+</p>
+</div>
+
+<p>
+The cell indicated with a red box can only take on a value of 2; if we mark it
+as such, then we have to remove 2 from the possibilities for the remaining cells
+that share a row, column, or box (the cells to be modified are indicated with
+red digits). 
+</p>
+
+<p>
+The process can be expressed as
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org3e79a92"><div id='functions-12594'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-10905'>&uarr;</a><a href='#functions-13312'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">mark_single_vals</span>(bd):
+      <span class="org-doc">'applies the "single candidate" (a.k.a. "naked single") rule'</span>
+      <span class="org-variable-name">marked</span> = <span class="org-constant">False</span>
+      <span class="org-keyword">for</span> (cell, vals) <span class="org-keyword">in</span> <span class="org-builtin">list</span>(bd.unknown.items()):
+          <span class="org-keyword">if</span> <span class="org-builtin">len</span>(vals) == 1:
+              bd.mark(cell, <span class="org-builtin">set</span>(vals).pop())
+              <span class="org-variable-name">marked</span> = <span class="org-constant">True</span>
+  
+      <span class="org-keyword">return</span> marked</pre>
+</div>
+
+<p>
+Marking the cell with a 2 gives us
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-4.png" alt="ex-1-4.png" />
+</p>
+</div>
+
+<p>
+We now have a cell that can only Continuing in this fashion a few more yields
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-5.png" alt="ex-1-5.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0aaab4a" class="outline-4">
+<h4 id="org0aaab4a"><span class="section-number-4">3.1.2</span> Single Cell</h4>
+<div class="outline-text-4" id="text-3-1-2">
+<p>
+While none of the unknown cells has only one possible value, there are two cells
+that each can only hold a 5. Marking and eliminating, we have:
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-6.png" alt="ex-1-6.png" />
+</p>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org96db714"><div id='functions-13312'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-12594'>&uarr;</a><a href='#functions-13848'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">mark_single_cells</span>(bd):
+      <span class="org-doc">'applies the "hidden single" rule'</span>
+      <span class="org-variable-name">marked</span> = <span class="org-constant">False</span>
+      <span class="org-keyword">for</span> div, cells <span class="org-keyword">in</span> bd.div2cells.items():
+          <span class="org-variable-name">spots</span> =  transpose({cell: bd.unknown.get(cell, <span class="org-builtin">set</span>())
+                              <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> cells})
+          <span class="org-keyword">for</span> v, cs <span class="org-keyword">in</span> spots.items():
+              <span class="org-keyword">if</span> <span class="org-builtin">len</span>(cs) == 1:
+                  <span class="org-variable-name">cell</span> = cs.pop()
+                  <span class="org-keyword">if</span> v <span class="org-keyword">in</span> bd.unknown.get(cell, <span class="org-builtin">set</span>()):
+                      bd.mark(cell, v)
+                      <span class="org-variable-name">marked</span> = <span class="org-constant">True</span>
+  
+      <span class="org-keyword">return</span> marked</pre>
+</div>
+
+<p>
+We can continue applying these two heuristics, favoring the simpler whenever
+possible,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org580fa48"><div id='functions-13848'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-13312'>&uarr;</a><a href='#functions-16818'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">mark_forced</span>(bd):
+      <span class="org-doc">'''</span>
+  <span class="org-doc">    iteratively applies single candidate and hidden single rules until no</span>
+  <span class="org-doc">    further modifications are possible</span>
+  <span class="org-doc">    '''</span>
+      <span class="org-variable-name">fns</span> = (mark_single_vals, mark_single_cells)
+      <span class="org-keyword">while</span> <span class="org-builtin">any</span>(fn(bd) <span class="org-keyword">for</span> fn <span class="org-keyword">in</span> fns): <span class="org-keyword">pass</span></pre>
+</div>
+
+<p>
+until we reach
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-7.png" alt="ex-1-7.png" />
+</p>
+</div>
+
+<p>
+which will not yield to either. At this point, we have a couple options:
+</p>
+
+<ul class="org-ul">
+<li>We can crack open any number of guides on Sudoku to find other strategies that
+might apply.</li>
+<li>We can guess at the next play.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3488e8b" class="outline-3">
+<h3 id="org3488e8b"><span class="section-number-3">3.2</span> Searching</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Rather than further accumulating strategies, eventually turning our solver into
+a corpus of Sudoku-solving lore, let&rsquo;s do what the inexperienced and the
+impatient do when faced with such a board: Let&rsquo;s guess. Once we&rsquo;ve made our
+guess, we&rsquo;ll play it out, using our two rules for detecting forced assignments
+whenever we can, and guessing again as necessary. If it becomes clear that our
+guess is wrong, we&rsquo;ll come back to this board state and try something else. In
+short, we&rsquo;ll perform a depth-first search through the space of Sudoku boards.
+</p>
+
+<p>
+To decide how we&rsquo;ll guess, let&rsquo;s consider what happens if we choose poorly:
+</p>
+
+<ul class="org-ul">
+<li>We&rsquo;ll find ourselves back at our current board state, choosing a different
+cell/value assignment to try.</li>
+<li>We&rsquo;ll have eliminated the cell/value combination we just tried as being valid
+for <i>any board state derived from our current state</i>.</li>
+</ul>
+
+<p>
+So, if an incorrect guess allows us to prune part of the search space, we should
+structure our guessing so that each incorrect choice prunes as large a subtree
+as possible. The simplest thing we can do, then, is to find the cell with the
+fewest possible values and then try each of the possibilities until we&rsquo;re
+successful. So, choosing the red-boxed cell in
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-8.png" alt="ex-1-8.png" />
+</p>
+</div>
+
+<p>
+we can choose either a 2 or a 6. If the solution is ultimately derived from our
+current board state, then one of these values must be correct, giving a 50%
+chance of guessing correctly the first time. Should we exhaust both numbers
+without finding a solution, then there is no solution to be had from our current
+state&#x2013;either the game is unsolvable or we previously made a mistake.
+</p>
+
+<p>
+For most Sudoku boards the author has tested, there does not seem any decisive
+advantage to preferring one ordering of the possible values over another. By
+randomizing the order in which possibilities are tried, combined with randomly
+selecting from the cells meeting our fewest possibilities criterion, we can
+use our solver, fed with a blank board, as a building block for a Sudoku puzzle
+generator. Also, there are times when we want to restrict the number of guesses
+made on the way to a solution, e.g., when testing potential clues while
+generating a puzzle.
+</p>
+
+<p>
+The overall solution procedure, incorporating both backtracking and constraint
+propagation, generates all solutions for a given board that can be found in
+<code>maxdepth</code> guesses.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgf0c2bb9"><div id='functions-16818'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-13848'>&uarr;</a><a href='#functions-17328'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">solve</span>(bd, maxdepth=inf):
+      <span class="org-doc">'given a board bd, generates all solutions in maxdepth guesses'</span>
+      <span class="org-keyword">def</span> <span class="org-function-name">_solve</span>(bd, depth=0):
+          mark_forced(bd)    
+          <span class="org-keyword">if</span> issolved(bd):
+              <span class="org-keyword">yield</span> bd 
+          <span class="org-keyword">elif</span> depth &lt; maxdepth:
+              <span class="org-variable-name">_</span>, <span class="org-variable-name">_</span>, <span class="org-variable-name">cell</span>, <span class="org-variable-name">vals</span> = <span class="org-builtin">min</span>((<span class="org-builtin">len</span>(vals), random.random(), cell, vals)
+                                     <span class="org-keyword">for</span> (cell, vals) <span class="org-keyword">in</span> bd.unknown.items())
+              <span class="org-keyword">for</span> val <span class="org-keyword">in</span> random.sample(vals, <span class="org-builtin">len</span>(vals)):
+                  <span class="org-keyword">yield</span> <span class="org-keyword">from</span> _solve(bd.marked(cell, val), depth=depth+1)
+  
+      <span class="org-keyword">return</span> _solve(bd.copy())</pre>
+</div>
+
+<p>
+where
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org52fc03f"><div id='functions-17328'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-16818'>&uarr;</a><a href='#functions-19892'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">issolved</span>(bd):
+      <span class="org-doc">'returns True when no unknown cells remain. Assumes the board is valid.'</span>
+      <span class="org-keyword">return</span> <span class="org-keyword">not</span> bd.unknown</pre>
+</div>
+
+<p>
+We should also
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orge6dba35"><div id='imports-17513'>&langle;<a href='#imports' class='noweb-ref'>imports</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#imports-7750'>&uarr;</a></span></div>  <span class="org-keyword">from</span> math <span class="org-keyword">import</span> inf
+  <span class="org-keyword">import</span> random</pre>
+</div>
+
+<p>
+Now, we can generate the final solution to our original puzzle:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-builtin">next</span>(solve(load_board(<span class="org-string">'''</span>
+<span class="org-string">8 3 . | . . . | . . 4</span>
+<span class="org-string">9 . . | . . . | . 6 .</span>
+<span class="org-string">. 1 . | 4 5 . | . 7 .</span>
+<span class="org-string">------+-------+------</span>
+<span class="org-string">. . . | . . 5 | . . 3</span>
+<span class="org-string">. . 5 | . 1 8 | . . .</span>
+<span class="org-string">. . . | . . 3 | 4 9 .</span>
+<span class="org-string">------+-------+------</span>
+<span class="org-string">. . . | . 6 . | 7 . .</span>
+<span class="org-string">. . . | . . 1 | . . .</span>
+<span class="org-string">. . . | 8 . . | . . 1</span>
+<span class="org-string">'''</span>)))</pre>
+</div>
+
+<p>
+yields
+</p>
+
+
+<div class="figure">
+<p><img src="images/ex-1-soln.png" alt="ex-1-soln.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1d76bea" class="outline-2">
+<h2 id="org1d76bea"><span class="section-number-2">4</span> Generating Sudoku</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+To generate a puzzle, we&rsquo;ll work backwards from the solution, iteratively 
+testing each cell to determine whether the board remains <i>proper</i>&#x2014;i.e., has
+exactly one solutions&#x2014;if the cell is made an unknown. Those that can be
+masked out are; those that can&rsquo;t become the clues. A naive first version would
+look something like
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">generate_from</span>(soln):
+    <span class="org-variable-name">known</span> = soln.known.copy()
+    <span class="org-variable-name">order</span> = <span class="org-builtin">int</span>(<span class="org-builtin">len</span>(known) ** 0.25)
+    <span class="org-variable-name">clues</span> = {}
+
+    <span class="org-keyword">def</span> <span class="org-function-name">new</span>():
+        <span class="org-variable-name">bd</span> = blank(order)
+        <span class="org-keyword">for</span> (cell, val) <span class="org-keyword">in</span> known.items(): bd.mark(cell, val)
+        <span class="org-keyword">for</span> (cell, val) <span class="org-keyword">in</span> clues.items(): bd.mark(cell, val)
+        <span class="org-keyword">return</span> bd
+
+    <span class="org-keyword">while</span> known:
+        <span class="org-variable-name">cell</span> = random.choice(<span class="org-builtin">list</span>(known))
+        <span class="org-variable-name">val</span> = known.pop(cell)
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> isproper(new()):
+            <span class="org-variable-name">clues</span>[cell] = val
+
+    <span class="org-keyword">return</span> new()</pre>
+</div>
+
+<p>
+where
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">isproper</span>(bd):
+    <span class="org-variable-name">nsolns</span> = 0
+    <span class="org-keyword">for</span> soln <span class="org-keyword">in</span> solve(bd):
+        <span class="org-variable-name">nsolns</span> += 1
+        <span class="org-keyword">if</span> nsolns &gt; 1: <span class="org-keyword">break</span>
+
+    <span class="org-keyword">return</span> nsolns == 1</pre>
+</div>
+
+<p>
+However, the naive procedure&rsquo;s performance degrades rapidly with increasing
+order&#x2014;checking a board&rsquo;s propriety requires solving it, and <code>solve</code>&rsquo;s
+complexity grows combinatorially with the number of unknown cells. We can
+salvage the situation with a few measures:
+</p>
+
+<ul class="org-ul">
+<li>We can safely mask out any cell that can be deduced based on the currently
+known cells.</li>
+<li>Checking whether masking out a given cell would result in proper board
+requires attempting to solve the board resulting from masking the cell. We
+can constrain the solver to only generate solutions within <code>maxdepth</code>
+guesses.</li>
+<li>The solver chooses from the unknown cells with the fewest possible
+values. If set, the <code>minrule</code> option causes us to check whether a potential
+clue cell would be among those the backtracker would consider.</li>
+</ul>
+
+<p>
+The generation procedure we&rsquo;ll actually use is
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org2a128d8"><div id='functions-19892'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-17328'>&uarr;</a><a href='#functions-20718'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">generate_from</span>(soln, minrule=<span class="org-constant">False</span>, maxdepth=inf):
+      <span class="org-doc">'given a solution, generate a puzzle (like Jeopardy!)'</span>
+  
+      <span class="org-variable-name">known</span> = soln.known.copy()
+      <span class="org-variable-name">order</span> = <span class="org-builtin">int</span>(<span class="org-builtin">len</span>(known) ** 0.25)
+      <span class="org-variable-name">clues</span> = {}
+  
+      <span class="org-keyword">def</span> <span class="org-function-name">new</span>():
+          <span class="org-variable-name">bd</span> = blank(order)
+          <span class="org-keyword">for</span> (cell, val) <span class="org-keyword">in</span> known.items(): bd.mark(cell, val)
+          <span class="org-keyword">for</span> (cell, val) <span class="org-keyword">in</span> clues.items(): bd.mark(cell, val)
+          <span class="org-keyword">return</span> bd
+  
+      <span class="org-variable-name">minvals</span> = <span class="org-keyword">lambda</span> bd: <span class="org-builtin">min</span>(<span class="org-builtin">map</span>(<span class="org-builtin">len</span>, bd.unknown.values()))
+  
+      <span class="org-keyword">while</span> known:
+          <span class="org-variable-name">cell</span> = random.choice(<span class="org-builtin">list</span>(known))
+          <span class="org-variable-name">val</span> = known.pop(cell)
+          <span class="org-variable-name">bd2</span> = new()
+          mark_forced(bd2)
+  
+          <span class="org-keyword">if</span> cell <span class="org-keyword">in</span> bd2.known:
+              <span class="org-keyword">pass</span>
+          <span class="org-keyword">elif</span> minrule <span class="org-keyword">and</span> <span class="org-builtin">len</span>(bd2.unknown[cell]) &gt; minvals(bd2):
+              <span class="org-variable-name">clues</span>[cell] = val
+          <span class="org-keyword">elif</span> <span class="org-keyword">not</span> isproper(bd2, maxdepth=maxdepth):
+              <span class="org-variable-name">clues</span>[cell] = val
+  
+      <span class="org-keyword">return</span> new()</pre>
+</div>
+
+<p>
+where 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgbb84552"><div id='functions-20718'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-19892'>&uarr;</a><a href='#functions-21496'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">isproper</span>(bd, maxdepth=inf):
+      <span class="org-variable-name">nsolns</span> = 0
+      <span class="org-keyword">for</span> soln <span class="org-keyword">in</span> solve(bd, maxdepth):
+          <span class="org-variable-name">nsolns</span> += 1
+          <span class="org-keyword">if</span> nsolns &gt; 1: <span class="org-keyword">break</span>
+  
+      <span class="org-keyword">return</span> nsolns == 1</pre>
+</div>
+
+<p>
+We can now create puzzles of various sizes; for example, order 2:
+</p>
+
+
+<div class="figure">
+<p><img src="images/order2.png" alt="order2.png" />
+</p>
+</div>
+
+<p>
+order 3:
+</p>
+
+
+<div class="figure">
+<p><img src="images/order3.png" alt="order3.png" />
+</p>
+</div>
+
+<p>
+and order 4:
+</p>
+
+<div class="figure">
+<p><img src="images/order4.png" alt="order4.png" />
+</p>
+</div>
+
+<p>
+Once we&rsquo;ve made a puzzle, we might like some idea of how difficult it
+is. There are many ways to go about this&#x2014;keeping track of which of a stable
+of heuristics are needed, how many guesses are needed, etc.&#x2014;but the one
+we&rsquo;ll use here is based on how much of the puzzle our solver can complete
+before it has to resort to guessing.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org6a1b5f0"><div id='functions-21496'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-20718'>&uarr;</a><a href='#functions-23599'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">rate</span>(bd):
+      <span class="org-doc">'estimate the difficulty of bd'</span>
+      <span class="org-variable-name">ncells</span> = <span class="org-builtin">len</span>(bd.known) + <span class="org-builtin">len</span>(bd.unknown)
+      <span class="org-variable-name">soln2</span> = bd.copy()
+      mark_forced(soln2)
+      <span class="org-variable-name">first_guess</span> = <span class="org-builtin">len</span>(soln2.known)
+      <span class="org-keyword">return</span> 1 - first_guess/ncells</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7e5676f" class="outline-2">
+<h2 id="org7e5676f"><span class="section-number-2">5</span> Utility Library</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+Since much of what we&rsquo;ve written so far is useful for multiple purposes, we&rsquo;ll
+package it into a library:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgc901619"><div id='sudoku/__init__.py'>&langle;<span class='noweb-def' id='sudoku/__init__.py-21903'>sudoku/__init__.py</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-doc">'useful utilities for manipulating Sudoku puzzles'</span>
+  
+  &langle;<a class='noweb-ref' href='#imports'>imports</a>&rangle;
+  &langle;<a class='noweb-ref' href='#data types'>data types</a>&rangle;
+  &langle;<a class='noweb-ref' href='#functions'>functions</a>&rangle;</pre>
+</div>
+
+<p>
+The finished product is <a href="./sudoku/__init__.py">./sudoku/__init__.py</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org125fa45" class="outline-2">
+<h2 id="org125fa45"><span class="section-number-2">6</span> Command Line Tools</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+Having a library encapsulating the bulk of what we might wish to do, let&rsquo;s
+make it more operationally useful by creating a series of tools that we can
+use from a command line or shell script. Each tool should emit a usage message
+if requested, and each should die gracefully on error. 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org72b3163"><div id='common'>&langle;<span class='noweb-def' id='common-22435'>common</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">usage</span>():
+      <span class="org-keyword">return</span> <span class="org-builtin">__doc__</span>.lstrip() % sys.argv[0]
+  
+  <span class="org-keyword">if</span> <span class="org-builtin">__name__</span> == <span class="org-string">'__main__'</span>:
+      <span class="org-keyword">try</span>:
+          <span class="org-keyword">if</span> <span class="org-builtin">set</span>(sys.argv) &amp; {<span class="org-string">'-h'</span>, <span class="org-string">'--help'</span>}:
+              sys.<span class="org-constant">exit</span>(usage())
+          <span class="org-keyword">else</span>:
+              main(sys.argv[1:])
+      <span class="org-keyword">except</span> <span class="org-type">Exception</span> <span class="org-keyword">as</span> e:
+          sys.<span class="org-constant">exit</span>(<span class="org-string">'Unhandled %s'</span> % e)</pre>
+</div>
+</div>
+
+<div id="outline-container-orgf19886d" class="outline-3">
+<h3 id="orgf19886d"><span class="section-number-3">6.1</span> The Solver</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+For simplicity, the solver should read a board, parsable by <code>load_board</code>,
+from either a file or standard input, and emit all the solutions to standard
+output. The overall structure of our file should look something like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orga8ce87a"><div id='bin/sudoku'>&langle;<span class='noweb-def' id='bin/sudoku-22984'>bin/sudoku</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  &langle;<a class='noweb-ref' href='#solver usage'>solver usage</a>&rangle;
+  &langle;<a class='noweb-ref' href='#solver imports'>solver imports</a>&rangle;
+  &langle;<a class='noweb-ref' href='#solver functions'>solver functions</a>&rangle;
+  &langle;<a class='noweb-ref' href='#common'>common</a>&rangle;</pre>
+</div>
+
+<p>
+where 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org2af3d4f"><div id='solver imports'>&langle;<span class='noweb-def' id='solver imports-23109'>solver imports</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">import</span> sys
+  <span class="org-keyword">import</span> sudoku <span class="org-keyword">as</span> sd</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgad1f3b2"><div id='solver functions'>&langle;<span class='noweb-def' id='solver functions-23193'>solver functions</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">main</span>(argv):
+      <span class="org-variable-name">fn</span> = argv[0] <span class="org-keyword">if</span> argv <span class="org-keyword">else</span> <span class="org-string">'-'</span>
+      <span class="org-keyword">try</span>:
+          <span class="org-variable-name">bd</span> = sd.load_board((sys.stdin <span class="org-keyword">if</span> fn == <span class="org-string">'-'</span> <span class="org-keyword">else</span> <span class="org-builtin">open</span>(fn)).read())
+      <span class="org-keyword">except</span> <span class="org-type">ValueError</span>:
+          sys.<span class="org-constant">exit</span>(<span class="org-string">'ill-formed board'</span>)
+  
+      <span class="org-keyword">for</span> (i, soln) <span class="org-keyword">in</span> <span class="org-builtin">enumerate</span>(sd.solve(bd), start=1):
+          <span class="org-keyword">assert</span> sd.isvalid(soln) <span class="org-keyword">and</span> sd.issolved(soln)
+          <span class="org-keyword">print</span>(<span class="org-string">'solution %s:'</span> % i)
+          <span class="org-keyword">print</span>(sd.dump_board(soln))
+          <span class="org-keyword">print</span>()</pre>
+</div>
+
+<p>
+and
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgb55abb1"><div id='functions-23599'>&langle;<a href='#functions' class='noweb-ref'>functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#functions-21496'>&uarr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">isvalid</span>(bd):
+      <span class="org-keyword">if</span> <span class="org-keyword">not</span> bd.known <span class="org-keyword">and</span> <span class="org-keyword">not</span> bd.unknown: <span class="org-keyword">return</span> <span class="org-constant">False</span>
+  
+      <span class="org-keyword">for</span> (div, cells) <span class="org-keyword">in</span> bd.div2cells.items():
+          <span class="org-variable-name">vals</span> = [bd.known[cell] <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> cells <span class="org-keyword">if</span> cell <span class="org-keyword">in</span> bd.known]
+          <span class="org-keyword">if</span> <span class="org-builtin">len</span>(vals) != <span class="org-builtin">len</span>(<span class="org-builtin">set</span>(vals)):
+              <span class="org-keyword">return</span> <span class="org-constant">False</span>
+          <span class="org-keyword">elif</span> <span class="org-builtin">any</span>(bd.unknown.get(cell, <span class="org-builtin">set</span>()) &amp; <span class="org-builtin">set</span>(vals) <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> cells):
+              <span class="org-keyword">return</span> <span class="org-constant">False</span>
+  
+      <span class="org-keyword">return</span> <span class="org-constant">True</span></pre>
+</div>
+
+<p>
+We should also have a civilized help message:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org12fb6e2"><div id='solver usage'>&langle;<span class='noweb-def' id='solver usage-24030'>solver usage</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-doc">'''</span>
+  <span class="org-doc">Usage: %s [FILE]</span>
+  <span class="org-doc">Find all solutions for a Sudoku puzzle.</span>
+  
+  <span class="org-doc">Options:</span>
+  <span class="org-doc">  -h, --help    print this help and exit</span>
+  
+  <span class="org-doc">If FILE is omitted or `-', then the initial board is read from stdin.</span>
+  
+  <span class="org-doc">The input board should consist of a series of cells, each either a positive </span>
+  <span class="org-doc">integer or a `.' to denote an unknown value, separated by any characters not in </span>
+  <span class="org-doc">/[0-9.]/. The order of the board is automatically detected as the fourth root of </span>
+  <span class="org-doc">the number of cells, and it must be an integer. The numerical values are </span>
+  <span class="org-doc">constrained from 1 to order**2 inclusive.</span>
+  
+  <span class="org-doc">The solutions will always be ``pretty-printed'', e.g.,</span>
+  
+  <span class="org-doc">  solution 1:</span>
+  <span class="org-doc">  4 2 7 | 1 3 6 | 5 8 9</span>
+  <span class="org-doc">  6 5 1 | 9 2 8 | 4 7 3</span>
+  <span class="org-doc">  3 8 9 | 5 4 7 | 1 6 2</span>
+  <span class="org-doc">  ------+-------+------</span>
+  <span class="org-doc">  2 3 5 | 8 1 9 | 7 4 6</span>
+  <span class="org-doc">  9 6 8 | 3 7 4 | 2 1 5</span>
+  <span class="org-doc">  7 1 4 | 2 6 5 | 9 3 8</span>
+  <span class="org-doc">  ------+-------+------</span>
+  <span class="org-doc">  8 9 6 | 7 5 1 | 3 2 4</span>
+  <span class="org-doc">  1 4 3 | 6 9 2 | 8 5 7</span>
+  <span class="org-doc">  5 7 2 | 4 8 3 | 6 9 1</span>
+  
+  <span class="org-doc">  solution 2:</span>
+  <span class="org-doc">  ...</span>
+  
+  <span class="org-doc">It is the case that a ``proper'' Sudoku can have only one solution; however, </span>
+  <span class="org-doc">``improper'' Sudoku puzzles do exist.</span>
+  <span class="org-doc">'''</span></pre>
+</div>
+
+<p>
+to give our <a href="bin/sudoku">finished Sudoku solver</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org282291c" class="outline-3">
+<h3 id="org282291c"><span class="section-number-3">6.2</span> The Generator</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+The puzzle generator need only take a board order from the command line,
+defaulting to 3, for a standard Sudoku. For convenience, we&rsquo;ll have it spit out
+the solution and a difficulty estimate, too.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org61e32eb"><div id='bin/sudokugen'>&langle;<span class='noweb-def' id='bin/sudokugen-25372'>bin/sudokugen</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-doc">'''</span>
+  <span class="org-doc">Usage: %s [-o ORDER] [-g MAXGUESSES] [-m]</span>
+  <span class="org-doc">Generate a Sudoku puzzle.</span>
+  
+  <span class="org-doc">Options:</span>
+  <span class="org-doc">  -h, --help    print this help and exit</span>
+  
+  <span class="org-doc">  -g MAXGUESSES</span>
+  <span class="org-doc">                when testing potential clues, restrict solver to a depth of </span>
+  <span class="org-doc">                MAXGUESSES</span>
+  
+  <span class="org-doc">  -m            only remove cells that can be deduced or have that might be</span>
+  <span class="org-doc">                among the best candidates</span>
+  <span class="org-doc">'''</span>
+  
+  <span class="org-keyword">import</span> getopt
+  <span class="org-keyword">from</span> math <span class="org-keyword">import</span> inf
+  <span class="org-keyword">import</span> sys
+  <span class="org-keyword">import</span> sudoku <span class="org-keyword">as</span> sd
+  
+  <span class="org-keyword">def</span> <span class="org-function-name">main</span>(argv):
+      <span class="org-variable-name">opts_</span>, <span class="org-variable-name">args</span> = getopt.gnu_getopt(argv, <span class="org-string">'g:mo:'</span>)
+      <span class="org-variable-name">opts</span> = <span class="org-builtin">dict</span>(opts_)
+  
+      <span class="org-variable-name">order</span> = <span class="org-builtin">int</span>(opts.get(<span class="org-string">'-o'</span>, 3))
+      <span class="org-variable-name">maxguesses</span> = <span class="org-builtin">int</span>(opts[<span class="org-string">'-g'</span>]) <span class="org-keyword">if</span> <span class="org-string">'-g'</span> <span class="org-keyword">in</span> opts <span class="org-keyword">else</span> inf
+      <span class="org-variable-name">minrule</span> = <span class="org-string">'-m'</span> <span class="org-keyword">in</span> opts
+  
+      <span class="org-variable-name">recursionlimit</span> = sys.getrecursionlimit()
+      sys.setrecursionlimit(order**4 * 2)
+      <span class="org-variable-name">soln</span> = <span class="org-builtin">next</span>(sd.solve(sd.blank(order)))
+      sys.setrecursionlimit(recursionlimit)
+  
+      <span class="org-variable-name">bd</span> = sd.generate_from(soln, minrule=minrule, maxdepth=maxguesses)
+  
+      <span class="org-keyword">print</span>(<span class="org-string">'difficulty:'</span>, sd.rate(bd))
+      <span class="org-keyword">print</span>()
+      <span class="org-keyword">print</span>(sd.dump_board(bd))
+      <span class="org-keyword">print</span>()
+      <span class="org-keyword">print</span>(<span class="org-string">'&gt; '</span> + sd.dump_board(soln).replace(<span class="org-string">'\n'</span>, <span class="org-string">'\n&gt; '</span>))
+  
+  &langle;<a class='noweb-ref' href='#common'>common</a>&rangle;</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org87517bc" class="outline-3">
+<h3 id="org87517bc"><span class="section-number-3">6.3</span> The Formatter</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+Having the means to both generate and solve Sudoku puzzles, the next thing is
+to nicely present them. For flexibility, we&rsquo;ll generate Latex source code for
+inclusion into any document we please, allowing us to generate figures (like
+the ones in this article), booklets, etc. Additionally, we&rsquo;ll lean on the
+facilities of a custom Latex package.
+</p>
+</div>
+
+<div id="outline-container-orgddbb7a4" class="outline-4">
+<h4 id="orgddbb7a4"><span class="section-number-4">6.3.1</span> Conversion to Latex</h4>
+<div class="outline-text-4" id="text-6-3-1">
+<p>
+The Latex environment we&rsquo;ll use expects as input something like
+</p>
+
+<div class="org-src-container">
+<pre class="src src-latex"><span class="org-keyword">\begin</span>{<span class="org-function-name">sudoku</span>}[2]
+  |1|2|3|4|.
+  |1|2|3|4|.
+  |1|2|3|4|.
+  |1|2|3|4|.
+<span class="org-keyword">\end</span>{<span class="org-function-name">sudoku</span>}</pre>
+</div>
+
+<p>
+The individual cells can contain more complex items than numbers, provided
+they&rsquo;re suitably wrapped.
+</p>
+
+<p>
+Generating the <code>sudoku</code> environment falls to
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgc658f8a"><div id='formatter functions'>&langle;<span class='noweb-def' id='formatter functions-27162'>formatter functions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#formatter functions-28704'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">sudoku_env</span>(bd, pencil_marks, special):
+      <span class="org-variable-name">ncells</span> = <span class="org-builtin">len</span>(bd.known) + <span class="org-builtin">len</span>(bd.unknown)
+      <span class="org-variable-name">order</span> = <span class="org-builtin">int</span>(ncells**0.25)
+      <span class="org-variable-name">n</span> = order**2
+      <span class="org-variable-name">cells</span> = [<span class="org-builtin">str</span>(bd.known.get(i, <span class="org-string">' '</span>)) <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(ncells)]
+  
+      <span class="org-keyword">if</span> pencil_marks: apply_pencils(bd, cells, order)
+  
+      <span class="org-variable-name">reds</span> = <span class="org-builtin">set</span>()
+      <span class="org-variable-name">redboxes</span> = <span class="org-builtin">set</span>()
+  
+      <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> special:
+          <span class="org-variable-name">dr</span>, <span class="org-variable-name">drb</span> = highlight(cell, bd, cells, order)
+          <span class="org-variable-name">reds</span> |= dr
+          <span class="org-variable-name">redboxes</span> |= drb
+  
+      <span class="org-variable-name">cells_fmtd</span> = fmt_cells(cells, bd, reds, redboxes)
+      <span class="org-variable-name">grid</span> = form_body(cells_fmtd, n)
+      <span class="org-variable-name">sudokusize</span> = n/9 * (17 <span class="org-keyword">if</span> pencil_marks <span class="org-keyword">or</span> redboxes <span class="org-keyword">else</span> 12)
+      <span class="org-variable-name">unitlength</span> = sudokusize / n
+      <span class="org-variable-name">fboxsep</span> = {2: 2, 3: 7, 4: 9}.get(order, 9) / 4 / n
+  
+      <span class="org-keyword">return</span> f<span class="org-string">'''</span>
+  <span class="org-string">    \\setlength\\sudokusize{{{sudokusize}cm}}</span>
+  <span class="org-string">    \\setlength\\unitlength{{{1/n}\\sudokusize}}</span>
+  <span class="org-string">    \\setlength\\fboxsep{{-{fboxsep}\\unitlength}}</span>
+  <span class="org-string">    \\renewcommand\\sudokuformat[1]{{\\Huge\\sffamily#1}}</span>
+  
+  <span class="org-string">    \\begin{{sudoku}}[{order}]</span>
+  <span class="org-string">    {grid}</span>
+  <span class="org-string">    \\end{{sudoku}}</span>
+  <span class="org-string">    '''</span>
+  
+  <span class="org-keyword">def</span> <span class="org-function-name">form_body</span>(cells, n):
+      <span class="org-variable-name">rows</span> = [cells[i*n : (i + 1) * n] <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(n)]
+      <span class="org-variable-name">lines</span> = [<span class="org-string">'|%s|.'</span> % <span class="org-string">'|'</span>.join(row) <span class="org-keyword">for</span> row <span class="org-keyword">in</span> rows]
+      <span class="org-keyword">return</span> <span class="org-string">'\n'</span>.join(lines)</pre>
+</div>
+
+<p>
+The calculations for <code>sudokusize</code> and <code>fboxsep</code> are the product of considerable
+trial and error to determine what would look decent/reasonable/not terrible over
+a range of board sizes.
+</p>
+
+<p>
+Pencil marks should be formed in a square array containing just the values of
+interest and little else. In practice, we have to add some blank rows and
+columns to give more favorable placement in the cells.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgae57c94"><div id='formatter functions-28704'>&langle;<a href='#formatter functions' class='noweb-ref'>formatter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#formatter functions-27162'>&uarr;</a><a href='#formatter functions-29437'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">pencils</span>(possible, order):
+      <span class="org-variable-name">vals</span> = [<span class="org-builtin">str</span>(val) <span class="org-keyword">if</span> val <span class="org-keyword">in</span> possible <span class="org-keyword">else</span> <span class="org-string">'.'</span>
+              <span class="org-keyword">for</span> val <span class="org-keyword">in</span> <span class="org-builtin">range</span>(1, 1 + order**2)]
+      <span class="org-variable-name">coldesc</span> = <span class="org-string">'c'</span> + <span class="org-string">'c'</span> * order
+      <span class="org-variable-name">grid</span> = <span class="org-string">' \\\\\n'</span>.join(<span class="org-string">' &amp; '</span>.join(<span class="org-builtin">map</span>(<span class="org-builtin">str</span>, [<span class="org-string">'\\ \\ '</span>]
+                                           + vals[order*i : order*(i + 1)]))
+                            <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(order))
+  
+      <span class="org-keyword">return</span> f<span class="org-string">'''</span>
+  <span class="org-string">    \\resizebox{{\\unitlength}}{{.6\\unitlength}}{{</span>
+  <span class="org-string">    \\begin{{tabular}}{{{coldesc}}}</span>
+  <span class="org-string">    \\ \\\\</span>
+  <span class="org-string">    {grid} \\\\</span>
+  <span class="org-string">    \\ \\\\</span>
+  <span class="org-string">    \\end{{tabular}}</span>
+  <span class="org-string">    }}</span>
+  <span class="org-string">    '''</span>
+  
+  <span class="org-keyword">def</span> <span class="org-function-name">apply_pencils</span>(bd, cells, order):
+      <span class="org-keyword">for</span> (unk, vals) <span class="org-keyword">in</span> bd.unknown.items():
+          <span class="org-variable-name">cells</span>[unk] = pencils(vals, order)</pre>
+</div>
+
+<p>
+We wish to call out cells of interest, and we also want to indicate how
+constraints might propagate:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org61811a2"><div id='formatter functions-29437'>&langle;<a href='#formatter functions' class='noweb-ref'>formatter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#formatter functions-28704'>&uarr;</a><a href='#formatter functions-29976'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">highlight</span>(cell0, bd, cells, order):
+      <span class="org-variable-name">reds</span> = <span class="org-builtin">set</span>()
+      <span class="org-variable-name">redboxes</span> = {cell0}
+  
+      <span class="org-keyword">for</span> div <span class="org-keyword">in</span> bd.cell2divs[cell0]:
+          <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> bd.div2cells[div] - <span class="org-builtin">set</span>(bd.known):
+              <span class="org-variable-name">cells</span>[cell] = pencils(bd.unknown[cell], order)
+              <span class="org-keyword">if</span> bd.unknown[cell0] &amp; bd.unknown[cell]:
+                  reds.add(cell)
+      <span class="org-keyword">return</span> reds, redboxes</pre>
+</div>
+
+<p>
+Once the pencil marks and highlights have been computed, we can format each cell
+to show pencil marks, highlighted cells, and the possible effects of constraint
+propagation:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org791f8ed"><div id='formatter functions-29976'>&langle;<a href='#formatter functions' class='noweb-ref'>formatter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#formatter functions-29437'>&uarr;</a><a href='#formatter functions-30543'>&darr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">fmt_cells</span>(cells, bd, reds, redboxes):
+      <span class="org-variable-name">red</span> = <span class="org-keyword">lambda</span> s: <span class="org-string">'{\\color{red}%s}'</span> % s
+      <span class="org-variable-name">redboxed</span> = <span class="org-keyword">lambda</span> s: <span class="org-string">'{\\color{red}\\fbox{%s}}'</span> % s
+      <span class="org-variable-name">black</span> = <span class="org-keyword">lambda</span> s: <span class="org-string">'{\\color{black}%s}'</span> % s
+  
+      <span class="org-keyword">return</span> [redboxed(cell) <span class="org-keyword">if</span> i <span class="org-keyword">in</span> redboxes
+              <span class="org-keyword">else</span> red(cell) <span class="org-keyword">if</span> i <span class="org-keyword">in</span> reds
+              <span class="org-keyword">else</span> black(cell)
+              <span class="org-keyword">for</span> (i, cell) <span class="org-keyword">in</span> <span class="org-builtin">enumerate</span>(cells)]</pre>
+</div>
+
+<p>
+With the formatting machinery out of the way, <code>main</code> becomes quite simple:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org2723165"><div id='formatter imports'>&langle;<span class='noweb-def' id='formatter imports-30438'>formatter imports</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">import</span> getopt
+  <span class="org-keyword">import</span> sys
+  <span class="org-keyword">import</span> sudoku <span class="org-keyword">as</span> sd</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org42141e2"><div id='formatter functions-30543'>&langle;<a href='#formatter functions' class='noweb-ref'>formatter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#formatter functions-29976'>&uarr;</a></span></div>  <span class="org-keyword">def</span> <span class="org-function-name">main</span>(argv):
+      <span class="org-keyword">try</span>:
+          <span class="org-variable-name">opts_</span>, <span class="org-variable-name">args</span> = getopt.gnu_getopt(argv, <span class="org-string">'hp'</span>)
+          <span class="org-variable-name">special</span> = {<span class="org-builtin">int</span>(cell) <span class="org-keyword">for</span> cell <span class="org-keyword">in</span> args}
+      <span class="org-keyword">except</span> getopt.GetoptError: sys.<span class="org-constant">exit</span>(usage())
+      <span class="org-keyword">except</span> <span class="org-type">ValueError</span>: sys.<span class="org-constant">exit</span>(usage())
+  
+      <span class="org-variable-name">opts</span> = <span class="org-builtin">dict</span>(opts_)
+      <span class="org-variable-name">pencil_marks</span> = <span class="org-string">'-p'</span> <span class="org-keyword">in</span> opts
+  
+      <span class="org-keyword">try</span>:
+          <span class="org-variable-name">bd</span> = sd.load_board(sys.stdin.read(), validate_vals=<span class="org-constant">False</span>)
+      <span class="org-keyword">except</span> <span class="org-type">ValueError</span>:
+          sys.<span class="org-constant">exit</span>(<span class="org-string">'ill-formed board'</span>)
+  
+      <span class="org-keyword">print</span>(sudoku_env(bd, pencil_marks, special))</pre>
+</div>
+
+<p>
+Since we&rsquo;re not attempting to generate solutions, it is not critical that input
+boards be restricted in their cell values. Setting <code>validate_vals</code> is <code>False</code>
+facilitates producing diagrams.
+</p>
+
+<p>
+We can now collect the pieces into a single file, like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgd1d4aae"><div id='bin/sudoku2tex'>&langle;<span class='noweb-def' id='bin/sudoku2tex-31280'>bin/sudoku2tex</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  &langle;<a class='noweb-ref' href='#formatter usage'>formatter usage</a>&rangle;
+  &langle;<a class='noweb-ref' href='#formatter imports'>formatter imports</a>&rangle;
+  &langle;<a class='noweb-ref' href='#formatter functions'>formatter functions</a>&rangle;
+  &langle;<a class='noweb-ref' href='#common'>common</a>&rangle;</pre>
+</div>
+
+<p>
+where the usage statement is
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org59472df"><div id='formatter usage'>&langle;<span class='noweb-def' id='formatter usage-31440'>formatter usage</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-doc">'''</span>
+  <span class="org-doc">Usage: %s [OPTIONS] [HIGHLIGHT]...</span>
+  <span class="org-doc">Given a Sudoku board, generate Latex source code.</span>
+  
+  <span class="org-doc">Options:</span>
+  <span class="org-doc">                x</span>
+  <span class="org-doc">  -h, --help    print this help and exit</span>
+  
+  <span class="org-doc">  -p            print pencil marks for all unknown cells</span>
+  
+  <span class="org-doc">Cells are numbered sequentially from 0 in row-major order. Each HIGHLIGHT </span>
+  <span class="org-doc">indicates a cell whose value (or pencil marks) will have its value surrounded</span>
+  <span class="org-doc">by a red box; HIGHLIGHTs and any cell sharing a possible value with a HIGHLIGHT</span>
+  <span class="org-doc">will have their possibilities set in red. In the absence of the -p option, only</span>
+  <span class="org-doc">cells sharing a division with a HIGHLIGHT will be pencil marked.</span>
+  
+  <span class="org-doc">The code generated by this program requires the sudokuii Latex package, included</span>
+  <span class="org-doc">in the distribution (sudokuii.sty).</span>
+  <span class="org-doc">'''</span></pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org26dc30c" class="outline-4">
+<h4 id="org26dc30c"><span class="section-number-4">6.3.2</span> The Latex Package</h4>
+<div class="outline-text-4" id="text-6-3-2">
+<p>
+Latex has had for years a package for formatting Sudoku boards, but it
+focuses purely on the classic 9x9 grid. To get around this, we can create a
+package of our own that redefines the <code>sudoku</code> environment to deal with
+boards of any order.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-latex" id="org8d80381"><div id='latex sudoku definitions'>&langle;<span class='noweb-def' id='latex sudoku definitions-32473'>latex sudoku definitions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#latex sudoku definitions-33820'>&darr;</a></span></div>  <span class="org-keyword">\renewenvironment</span>{<span class="org-function-name">sudoku</span>}[1][3]{
+    <span class="org-keyword">\newcount\order</span>
+    <span class="org-keyword">\order</span> = #1
+    <span class="org-keyword">\newcount\n</span>
+    <span class="org-keyword">\n</span> = <span class="org-keyword">\numexpr</span>(#1*#1)
+    <span class="org-keyword">\FPeval</span>{<span class="org-keyword">\sudodelta</span>}{1/#1/#1}
+  
+    <span class="org-keyword">\renewenvironment</span>{<span class="org-function-name">sudoku-block</span>}{
+      <span class="org-keyword">\catcode</span>`<span class="org-keyword">\|</span>=<span class="org-keyword">\active</span>
+      <span class="org-keyword">\@sudoku@activate</span>
+      <span class="org-keyword">\setcounter</span>{<span class="org-variable-name">@sudoku@col</span>}{-1}
+      <span class="org-keyword">\setcounter</span>{<span class="org-variable-name">@sudoku@row</span>}{<span class="org-keyword">\numexpr</span>(<span class="org-keyword">\n</span>-1)}
+      <span class="org-keyword">\setlength\unitlength</span>{<span class="org-keyword">\sudodelta\sudokusize</span>}
+      <span class="org-keyword">\begin</span>{<span class="org-function-name">picture</span>}(<span class="org-keyword">\n</span>,<span class="org-keyword">\n</span>)
+        <span class="org-keyword">\@sudoku@grid\@sudoku@grab@arguments</span>
+    }{
+      <span class="org-keyword">\end</span>{<span class="org-function-name">picture</span>}
+    }
+  
+    <span class="org-keyword">\renewcommand*</span><span class="org-function-name">\@sudoku@grid</span>{
+      <span class="org-keyword">\linethickness</span>{<span class="org-keyword">\sudokuthinline</span>}
+      <span class="org-keyword">\multiput</span>(0,0)(1,0){<span class="org-keyword">\numexpr</span>(<span class="org-keyword">\n</span>+1)}{<span class="org-keyword">\line</span>(0,1){<span class="org-keyword">\n</span>}}
+      <span class="org-keyword">\multiput</span>(0,0)(0,1){<span class="org-keyword">\numexpr</span>(<span class="org-keyword">\n</span>+1)}{<span class="org-keyword">\line</span>(1,0){<span class="org-keyword">\n</span>}}
+      <span class="org-keyword">\linethickness</span>{<span class="org-keyword">\sudokuthickline</span>}
+      <span class="org-keyword">\multiput</span>(0,0)(<span class="org-keyword">\order</span>,0){<span class="org-keyword">\numexpr</span>(<span class="org-keyword">\order</span>+1)}{<span class="org-keyword">\line</span>(0,1){<span class="org-keyword">\n</span>}}
+      <span class="org-keyword">\multiput</span>(0,0)(0,<span class="org-keyword">\order</span>){<span class="org-keyword">\numexpr</span>(<span class="org-keyword">\order</span>+1)}{<span class="org-keyword">\line</span>(1,0){<span class="org-keyword">\n</span>}}
+      <span class="org-keyword">\linethickness</span>{0.5<span class="org-keyword">\sudokuthickline</span>}
+      <span class="org-keyword">\put</span>(0,0){<span class="org-keyword">\framebox</span>(0,0){}}
+      <span class="org-keyword">\put</span>(<span class="org-keyword">\n</span>,0){<span class="org-keyword">\framebox</span>(0,0){}}
+      <span class="org-keyword">\put</span>(0,<span class="org-keyword">\n</span>){<span class="org-keyword">\framebox</span>(0,0){}}
+      <span class="org-keyword">\put</span>(<span class="org-keyword">\n</span>,<span class="org-keyword">\n</span>){<span class="org-keyword">\framebox</span>(0,0){}}}
+  
+    <span class="org-keyword">\begin</span>{<span class="org-function-name">center</span>}
+      <span class="org-keyword">\begin</span>{<span class="org-function-name">sudoku-block</span>}
+  }{
+      <span class="org-keyword">\end</span>{<span class="org-function-name">sudoku-block</span>}
+    <span class="org-keyword">\end</span>{<span class="org-function-name">center</span>}
+  }</pre>
+</div>
+
+<p>
+The original <code>\@sudoku@grab@arguments</code> also presumes too much about its
+input, which becomes a problem for boards of order 2.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-latex" id="org31bf15f"><div id='latex sudoku definitions-33820'>&langle;<a href='#latex sudoku definitions' class='noweb-ref'>latex sudoku definitions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#latex sudoku definitions-32473'>&uarr;</a></span></div>  <span class="org-keyword">\def</span>\<span class="org-function-name">@sudoku@grab@arguments</span>#1.{
+    <span class="org-keyword">\scantokens</span>{#1.}}</pre>
+</div>
+
+<p>
+Now we can assemble these with a bit of boilerplate and dependency
+information to form the <a href="share/sudokuii.sty">finished Latex package</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-latex" id="orgb238fc4"><div id='latex/sudokuii.sty'>&langle;<span class='noweb-def' id='latex/sudokuii.sty-34099'>latex/sudokuii.sty</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">\NeedsTeXFormat</span>{LaTeX2e}[1999/12/01]
+  <span class="org-keyword">\ProvidesPackage</span>{sudokuii}[2020/04/18 Big Sudoku]
+  
+  <span class="org-keyword">\RequirePackage</span>{sudoku}
+  <span class="org-keyword">\RequirePackage</span>{fp}
+  
+  <span class="org-string">&langle;<a class='noweb-ref' href='#latex sudoku definitions'>latex sudoku definitions</a>&rangle;</span>
+  
+  <span class="org-keyword">\endinput</span></pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb8a94c1" class="outline-4">
+<h4 id="orgb8a94c1"><span class="section-number-4">6.3.3</span> Converting Boards to Images</h4>
+<div class="outline-text-4" id="text-6-3-3">
+<p>
+We can streamline board formatting a bit more. The output of <code>sudoku2tex</code>
+is meant to be combined with <code>sudokuii.sty</code> in a Latex document, which would
+then be converted to some convenient format. Let&rsquo;s assume that that format
+will be transparent PNG. To pull this off gracefully, we&rsquo;ll start by
+wrapping the invocation of <code>pdflatex</code> into something we can use in a
+pipeline:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="org4558df1"><div id='image converter functions'>&langle;<span class='noweb-def' id='image converter functions-34787'>image converter functions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#image converter functions-35317'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">pipetex</span>() {
+      <span class="org-variable-name">d</span>=<span class="org-sh-quoted-exec">`mktemp -d`</span>
+      <span class="org-builtin">pushd</span> $<span class="org-variable-name">d</span> &gt;/dev/null
+      {
+          cat &lt;&lt;<span class="org-string">'EOF'</span> &gt; sudokuii.sty
+  <span class="org-sh-heredoc"> &langle;<a class='noweb-ref' href='#latex/sudokuii.sty'>latex/sudokuii.sty</a>&rangle;</span>
+  <span class="org-sh-heredoc">EOF</span>
+          pdflatex --jobname tmp &gt;/dev/null
+          [[ -f tmp.pdf ]] &amp;&amp; cat tmp.pdf
+      }
+      <span class="org-builtin">popd</span> &gt; /dev/null
+      rm -rf $<span class="org-variable-name">d</span>
+  }</pre>
+</div>
+
+<p>
+Including the contents of <code>sudokuii.sty</code> in this way saves us from having to
+fiddle with TeX&rsquo;s search path.
+</p>
+
+<p>
+With <code>pipetex</code> defined, we can express conversion of the Latex for a single
+board:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="orgde03360"><div id='image converter functions-35317'>&langle;<a href='#image converter functions' class='noweb-ref'>image converter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#image converter functions-34787'>&uarr;</a><a href='#image converter functions-35916'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">topng</span>() { convert - -trim -transparent white -colorspace RGB png:-; }
+  
+  <span class="org-keyword">function</span> <span class="org-function-name">tex2png</span>() {
+      cat &lt;&lt;EOF | pipetex | topng
+  <span class="org-sh-heredoc">\documentclass[border=2pt,varwidth=\maxdimen]{standalone}</span>
+  <span class="org-sh-heredoc">\usepackage{graphics}</span>
+  <span class="org-sh-heredoc">\usepackage{sudokuii}</span>
+  <span class="org-sh-heredoc">\usepackage{xcolor}</span>
+  <span class="org-sh-heredoc">\usepackage{tcolorbox}</span>
+  
+  <span class="org-sh-heredoc">\begin{document}</span>
+  <span class="org-sh-heredoc">\begin{varwidth}{\linewidth}</span>
+  <span class="org-sh-heredoc">\huge</span>
+  <span class="org-sh-heredoc">$(</span><span class="org-sh-quoted-exec">cat</span><span class="org-sh-heredoc">)</span>
+  <span class="org-sh-heredoc">\end{varwidth}</span>
+  <span class="org-sh-heredoc">\end{document}</span>
+  <span class="org-sh-heredoc">EOF</span>
+  }</pre>
+</div>
+
+<p>
+which then becomes a building block for the functionality we ultimately care
+about:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="org88fbf08"><div id='image converter functions-35916'>&langle;<a href='#image converter functions' class='noweb-ref'>image converter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#image converter functions-35317'>&uarr;</a><a href='#image converter functions-37330'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">convert_puzzle</span>() {
+      <span class="org-variable-name">infile</span>=$<span class="org-variable-name">1</span>
+      <span class="org-variable-name">outd</span>=$<span class="org-variable-name">2</span>
+      <span class="org-builtin">shift</span> 2
+  
+      mkdir -p $<span class="org-variable-name">outd</span>
+      grep difficulty $<span class="org-variable-name">infile</span> &gt; $<span class="org-variable-name">outd</span>/meta.txt
+      grep    <span class="org-string">\&gt;</span> $<span class="org-variable-name">infile</span> | sudoku2tex <span class="org-string">"$@"</span>    | tex2png &gt; $<span class="org-variable-name">outd</span>/solved.png
+      grep -v <span class="org-string">\&gt;</span> $<span class="org-variable-name">infile</span> | sudoku2tex <span class="org-string">"$@"</span>    | tex2png &gt; $<span class="org-variable-name">outd</span>/new.png
+      grep -v <span class="org-string">\&gt;</span> $<span class="org-variable-name">infile</span> | sudoku2tex -p <span class="org-string">"$@"</span> | tex2png &gt; $<span class="org-variable-name">outd</span>/penciled.png
+  }
+  
+  <span class="org-keyword">function</span> <span class="org-function-name">convert_board</span>() {
+      sudoku2tex <span class="org-string">"$@"</span> | tex2png
+  }</pre>
+</div>
+
+<p>
+Once we deal with the command line arguments
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="org18671dc"><div id='handle image converter arguments'>&langle;<span class='noweb-def' id='handle image converter arguments-36441'>handle image converter arguments</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">while</span> [[ <span class="org-string">"$1"</span> ]]; <span class="org-keyword">do</span>
+      <span class="org-keyword">case</span> <span class="org-string">"$1"</span><span class="org-keyword"> in</span>
+          -h|--help)
+              usage
+              <span class="org-keyword">exit</span> 0
+              ;;
+          -P)
+              <span class="org-builtin">shift</span>
+              <span class="org-variable-name">outd</span>=<span class="org-string">"$1"</span>
+              <span class="org-variable-name">problem</span>=1
+              <span class="org-keyword">if</span> <span class="org-negation-char">!</span> [[ <span class="org-string">"$outd"</span> ]]; <span class="org-keyword">then</span>
+                  usage
+                  <span class="org-keyword">exit</span> 1
+              <span class="org-keyword">fi</span>
+              ;;
+          --) <span class="org-keyword">break</span> ;;
+          ,*)
+              <span class="org-builtin">echo</span> $<span class="org-variable-name">1</span>
+              usage
+              <span class="org-keyword">exit</span> 1
+              ;;
+      <span class="org-keyword">esac</span>
+      <span class="org-builtin">shift</span>
+  <span class="org-keyword">done</span></pre>
+</div>
+
+<p>
+we can get on with dispatching to the proper conversion routine:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="orgd855d1c"><div id='bin/sudoku2img'>&langle;<span class='noweb-def' id='bin/sudoku2img-36855'>bin/sudoku2img</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  &langle;<a class='noweb-ref' href='#image converter functions'>image converter functions</a>&rangle;
+  &langle;<a class='noweb-ref' href='#handle image converter arguments'>handle image converter arguments</a>&rangle;
+  
+  <span class="org-sh-heredoc">tmpfile=`mktemp`</span>
+  <span class="org-sh-heredoc">cat &gt; $tmpfile</span>
+  <span class="org-sh-heredoc">err=0</span>
+  
+  <span class="org-sh-heredoc">if [[ "$problem" ]]; then</span>
+  <span class="org-sh-heredoc">    convert_puzzle $tmpfile $outd "$@"</span>
+  <span class="org-sh-heredoc">elif grep -q difficulty $tmpfile; then</span>
+  <span class="org-sh-heredoc">    echo 'sudokugen output detected; re-run with -P option.' &gt;&amp;2</span>
+  <span class="org-sh-heredoc">    err=1</span>
+  <span class="org-sh-heredoc">else</span>
+  <span class="org-sh-heredoc">    &lt;$tmpfile convert_board "$@"</span>
+  <span class="org-sh-heredoc">fi</span>
+  
+  <span class="org-sh-heredoc">rm -f $tmpfile</span>
+  <span class="org-sh-heredoc">exit $err</span></pre>
+</div>
+
+<p>
+The usage statement:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="org71849b5"><div id='image converter functions-37330'>&langle;<a href='#image converter functions' class='noweb-ref'>image converter functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#image converter functions-35916'>&uarr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">usage</span>() {
+      cat &lt;&lt;EOF
+  <span class="org-sh-heredoc">Usage: `basename $0` [OPTIONS]</span>
+  <span class="org-sh-heredoc">Generate images from Sudoku boards or puzzles (i.e., paired boards and</span>
+  <span class="org-sh-heredoc">solutions, as produced by sudokugen).</span>
+  
+  <span class="org-sh-heredoc">Options</span>
+  <span class="org-sh-heredoc">  -h, --help  print this help and exit</span>
+  
+  <span class="org-sh-heredoc">  -P OUTDIR   generate images for a puzzle. Expected input is of the form</span>
+  <span class="org-sh-heredoc">              produced by sudokugen. At conclusion, OUTDIR will contain:</span>
+  
+  <span class="org-sh-heredoc">                - new.png       the unsolved board</span>
+  <span class="org-sh-heredoc">                - solved.png    the completed board</span>
+  <span class="org-sh-heredoc">                - penciled.png  the unsolved board with pencil marks applied</span>
+  <span class="org-sh-heredoc">                - meta.txt      any additional metadata, like the difficulty</span>
+  
+  <span class="org-sh-heredoc">  --          indicates the end of options for `basename $0`; any remaining </span>
+  <span class="org-sh-heredoc">              arguments will be passed to sudoku2tex</span>
+  
+  <span class="org-sh-heredoc">Input is taken from STDIN.</span>
+  <span class="org-sh-heredoc">EOF</span>
+  }</pre>
+</div>
+
+<p>
+At this point, generating a large Sudoku is as simple as
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">sudokugen -o 5 -m -g2 | sudoku2img -P foo</pre>
+</div>
+
+<p>
+Now we have something to occupy a good bit of time:
+</p>
+
+
+<div class="figure">
+<p><img src="images/5x5/new.png" alt="new.png" />
+</p>
+</div>
+
+<p>
+And, when we finally give up, here&rsquo;s the solution:
+</p>
+
+
+<div class="figure">
+<p><img src="images/5x5/solved.png" alt="solved.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org334b413" class="outline-2">
+<h2 id="org334b413"><span class="section-number-2">7</span> Putting It All Together</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+There&rsquo;s just one more item to make this into a usable package.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org6de5cb9"><div id='setup.py'>&langle;<span class='noweb-def' id='setup.py-38598'>setup.py</span>&rangle; &equiv; <span class='chunk-chain'></span></div>  <span class="org-keyword">import</span> os
+  <span class="org-keyword">from</span> setuptools <span class="org-keyword">import</span> setup, find_packages
+  
+  <span class="org-keyword">def</span> <span class="org-function-name">ls</span>(base):
+      <span class="org-keyword">return</span> [os.path.join(base, fn) <span class="org-keyword">for</span> fn <span class="org-keyword">in</span> os.listdir(base)]
+  
+  setup(name=<span class="org-string">'sudoku'</span>,
+        version=<span class="org-string">'0.1'</span>,
+        description=<span class="org-string">'Sudoku'</span>,
+        packages=find_packages(),
+        scripts=ls(<span class="org-string">'bin'</span>),
+        include_package_data=<span class="org-constant">True</span>,
+        zip_safe=<span class="org-constant">False</span>)</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3fda27c" class="outline-2">
+<h2 id="org3fda27c"><span class="section-number-2">8</span> Wrapping Up</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr style='height:0.5px'>
+<small>R E I N D E E R E F F E C T</small>
+</div>
+</body>
+</html>

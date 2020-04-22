@@ -1,0 +1,45 @@
+#! /bin/bash
+function entry() {
+    cat <<EOF
+#+begin_index-entry
+	#+begin_pubdate
+		`property DATE $1`
+	#+end_pubdate
+	#+begin_title
+		`post-title $1`
+	#+end_title
+	#+begin_abstract
+		`post-abstract $1`
+	#+end_abstract
+#+end_index-entry
+EOF
+}
+
+function post-title() {
+    echo "[[$1][`property TITLE $1`]]"
+}
+function post-tags() {
+    extract-tags $1 | while read tag; do
+	echo -n "[[./tags.org::*$tag][$tag]] "
+    done
+}
+
+function extract-tags() {
+    property FILETAGS $1 | sed -re 's/:/ /g; s/^\s+//; s/\s+$//'
+}
+function post-abstract() {
+    awk '
+/#\+END_abstract/   {emit=0}
+emit                {print}
+/#\+BEGIN_abstract/ {emit=1}
+' $1
+}
+function property() {
+    egrep "#\+${1}:" $2 | cut -d: -f2- | sed -re 's/^\s+//; s/\s+$//'
+}
+echo '#+OPTIONS: toc:nil title:nil'
+pushd $1 >/dev/null
+find ./???? -type f -name '*.org' | sort -r | while read post; do
+    entry $post
+done
+popd >/dev/null
