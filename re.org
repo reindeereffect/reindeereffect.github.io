@@ -1,0 +1,2309 @@
+#+TITLE: REINDEEREFFECT Tools
+#+PROPERTY: header-args :exports both :eval no-export :noweb no-export :mkdirp yes
+
+* Introduction
+
+I've recently occupied myself with converting my blog (handful of articles
+though it has) from Jekyll to Org-mode. In the process, I've created what seems
+a reasonable org-to-html publishing setup; crafted a handful of scripts for such
+things as generating index and tags pages; and built on Org's Noweb references
+to give better support for literate programming.
+
+This document gives full listings of all files that make up RE's custom static
+site generator (except Emacs and Org, that is). Additionally, some aspects, like
+the literate programming system itself, are broken out and discussed separately.
+
+* Usage
+** Setup
+Ensure this file is in the workspace root directory and 'C-c C-v t' to tangle
+the files described below.
+
+** Build
+In the base directory,
+
+- =make= will update =html= based on modification times
+- =make force= will rebuild everything in =html=
+
+** Literate Programming
+Minimal support for Noweb-style literate programming is provided, built atop
+Org's existing support. In particular, chunk headers and references are set per
+the usual conventions:
+
+- Initial definitions are set like
+
+#+NAME: chunk
+#+BEGIN_SRC python
+...
+#+END_SRC
+
+- Continued definitions are set like
+
+#+NAME: chunk
+#+BEGIN_SRC python
+...
+#+END_SRC
+
+Note that the chunk header becomes a hyperlink referring to the first part of
+the definition of =chunk=. Also, where there are continued definitions, there
+are working links near the right margin to access the previous and next chunk in
+the definition chain.
+
+- Chunk references are also set with working links:
+
+#+BEGIN_SRC python
+<<chunk>>
+#+END_SRC
+
+For chunk chains, references point to the head.
+
+* Description
+** HTML Export
+
+#+NAME: default/export
+#+BEGIN_SRC elisp :results none
+(setq org-export-with-smart-quotes t)
+(setq org-export-with-timestamps t)
+(setq-default org-html-with-latex t)
+(setq org-export-use-babel t)
+(setq org-global-properties
+       '(("header-args" . ":exports both :eval no-export :noweb no-export")))
+(setq org-html-htmlize-output-type 'css)
+#+END_SRC
+
+** Publishing
+
+Each page consists, generally, of an org file and any number of supporting files
+of different types. Org's publishing system requires us to separate files into
+classes, or projects, based on common processing requirements. We use
+=org-publish-project-alist= to express this:
+
+#+NAME: default/publishing
+#+BEGIN_SRC elisp
+(setq org-publish-project-alist
+      '(
+	<<org to html>>
+                                        ;<<supporting files>>
+	))
+#+END_SRC
+
+Org files we want converted to HTML:
+
+#+NAME: org to html
+#+BEGIN_SRC elisp
+("org-to-html"
+ :base-directory ""
+ :publishing-directory ""
+ :publishing-function org-html-publish-to-html
+ :section-numbers t
+ <<header formatting options>>
+ :recursive t
+ <<TOC options>>
+)
+#+END_SRC
+
+Other things should just be copied over:
+
+#+NAME: supporting files
+#+BEGIN_SRC elisp
+("supporting"
+ :base-directory ""
+ :base-extension "png\\|jpg\\|css\\|html\\|py"
+ :publishing-directory ""
+ :publishing-function org-publish-attachment
+ :recursive t)
+#+END_SRC
+
+Note that in both cases, the source and destination directories are the same.
+
+** Site Organization
+** Page Layout and Formating
+
+We'll begin with the basic layout for anything on the site:
+
+#+BEGIN_SRC ditaa :file ./page-layout.png :cmdline -T :exports results
++--------------+
+| site header  |
++--------------+
+|              |
+|              |
+| page content |
+|              |
+|              |
++--------------+
+| site footer  |
++--------------+
+#+END_SRC
+#+RESULTS:
+[[file:./page-layout.png]]
+
+Setting the header is discussed in [[Front Matter]], the footer in [[Site Footer]].
+
+
+#+BEGIN_SRC ditaa :file ./post-layout.png :cmdline -T :exports results
++-------------------+
+| post header	    |
++-------------------+
+| table of contents |
++-------------------+
+|	       	    |
+|	       	    |
+| post body 	    |
+|	       	    |
+|	       	    |
++-------------------+
+| post footer	    |
++-------------------+
+#+END_SRC
+
+#+RESULTS:
+[[file:./post-layout.png]]
+and
+*** Table of Contents
+
+#+NAME: TOC options
+#+BEGIN_SRC elisp
+ :with-toc t
+ :html-toc-no-heading t
+#+END_SRC
+
+There's no need for any of our tables of content to have a headline declaring it
+to be one, so let's make it go away. The following creates a keyword,
+=TOC_NO_HEADING=, that we can add to any org file, as well as the option
+=html-toc-no-heading=, that we can set as we desire:
+
+ #+NAME: default/formatting/toc-no-head
+ #+BEGIN_SRC elisp
+ (require 'ox-html)
+
+ ;; Adding keyword TOC_NO_HEADING to html export keywords:
+ (push '(:html-toc-no-heading "TOC_NO_HEADING" nil nil t)
+       (org-export-backend-options (org-export-get-backend 'html)))
+
+ (defun my-org-html-toc-no-heading (args)
+   "Avoid toc heading in html export if the keyword TOC_HO_HEADING is t or yes.
+  Works as a :filter-args advice for `org-html-toc' with argument list ARGS."
+   (let* ((depth (nth 0 args))
+	  (info (nth 1 args))
+	  (scope (nth 2 args)))
+     (when (and (assoc-string (plist-get info :html-toc-no-heading)
+			      '(t yes)
+			      t)
+		(null scope))
+       (setq scope (plist-get info :parse-tree)))
+     (list depth info scope)))
+
+ (advice-add 'org-html-toc :filter-args #'my-org-html-toc-no-heading)
+ #+END_SRC
+
+*** Front Matter
+
+The front matter consists of a site header and a post header:
+
+#+NAME: default/formatting/frontmatter
+#+BEGIN_SRC elisp :results none 
+(setq org-html-preamble-format
+      '(("en"
+	 "
+<<site-header>>
+<<post-header>>
+ ")))
+
+(setq org-export-date-timestamp-format "%Y-%m-%d")
+#+END_SRC
+
+The site header consists of
+- a link to the posts index
+- a small collection of links to informational pages:
+  - about
+  - tags
+  - useful links
+
+#+NAME: site-header
+#+BEGIN_SRC html
+<div class='site-header'>
+  <a class='site-title' href='/'>R E I N D E E R E F F E C T</a>
+  <div class='nav' style='float:right;'>
+    <a class='page-link' href='/about.html'>About</a>&nbsp;
+    <a class='page-link' href='/links.html'>Links</a>&nbsp;
+    <a class='page-link' href='/tags.html'>Tags</a>
+  </div>
+  <hr style='height:0.5px'>
+</div>
+#+END_SRC
+
+The post header:
+
+#+NAME: post-header
+#+BEGIN_SRC html
+<div class='post-head'>
+  <div class='post-pubdate'>%d</div>
+  <h1 class='title'>%t</h1>
+</div>
+#+END_SRC
+
+To exercise control over the title, we disable Org's default handling of page
+titles:
+
+#+NAME: header formatting options
+#+BEGIN_SRC elisp
+:with-title nil
+:html-head    "<link rel='stylesheet' type='text/css' href='/css/syntax.css'>
+<link rel='stylesheet' type='text/css' href='/css/main.css'>"
+#+END_SRC
+
+*** Site Footer
+
+ #+NAME: default/formatting/backmatter
+ #+BEGIN_SRC elisp 
+ (defun re-org-html-postamble (plist)
+   "<hr style='height:0.5px'>
+ <small>R E I N D E E R E F F E C T</small>")
+
+ (setq org-html-postamble 're-org-html-postamble)
+ #+END_SRC
+** Generated Pages
+*** Index
+The post index is structured as a series of entries, ordered
+reverse-chronologically. Each entry gives a post's
+- title
+- publication date
+- abstract (if available)
+
+To generate this page, we use a shell script to harvest the appropriate
+information and generate the top-level =index.org= /before/ the actual
+org-publishing begins.
+
+#+NAME: generate index
+#+BEGIN_SRC sh
+<<index generation functions>>
+echo '#+OPTIONS: toc:nil title:nil'
+pushd $1 >/dev/null
+find ./???? -type f -name '*.org' | sort -r | while read post; do
+    entry $post
+done
+popd >/dev/null
+#+END_SRC
+
+Each entry consists of a post's publication date, title, and abstract (if present):
+
+#+NAME: index generation functions
+#+BEGIN_SRC sh
+function entry() {
+    cat <<EOF
+,#+begin_index-entry
+	,#+begin_pubdate
+		`property DATE $1`
+	,#+end_pubdate
+	,#+begin_title
+		`post-title $1`
+	,#+end_title
+	,#+begin_abstract
+		`post-abstract $1`
+	,#+end_abstract
+,#+end_index-entry
+EOF
+}
+#+END_SRC
+
+On HTML export, each such
+
+: #+begin_foo
+: ...
+: #+end_foo
+
+will become
+
+#+BEGIN_SRC html
+<div class="foo">
+  ...
+</div>
+#+END_SRC
+
+The order of elements emitted by =entry= conveniently reflects how I want the
+entries to eventually appear, thus saving DOM-manipulation shennanigans
+later.
+
+To fill in the rest of the structure, we need to retrieve each post's title:
+
+#+NAME: index generation functions
+#+BEGIN_SRC sh
+
+function post-title() {
+    echo "[[$1][`property TITLE $1`]]"
+}
+#+END_SRC
+
+tags:
+
+#+NAME: index generation functions
+#+BEGIN_SRC sh
+function post-tags() {
+    extract-tags $1 | while read tag; do
+	echo -n "[[./tags.org::*$tag][$tag]] "
+    done
+}
+
+function extract-tags() {
+    property FILETAGS $1 | sed -re 's/:/ /g; s/^\s+//; s/\s+$//'
+}
+#+END_SRC
+
+and abstract:
+
+#+NAME: index generation functions
+#+BEGIN_SRC sh
+function post-abstract() {
+    awk '
+/#\+END_abstract/   {emit=0}
+emit                {print}
+/#\+BEGIN_abstract/ {emit=1}
+' $1
+}
+#+END_SRC
+
+
+#+NAME: index generation functions
+#+BEGIN_SRC sh
+function property() {
+    egrep "#\+${1}:" $2 | cut -d: -f2- | sed -re 's/^\s+//; s/\s+$//'
+}
+#+END_SRC
+
+*** Tags
+** Clickable Headlines
+Rather than force the reader to refer to the table of contents to get a direct
+link to an article section, make each section headline an href to itself. To
+work, requires that the =ID= or =CUSTOM_ID= property be set.
+
+ #+NAME: default/formatting/headlines
+ #+BEGIN_SRC elisp :results none
+ (defun my-org-html-format-headline-function
+     (todo todo-type priority text tags info)
+   "Format a headline with a link to itself."
+   (let* ((headline (get-text-property 0 :parent text))
+	  (id (or (org-element-property :CUSTOM_ID headline)
+		  ;; (org-export-get-reference headline info)
+		  (org-element-property :ID headline)))
+	  (link (if id
+		    (format "<a href=\"#%s\">%s</a>" id text)
+		  text))
+	  (default-format 'org-html-format-headline-default-function))
+     (org-html-format-headline-default-function todo todo-type priority link tags info)))
+
+ (setq org-html-format-headline-function 'my-org-html-format-headline-function)
+ #+END_SRC
+
+** Literate Programming
+
+Chunk definitions in literate org files exist as named source blocks. Since we
+aim to eventually link initial and continuation chunks together, we need to
+maintain just enough data for the task, i.e., a name and some kind of ID or
+sequence number. Since we also need a way to easily find full
+We only need a small amount of information about each source block, i.e., the
+name and its starting position (or positions, if there are continuation blocks).
+
+#+NAME: literate
+#+BEGIN_SRC elisp
+(defun src->block-name (src)
+  (org-element-property :name src))
+
+(defun src->block-id (src)
+  (org-element-property :begin src))
+
+(defun src->def (src)
+  (cons (src->block-name src)
+	(src->block-id src)))
+#+END_SRC
+
+With that, we can build a tracker all the named source blocks:
+
+#+NAME: literate
+#+BEGIN_SRC elisp
+(setq block-defs '())
+
+(defun init-block-defs ()
+  (setq block-defs
+	(org-element-map
+	    (org-element-parse-buffer)
+	    'src-block
+	  'src->def)))
+#+END_SRC
+
+and then define a handful of utilities that will be useful later for generating
+the fragment navigation links:
+
+#+NAME: literate
+#+BEGIN_SRC elisp
+(defun src->block-ids (src)
+  (let ((name (org-element-property :name src)))
+    (mapcar 'cdr (seq-filter (lambda (x)
+			       (string= (car x) name))
+			     block-defs))))
+
+(defun src->prev-block-id (src)
+  (let* ((id0 (src->block-id src))
+	 (ids (seq-filter (lambda (id)
+			    (< id id0))
+			  (src->block-ids src))))
+    (when ids (apply 'max ids))))
+
+(defun src->next-block-id (src)
+  (let* ((id0 (src->block-id src))
+	 (ids (seq-filter (lambda (id)
+			    (> id id0))
+			  (src->block-ids src))))
+    (when ids (apply 'min ids))))
+
+(defun src->first-block-id (src)
+  (apply 'min (src->block-ids src)))
+#+END_SRC
+
+ To prevent cross-talk between org files, we have to clear it before doing
+ anything of consequence:
+
+ #+NAME: literate
+ #+BEGIN_SRC elisp :results none
+ (add-hook 'org-export-before-parsing-hook
+	   (lambda (backend) (init-block-defs)))
+ #+END_SRC
+
+ Handling the noweb syntax comes in two parts:
+ - handling references
+ - handling definitions
+
+ To deal with references, 
+
+ #+NAME: literate
+ #+BEGIN_SRC elisp :results none
+ (defun noweb-links (src)
+   (replace-regexp-in-string
+    "&lt;&lt;\\([^&]+\\)&gt;&gt;"
+    "&langle;<a class='noweb-ref' href='#\\1'>\\1</a>&rangle;"
+    src))
+ #+END_SRC
+
+ Definitions take the form of entire code blocks:
+
+ #+NAME: literate
+ #+BEGIN_SRC elisp :results none
+ (defun indent (src)
+   (replace-regexp-in-string "^" "  " src))
+
+ (defun block-intro (src)
+   (let* ((name (src->block-name src))
+	  (label (format "%s-%s" name (src->block-id src)))
+	  (next (src->next-block-id src))
+	  (next-link (if next
+			 (format "<a href='#%s-%s'>&darr;</a>" name next)
+		       ""))
+	  (prev (src->prev-block-id src))
+	  (prev-link (if prev
+			 (format "<a href='#%s-%s'>&uarr;</a>" name prev)
+		       ""))
+	  (chunk-nav (format "<span class='chunk-chain'>%s%s</span>"
+			     prev-link
+			     next-link)))
+     (if name
+	 (if prev
+	     (format
+	      "<div id='%s'>&langle;<a href='#%s' class='noweb-ref'>%s</a>&rangle; +&equiv; %s</div>"
+	      label
+	      name
+	      name chunk-nav)
+	 (format
+	  "<div id='%s'>&langle;<span class='noweb-def' id='%s'>%s</span>&rangle; &equiv; %s</div>"
+	  name
+	  label
+	  name chunk-nav))
+       "")))	  
+
+ (defun block-caption (src-block info)
+   (let ((caption (org-export-get-caption src-block)))
+     (if (not caption) ""
+       (let ((listing-number
+	      (format
+	       "<span class=\"listing-number\">%s </span>"
+	       (format
+		(org-html--translate "Listing %d:" info)
+		(org-export-get-ordinal
+		 src-block info nil #'org-html--has-caption-p)))))
+	 (format "<label class=\"org-src-name\">%s%s</label>"
+		 listing-number
+		 (org-trim (org-export-data caption info)))))))
+
+ (defun block-label (src-block info)
+   (let ((lbl (and (org-element-property :name src-block)
+		   (org-export-get-reference src-block info))))
+     (if lbl (format " id=\"%s\"" lbl) "")))
+
+ (defun org-html-src-block (src-block _contents info)
+   "Transcode a SRC-BLOCK element from Org to HTML.
+  CONTENTS holds the contents of the item.  INFO is a plist holding
+  contextual information."
+   (if (org-export-read-attribute :attr_html src-block :textarea)
+       (org-html--textarea-block src-block)
+     (let* ((lang (org-element-property :language src-block))
+	    (name (org-element-property :name src-block))
+	    (intro (block-intro src-block))
+	    (code (org-html-format-code src-block info))
+	    (fixed-code (string-trim-right (noweb-links (if (string= intro "")
+							   code
+							 (indent code)))))
+	    (label (block-label src-block info)))
+       (if (not lang)
+	   (format "<pre class=\"example\"%s>%s</pre>" label code)
+	 (format "<div class=\"org-src-container\">\n%s%s\n</div>"
+		(block-caption src-block info)
+		 (format "<pre class=\"src src-%s\"%s>%s%s</pre>"
+			 lang 
+			 label
+			 intro
+			 fixed-code))))))
+ #+END_SRC
+
+* File Listings
+Following are complete file listings, with all chunk references expanded.
+** default.el
+
+
+#+BEGIN_SRC elisp :tangle default.el :noweb yes :results none
+(require 'subr-x)
+<<default/export>>
+<<default/publishing>>
+<<default/formatting>>
+<<default/formatting/frontmatter>>
+<<default/formatting/toc-no-head>>
+<<default/formatting/backmatter>>
+<<default/formatting/headlines>>
+<<literate>>
+#+END_SRC
+
+** Makefile
+
+#+BEGIN_SRC makefile :tangle Makefile
+all: generated
+	emacs --script default.el --eval '(org-publish-all)'
+
+force: generated
+	emacs --script default.el --eval '(org-publish-all t)'
+
+generated: tags index
+
+tags:
+	bin/tags . > tags.org
+	bin/sort-entries tags.org
+
+index:
+	bin/index . > index.org
+#+END_SRC
+** bin/index
+
+#+BEGIN_SRC sh :tangle bin/index :shebang "#! /bin/bash" :noweb yes
+<<generate index>>
+#+END_SRC
+
+** bin/sort-entries
+
+#+BEGIN_SRC sh :tangle bin/sort-entries :shebang "#! /bin/bash"
+emacs -batch $1 --eval '
+(progn (org-sort-entries :sort-order ?a)
+       (save-buffer))'
+#+END_SRC
+
+** bin/tags
+
+#+BEGIN_SRC sh :tangle bin/tags :shebang "#! /bin/bash"
+function get_tags() {
+    org=$1
+    egrep '#\+FILETAGS' $1 | cut -d: -f2- | sed -re 's/\s+//g; s/:/\n/g' | egrep .
+}
+
+function get_title() {
+    egrep -i '#\+TITLE' $1 | cut -d: -f2- | sed -re 's/^\s+//'
+}
+
+function enum_orgs() {
+    find . -type f -name '*.org'
+}
+
+function tag_info() {
+    pushd $1 >/dev/null
+
+    enum_orgs | while read org; do
+	get_tags $org | while read tag; do
+	    echo $tag $org `get_title $org`
+	done
+    done | sort
+
+    popd >/dev/null
+}
+
+function fmt_entries() {
+    awk '
+    $1 {
+       dest=$2; tag=$1; $1=""; $2=""; title=$0;
+          t[tag][title]=dest;
+    }
+
+    END {
+        for (tag in t) {
+	    print "* "tag
+    	    for (title in t[tag]) {
+	    	printf("- [[%s][%s]]\n", t[tag][title], title);
+	    }
+	   print "";
+    	}
+    }
+    ' | sed -re 's/\[\s+/[/g'
+}
+
+function fmt_header() {
+    cat <<EOF
+#+TITLE: Tags
+#+OPTIONS: toc:nil
+#+TOC_NO_HEADING: t
+
+EOF
+}
+
+################################################################################
+
+fmt_header
+tag_info $1 | fmt_entries
+#+END_SRC
+** bin/jk2org
+
+#+BEGIN_SRC sh :tangle bin/jk2org :shebang "#! /bin/bash"
+pandoc -f markdown -t org $1 | sed -re 's|/aux/2018.*files/|aux/|g' | grep -v CAPTION
+#+END_SRC
+** org/css/main.css
+
+#+BEGIN_SRC css :tangle css/main.css
+
+.chunk-chain {
+    float:right;
+}
+
+.noweb-def, .noweb-ref {
+    font-style: italic;
+    font-family: serif;
+    font-size: 16px;
+}
+
+body {
+    font-family     : serif; 
+    margin          : 40px auto;
+    margin-top      : 10px;
+    max-width       : 650px;
+    max-width       : 800px;
+    line-height     : 1.5;
+    font-size       : 16px;
+    font-weight     : 300;
+    color           : #444;
+    background-color: #eeeeee;
+    padding         : 0 10px
+}
+
+h1 {
+    font-size     : 42px;
+    letter-spacing: -1.75px;
+    line-height   : 1;
+}
+
+h2 {
+    font-size     : 32px;
+    letter-spacing: -1.25px;
+    line-height   : 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1;
+    font-weight: 300;
+    margin     : 40px 0 20px;
+}
+
+h4 {
+    text-decoration: underline;
+}
+
+.title {
+    text-align: left;
+}
+
+.post-head {
+    margin-top: 30px;
+}
+
+.post-head h1 {
+    margin-top: 0px;
+}
+
+.site-header {
+    margin-top: 0px;
+    border-bottom: 10px;
+}
+
+a         { color: #2a7ae2; text-decoration: none; }
+a:hover   { color: #000;    text-decoration: underline; }
+a:visited { color: #205caa; }
+
+h2 a { color: #444; }
+h2 a:visited { color: #444; }
+
+blockquote {
+    border-left   : 4px solid #e8e8e8;
+    padding-left  : 20px;
+    font-size     : 18px;
+    opacity       : .6;
+    letter-spacing: -1px;
+    font-style    : italic;
+    margin        : 30px 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+pre {
+    border: 0px;
+}
+
+pre.src {
+    font-size: 15px;
+    padding: 8pt;
+}
+
+pre.src:hover:before {
+    display: none;
+}
+
+.index-entry p {
+    display: inline;
+}
+
+.index-entry .title {
+    font-size: 24px; 
+}
+
+.index-entry {
+    margin-top: 30px;
+}
+
+table { margin: auto; }
+#+END_SRC
+** css/syntax.css
+
+#+BEGIN_SRC css :tangle css/syntax.css
+body {
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-bold {
+    /* bold */
+    font-weight: bold;
+}
+.org-bold-italic {
+    /* bold-italic */
+    font-weight: bold;
+    font-style: italic;
+}
+.org-border {
+}
+.org-buffer-menu-buffer {
+    /* buffer-menu-buffer */
+    font-weight: bold;
+}
+.org-builtin {
+    /* font-lock-builtin-face */
+    color: #e44649;
+}
+.org-button {
+    /* button */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-c-annotation {
+    /* c-annotation-face */
+    color: #008b8b;
+}
+.org-calendar-month-header {
+    /* calendar-month-header */
+    color: #0184bc;
+}
+.org-calendar-today {
+    /* calendar-today */
+    text-decoration: underline;
+}
+.org-calendar-weekday-header {
+    /* calendar-weekday-header */
+    color: #008b8b;
+}
+.org-calendar-weekend-header {
+    /* calendar-weekend-header */
+    color: #a0a1a7;
+}
+.org-comint-highlight-input {
+    /* comint-highlight-input */
+    font-weight: bold;
+}
+.org-comint-highlight-prompt {
+    /* comint-highlight-prompt */
+    color: #0184bc;
+    font-weight: bold;
+}
+.org-comment {
+    /* font-lock-comment-face */
+    color: #a0a1a7;
+}
+.org-comment-delimiter {
+    /* font-lock-comment-delimiter-face */
+    color: #a0a1a7;
+    font-weight: bold;
+}
+.org-compilation-column-number {
+    /* compilation-column-number */
+    color: #50a14f;
+    font-style: italic;
+}
+.org-compilation-error {
+    /* compilation-error */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-compilation-info {
+    /* compilation-info */
+    color: #228b22;
+    font-weight: bold;
+}
+.org-compilation-line-number {
+    /* compilation-line-number */
+    color: #a626a4;
+}
+.org-compilation-mode-line-exit {
+    /* compilation-mode-line-exit */
+    color: #228b22;
+    font-weight: bold;
+}
+.org-compilation-mode-line-fail {
+    /* compilation-mode-line-fail */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-compilation-mode-line-run {
+    /* compilation-mode-line-run */
+    color: #ff8c00;
+    font-weight: bold;
+}
+.org-compilation-warning {
+    /* compilation-warning */
+    color: #ff8c00;
+    font-weight: bold;
+}
+.org-completions-annotations {
+    /* completions-annotations */
+    font-style: italic;
+}
+.org-completions-common-part {
+}
+.org-completions-first-difference {
+    /* completions-first-difference */
+    font-weight: bold;
+}
+.org-constant {
+    /* font-lock-constant-face */
+    color: #008b8b;
+}
+.org-css-property {
+    /* css-property */
+    color: #a626a4;
+}
+.org-css-selector {
+    /* css-selector */
+    color: #0184bc;
+}
+.org-cua-global-mark {
+    /* cua-global-mark */
+    color: #000000;
+    background-color: #ffff00;
+}
+.org-cua-rectangle {
+    /* cua-rectangle */
+    color: #ffffff;
+    background-color: #b03060;
+}
+.org-cua-rectangle-noselect {
+    /* cua-rectangle-noselect */
+    color: #ffffff;
+    background-color: #696969;
+}
+.org-cursor {
+    /* cursor */
+    background-color: #000000;
+}
+.org-custom-button {
+    /* custom-button */
+    color: #000000;
+    background-color: #d3d3d3;
+}
+.org-custom-button-mouse {
+    /* custom-button-mouse */
+    color: #000000;
+    background-color: #e5e5e5;
+}
+.org-custom-button-pressed {
+    /* custom-button-pressed */
+    color: #000000;
+    background-color: #d3d3d3;
+}
+.org-custom-button-pressed-unraised {
+    /* custom-button-pressed-unraised */
+    color: #8b008b;
+    text-decoration: underline;
+}
+.org-custom-button-unraised {
+    /* custom-button-unraised */
+    text-decoration: underline;
+}
+.org-custom-changed {
+    /* custom-changed */
+    color: #ffffff;
+    background-color: #0000ff;
+}
+.org-custom-comment {
+    /* custom-comment */
+    background-color: #d9d9d9;
+}
+.org-custom-comment-tag {
+    /* custom-comment-tag */
+    color: #00008b;
+}
+.org-custom-documentation {
+}
+.org-custom-face-tag {
+    /* custom-face-tag */
+    color: #0000ff;
+    font-weight: bold;
+}
+.org-custom-group-subtitle {
+    /* custom-group-subtitle */
+    font-weight: bold;
+}
+.org-custom-group-tag {
+    /* custom-group-tag */
+    color: #0000ff;
+    font-size: 120%;
+    font-weight: bold;
+}
+.org-custom-group-tag-1 {
+    /* custom-group-tag-1 */
+    color: #ff0000;
+    font-size: 120%;
+    font-weight: bold;
+}
+.org-custom-invalid {
+    /* custom-invalid */
+    color: #ffff00;
+    background-color: #ff0000;
+}
+.org-custom-link {
+    /* custom-link */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-custom-modified {
+    /* custom-modified */
+    color: #ffffff;
+    background-color: #0000ff;
+}
+.org-custom-rogue {
+    /* custom-rogue */
+    color: #ffc0cb;
+    background-color: #000000;
+}
+.org-custom-saved {
+    /* custom-saved */
+    text-decoration: underline;
+}
+.org-custom-set {
+    /* custom-set */
+    color: #0000ff;
+    background-color: #ffffff;
+}
+.org-custom-state {
+    /* custom-state */
+    color: #006400;
+}
+.org-custom-themed {
+    /* custom-themed */
+    color: #ffffff;
+    background-color: #0000ff;
+}
+.org-custom-variable-button {
+    /* custom-variable-button */
+    font-weight: bold;
+    text-decoration: underline;
+}
+.org-custom-variable-tag {
+    /* custom-variable-tag */
+    color: #0000ff;
+    font-weight: bold;
+}
+.org-custom-visibility {
+    /* custom-visibility */
+    color: #3a5fcd;
+    font-size: 80%;
+    text-decoration: underline;
+}
+.org-diary {
+    /* diary */
+    color: #ff0000;
+}
+.org-diff-added {
+    /* diff-added */
+    background-color: #90ee90;
+}
+.org-diff-changed {
+    /* diff-changed */
+    background-color: #b0c4de;
+}
+.org-diff-context {
+    /* diff-context */
+    color: #333333;
+}
+.org-diff-file-header {
+    /* diff-file-header */
+    background-color: #b3b3b3;
+    font-weight: bold;
+}
+.org-diff-function {
+    /* diff-function */
+    background-color: #cccccc;
+}
+.org-diff-header {
+    /* diff-header */
+    background-color: #cccccc;
+}
+.org-diff-hunk-header {
+    /* diff-hunk-header */
+    background-color: #cccccc;
+}
+.org-diff-index {
+    /* diff-index */
+    background-color: #b3b3b3;
+    font-weight: bold;
+}
+.org-diff-indicator-added {
+    /* diff-indicator-added */
+    font-weight: bold;
+}
+.org-diff-indicator-changed {
+    /* diff-indicator-changed */
+    font-weight: bold;
+}
+.org-diff-indicator-removed {
+    /* diff-indicator-removed */
+    font-weight: bold;
+}
+.org-diff-nonexistent {
+    /* diff-nonexistent */
+    background-color: #b3b3b3;
+    font-weight: bold;
+}
+.org-diff-refine-added {
+    /* diff-refine-added */
+    background-color: #aaffaa;
+}
+.org-diff-refine-changed {
+    /* diff-refine-changed */
+    background-color: #ffff55;
+}
+.org-diff-refine-removed {
+    /* diff-refine-removed */
+    background-color: #ffbbbb;
+}
+.org-diff-removed {
+    /* diff-removed */
+    background-color: #f4a460;
+}
+.org-dired-directory {
+    /* dired-directory */
+    color: #0184bc;
+    font-weight: bold;
+}
+.org-dired-flagged {
+    /* dired-flagged */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-dired-header {
+    /* dired-header */
+    color: #c18401;
+}
+.org-dired-ignored {
+    /* dired-ignored */
+    color: #7f7f7f;
+}
+.org-dired-mark {
+    /* dired-mark */
+    color: #008b8b;
+}
+.org-dired-marked {
+    /* dired-marked */
+    color: #ff8c00;
+    font-weight: bold;
+}
+.org-dired-perm-write {
+    /* dired-perm-write */
+    color: #a0a1a7;
+    font-weight: bold;
+}
+.org-dired-symlink {
+    /* dired-symlink */
+    color: #a626a4;
+}
+.org-dired-warning {
+    /* dired-warning */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-doc {
+    /* font-lock-doc-face */
+    color: #50a14f;
+    font-style: italic;
+}
+.org-eldoc-highlight-function-argument {
+    /* eldoc-highlight-function-argument */
+    font-weight: bold;
+}
+.org-epa-field-body {
+    /* epa-field-body */
+    font-style: italic;
+}
+.org-epa-field-name {
+    /* epa-field-name */
+    font-weight: bold;
+}
+.org-epa-mark {
+    /* epa-mark */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-epa-string {
+    /* epa-string */
+    color: #00008b;
+}
+.org-epa-validity-disabled {
+    /* epa-validity-disabled */
+    font-style: italic;
+}
+.org-epa-validity-high {
+    /* epa-validity-high */
+    font-weight: bold;
+}
+.org-epa-validity-low {
+    /* epa-validity-low */
+    font-style: italic;
+}
+.org-epa-validity-medium {
+    /* epa-validity-medium */
+    font-style: italic;
+}
+.org-error {
+    /* error */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-escape-glyph {
+    /* escape-glyph */
+    color: #a52a2a;
+}
+.org-eww-form-checkbox {
+    /* eww-form-checkbox */
+    color: #000000;
+    background-color: #d3d3d3;
+}
+.org-eww-form-file {
+    /* eww-form-file */
+    color: #000000;
+    background-color: #808080;
+}
+.org-eww-form-select {
+    /* eww-form-select */
+    color: #000000;
+    background-color: #d3d3d3;
+}
+.org-eww-form-submit {
+    /* eww-form-submit */
+    color: #000000;
+    background-color: #808080;
+}
+.org-eww-form-text {
+    /* eww-form-text */
+    color: #ffffff;
+    background-color: #505050;
+}
+.org-eww-form-textarea {
+    /* eww-form-textarea */
+    color: #000000;
+    background-color: #C0C0C0;
+}
+.org-eww-invalid-certificate {
+    /* eww-invalid-certificate */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-eww-valid-certificate {
+    /* eww-valid-certificate */
+    color: #228b22;
+    font-weight: bold;
+}
+.org-file-name-shadow {
+    /* file-name-shadow */
+    color: #7f7f7f;
+}
+.org-fixed-pitch {
+}
+.org-fixed-pitch-serif {
+}
+.org-flyspell-duplicate {
+    /* flyspell-duplicate */
+    text-decoration: underline;
+}
+.org-flyspell-incorrect {
+    /* flyspell-incorrect */
+    text-decoration: underline;
+}
+.org-fringe {
+    /* fringe */
+    background-color: #f2f2f2;
+}
+.org-function-name {
+    /* font-lock-function-name-face */
+    color: #0184bc;
+}
+.org-glyphless-char {
+    /* glyphless-char */
+    font-size: 60%;
+}
+.org-gnus-group-mail-1 {
+    /* gnus-group-mail-1 */
+    color: #104e8b;
+    font-weight: bold;
+}
+.org-gnus-group-mail-1-empty {
+    /* gnus-group-mail-1-empty */
+    color: #104e8b;
+}
+.org-gnus-group-mail-2 {
+    /* gnus-group-mail-2 */
+    color: #1874cd;
+    font-weight: bold;
+}
+.org-gnus-group-mail-2-empty {
+    /* gnus-group-mail-2-empty */
+    color: #1874cd;
+}
+.org-gnus-group-mail-3 {
+    /* gnus-group-mail-3 */
+    color: #1c86ee;
+    font-weight: bold;
+}
+.org-gnus-group-mail-3-empty {
+    /* gnus-group-mail-3-empty */
+    color: #1c86ee;
+}
+.org-gnus-group-mail-low {
+    /* gnus-group-mail-low */
+    color: #8b0a50;
+    font-weight: bold;
+}
+.org-gnus-group-mail-low-empty {
+    /* gnus-group-mail-low-empty */
+    color: #8b0a50;
+}
+.org-gnus-group-news-1 {
+    /* gnus-group-news-1 */
+    color: #8b3626;
+    font-weight: bold;
+}
+.org-gnus-group-news-1-empty {
+    /* gnus-group-news-1-empty */
+    color: #8b3626;
+}
+.org-gnus-group-news-2 {
+    /* gnus-group-news-2 */
+    color: #cd4f39;
+    font-weight: bold;
+}
+.org-gnus-group-news-2-empty {
+    /* gnus-group-news-2-empty */
+    color: #cd4f39;
+}
+.org-gnus-group-news-3 {
+    /* gnus-group-news-3 */
+    color: #ee5c42;
+    font-weight: bold;
+}
+.org-gnus-group-news-3-empty {
+    /* gnus-group-news-3-empty */
+    color: #ee5c42;
+}
+.org-gnus-group-news-4 {
+    /* gnus-group-news-4 */
+    font-weight: bold;
+}
+.org-gnus-group-news-4-empty {
+}
+.org-gnus-group-news-5 {
+    /* gnus-group-news-5 */
+    font-weight: bold;
+}
+.org-gnus-group-news-5-empty {
+}
+.org-gnus-group-news-6 {
+    /* gnus-group-news-6 */
+    font-weight: bold;
+}
+.org-gnus-group-news-6-empty {
+}
+.org-gnus-group-news-low {
+    /* gnus-group-news-low */
+    color: #006400;
+    font-weight: bold;
+}
+.org-gnus-group-news-low-empty {
+    /* gnus-group-news-low-empty */
+    color: #006400;
+}
+.org-gnus-splash {
+    /* gnus-splash */
+    color: #888888;
+}
+.org-gnus-summary-cancelled {
+    /* gnus-summary-cancelled */
+    color: #ffff00;
+    background-color: #000000;
+}
+.org-gnus-summary-high-ancient {
+    /* gnus-summary-high-ancient */
+    color: #4169e1;
+    font-weight: bold;
+}
+.org-gnus-summary-high-read {
+    /* gnus-summary-high-read */
+    color: #006400;
+    font-weight: bold;
+}
+.org-gnus-summary-high-ticked {
+    /* gnus-summary-high-ticked */
+    color: #b22222;
+    font-weight: bold;
+}
+.org-gnus-summary-high-undownloaded {
+    /* gnus-summary-high-undownloaded */
+    color: #008b8b;
+    font-weight: bold;
+}
+.org-gnus-summary-high-unread {
+    /* gnus-summary-high-unread */
+    font-weight: bold;
+}
+.org-gnus-summary-low-ancient {
+    /* gnus-summary-low-ancient */
+    color: #4169e1;
+    font-style: italic;
+}
+.org-gnus-summary-low-read {
+    /* gnus-summary-low-read */
+    color: #006400;
+    font-style: italic;
+}
+.org-gnus-summary-low-ticked {
+    /* gnus-summary-low-ticked */
+    color: #b22222;
+    font-style: italic;
+}
+.org-gnus-summary-low-undownloaded {
+    /* gnus-summary-low-undownloaded */
+    color: #008b8b;
+    font-style: italic;
+}
+.org-gnus-summary-low-unread {
+    /* gnus-summary-low-unread */
+    font-style: italic;
+}
+.org-gnus-summary-normal-ancient {
+    /* gnus-summary-normal-ancient */
+    color: #4169e1;
+}
+.org-gnus-summary-normal-read {
+    /* gnus-summary-normal-read */
+    color: #006400;
+}
+.org-gnus-summary-normal-ticked {
+    /* gnus-summary-normal-ticked */
+    color: #b22222;
+}
+.org-gnus-summary-normal-undownloaded {
+    /* gnus-summary-normal-undownloaded */
+    color: #008b8b;
+}
+.org-gnus-summary-normal-unread {
+}
+.org-gnus-summary-selected {
+    /* gnus-summary-selected */
+    text-decoration: underline;
+}
+.org-header-line {
+    /* header-line */
+    background-color: #f0f0f1;
+}
+.org-header-line-highlight {
+    /* header-line-highlight */
+    background-color: #b4eeb4;
+}
+.org-help-argument-name {
+    /* help-argument-name */
+    font-style: italic;
+}
+.org-highlight {
+    /* highlight */
+    background-color: #b4eeb4;
+}
+.org-holiday {
+    /* holiday */
+    background-color: #ffc0cb;
+}
+.org-homoglyph {
+    /* homoglyph */
+    color: #a52a2a;
+}
+.org-info-header-node {
+    /* info-header-node */
+    color: #a52a2a;
+    font-weight: bold;
+    font-style: italic;
+}
+.org-info-header-xref {
+    /* info-header-xref */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-info-index-match {
+    /* info-index-match */
+    background-color: #ffff00;
+}
+.org-info-menu-header {
+    /* info-menu-header */
+    font-weight: bold;
+}
+.org-info-menu-star {
+    /* info-menu-star */
+    color: #ff0000;
+}
+.org-info-node {
+    /* info-node */
+    color: #a52a2a;
+    font-weight: bold;
+    font-style: italic;
+}
+.org-info-quoted {
+    /* Info-quoted */
+    font-weight: bold;
+    text-decoration: underline;
+}
+.org-info-title-1 {
+    /* info-title-1 */
+    font-size: 172%;
+    font-weight: bold;
+}
+.org-info-title-2 {
+    /* info-title-2 */
+    font-size: 144%;
+    font-weight: bold;
+}
+.org-info-title-3 {
+    /* info-title-3 */
+    font-size: 120%;
+    font-weight: bold;
+}
+.org-info-title-4 {
+    /* info-title-4 */
+    font-weight: bold;
+}
+.org-info-xref {
+    /* info-xref */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-internal-border {
+}
+.org-isearch {
+    /* isearch */
+    color: #b0e2ff;
+    background-color: #cd00cd;
+}
+.org-isearch-fail {
+    /* isearch-fail */
+    background-color: #ffc1c1;
+}
+.org-italic {
+    /* italic */
+    font-style: italic;
+}
+.org-keyword {
+    /* font-lock-keyword-face */
+    color: #a626a4;
+}
+.org-lazy-highlight {
+    /* lazy-highlight */
+    background-color: #afeeee;
+}
+.org-line-number-current-line {
+    /* line-number-current-line */
+    color: #7f7f7f;
+    background-color: #fafafa;
+}
+.org-link {
+    /* link */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-link-visited {
+    /* link-visited */
+    color: #8b008b;
+    text-decoration: underline;
+}
+.org-match {
+    /* match */
+    background-color: #ffff00;
+}
+.org-menu {
+}
+.org-message-cited-text {
+    /* message-cited-text */
+    color: #ff0000;
+}
+.org-message-header-cc {
+    /* message-header-cc */
+    color: #191970;
+}
+.org-message-header-name {
+    /* message-header-name */
+    color: #6495ed;
+}
+.org-message-header-newsgroups {
+    /* message-header-newsgroups */
+    color: #00008b;
+    font-weight: bold;
+    font-style: italic;
+}
+.org-message-header-other {
+    /* message-header-other */
+    color: #4682b4;
+}
+.org-message-header-subject {
+    /* message-header-subject */
+    color: #000080;
+    font-weight: bold;
+}
+.org-message-header-to {
+    /* message-header-to */
+    color: #191970;
+    font-weight: bold;
+}
+.org-message-header-xheader {
+    /* message-header-xheader */
+    color: #0000ff;
+}
+.org-message-mml {
+    /* message-mml */
+    color: #228b22;
+}
+.org-message-separator {
+    /* message-separator */
+    color: #a52a2a;
+}
+.org-minibuffer-prompt {
+    /* minibuffer-prompt */
+    color: #0184bc;
+    font-weight: bold;
+}
+.org-mm-command-output {
+    /* mm-command-output */
+    color: #cd0000;
+}
+.org-mode-line {
+    /* mode-line */
+    background-color: #f0f0f1;
+}
+.org-mode-line-buffer-id {
+    /* mode-line-buffer-id */
+    font-weight: bold;
+}
+.org-mode-line-emphasis {
+    /* mode-line-emphasis */
+    font-weight: bold;
+}
+.org-mode-line-highlight {
+}
+.org-mode-line-inactive {
+    /* mode-line-inactive */
+    color: #a0a1a7;
+    background-color: #f0f0f1;
+}
+.org-mouse {
+}
+.org-mouse-drag-and-drop-region {
+    /* mouse-drag-and-drop-region */
+    background-color: #ffec8b;
+}
+.org-negation-char {
+    /* font-lock-negation-char-face */
+    font-weight: bold;
+}
+.org-next-error {
+    /* next-error */
+    background-color: #ffec8b;
+}
+.org-nobreak-hyphen {
+    /* nobreak-hyphen */
+    color: #a52a2a;
+}
+.org-nobreak-space {
+    /* nobreak-space */
+    color: #a52a2a;
+    text-decoration: underline;
+}
+.org-org-agenda-calendar-event {
+    /* org-agenda-calendar-event */
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-org-agenda-calendar-sexp {
+    /* org-agenda-calendar-sexp */
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-org-agenda-clocking {
+    /* org-agenda-clocking */
+    background-color: #ffff00;
+}
+.org-org-agenda-column-dateline {
+    /* org-agenda-column-dateline */
+    background-color: #e5e5e5;
+}
+.org-org-agenda-current-time {
+    /* org-agenda-current-time */
+    color: #b8860b;
+}
+.org-org-agenda-date {
+    /* org-agenda-date */
+    color: #0000ff;
+    font-size: 110%;
+    font-weight: bold;
+}
+.org-org-agenda-date-today {
+    /* org-agenda-date-today */
+    color: #0000ff;
+    font-size: 110%;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.org-org-agenda-date-weekend {
+    /* org-agenda-date-weekend */
+    color: #006400;
+    font-size: 110%;
+    font-weight: bold;
+}
+.org-org-agenda-diary {
+    /* org-agenda-diary */
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-org-agenda-dimmed-todo {
+    /* org-agenda-dimmed-todo-face */
+    color: #7f7f7f;
+}
+.org-org-agenda-done {
+    /* org-agenda-done */
+    color: #228b22;
+}
+.org-org-agenda-filter-category {
+    /* org-agenda-filter-category */
+    background-color: #f0f0f1;
+}
+.org-org-agenda-filter-effort {
+    /* org-agenda-filter-effort */
+    background-color: #f0f0f1;
+}
+.org-org-agenda-filter-regexp {
+    /* org-agenda-filter-regexp */
+    background-color: #f0f0f1;
+}
+.org-org-agenda-filter-tags {
+    /* org-agenda-filter-tags */
+    background-color: #f0f0f1;
+}
+.org-org-agenda-restriction-lock {
+    /* org-agenda-restriction-lock */
+    background-color: #eeeeee;
+}
+.org-org-agenda-structure {
+    /* org-agenda-structure */
+    color: #0000ff;
+    font-size: 110%;
+    font-weight: bold;
+}
+.org-org-archived {
+    /* org-archived */
+    color: #7f7f7f;
+}
+.org-org-block {
+    /* org-block */
+    color: #7f7f7f;
+}
+.org-org-block-begin-line {
+    /* org-block-begin-line */
+    color: #a0a1a7;
+}
+.org-org-block-end-line {
+    /* org-block-end-line */
+    color: #a0a1a7;
+}
+.org-org-checkbox {
+    /* org-checkbox */
+    font-weight: bold;
+}
+.org-org-checkbox-statistics-done {
+    /* org-checkbox-statistics-done */
+    color: #228b22;
+    font-weight: bold;
+}
+.org-org-checkbox-statistics-todo {
+    /* org-checkbox-statistics-todo */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-org-clock-overlay {
+    /* org-clock-overlay */
+    color: #000000;
+    background-color: #d3d3d3;
+}
+.org-org-code {
+    /* org-code */
+    color: #7f7f7f;
+}
+.org-org-column {
+    /* org-column */
+    background-color: #e5e5e5;
+}
+.org-org-column-title {
+    /* org-column-title */
+    background-color: #e5e5e5;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.org-org-date {
+    /* org-date */
+    color: #a020f0;
+    text-decoration: underline;
+}
+.org-org-date-selected {
+    /* org-date-selected */
+    color: #ff0000;
+}
+.org-org-default {
+    /* org-default */
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-org-document-info {
+    /* org-document-info */
+    color: #191970;
+}
+.org-org-document-info-keyword {
+    /* org-document-info-keyword */
+    color: #7f7f7f;
+}
+.org-org-document-title {
+    /* org-document-title */
+    color: #191970;
+    font-weight: bold;
+}
+.org-org-done {
+    /* org-done */
+    color: #228b22;
+    font-weight: bold;
+}
+.org-org-drawer {
+    /* org-drawer */
+    color: #0000ff;
+}
+.org-org-ellipsis {
+    /* org-ellipsis */
+    color: #b8860b;
+    text-decoration: underline;
+}
+.org-org-footnote {
+    /* org-footnote */
+    color: #a020f0;
+    text-decoration: underline;
+}
+.org-org-formula {
+    /* org-formula */
+    color: #b22222;
+}
+.org-org-headline-done {
+    /* org-headline-done */
+    color: #bc8f8f;
+}
+.org-org-hide {
+    /* org-hide */
+    color: #ffffff;
+}
+.org-org-latex-and-related {
+    /* org-latex-and-related */
+    color: #8b4513;
+}
+.org-org-level-1 {
+    /* org-level-1 */
+    color: #0184bc;
+    font-weight: bold;
+}
+.org-org-level-2 {
+    /* org-level-2 */
+    color: #8b4513;
+    font-weight: bold;
+}
+.org-org-level-3 {
+    /* org-level-3 */
+    color: #a626a4;
+    font-weight: bold;
+}
+.org-org-level-4 {
+    /* org-level-4 */
+    color: #a0a1a7;
+    font-weight: bold;
+}
+.org-org-level-5 {
+    /* org-level-5 */
+    color: #c18401;
+    font-weight: bold;
+}
+.org-org-level-6 {
+    /* org-level-6 */
+    color: #008b8b;
+    font-weight: bold;
+}
+.org-org-level-7 {
+    /* org-level-7 */
+    color: #e44649;
+    font-weight: bold;
+}
+.org-org-level-8 {
+    /* org-level-8 */
+    color: #50a14f;
+    font-weight: bold;
+}
+.org-org-link {
+    /* org-link */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-org-list-dt {
+    /* org-list-dt */
+    font-weight: bold;
+}
+.org-org-macro {
+    /* org-macro */
+    color: #8b4513;
+}
+.org-org-meta-line {
+    /* org-meta-line */
+    color: #a0a1a7;
+}
+.org-org-mode-line-clock {
+    /* org-mode-line-clock */
+    background-color: #f0f0f1;
+}
+.org-org-mode-line-clock-overrun {
+    /* org-mode-line-clock-overrun */
+    background-color: #ff0000;
+}
+.org-org-priority {
+    /* org-priority */
+    color: #a626a4;
+}
+.org-org-property-value {
+}
+.org-org-quote {
+    /* org-quote */
+    color: #7f7f7f;
+}
+.org-org-scheduled {
+    /* org-scheduled */
+    color: #006400;
+}
+.org-org-scheduled-previously {
+    /* org-scheduled-previously */
+    color: #b22222;
+}
+.org-org-scheduled-today {
+    /* org-scheduled-today */
+    color: #006400;
+}
+.org-org-sexp-date {
+    /* org-sexp-date */
+    color: #a020f0;
+}
+.org-org-special-keyword {
+    /* org-special-keyword */
+    color: #a626a4;
+}
+.org-org-table {
+    /* org-table */
+    color: #0000ff;
+}
+.org-org-tag {
+    /* org-tag */
+    font-weight: bold;
+}
+.org-org-tag-group {
+    /* org-tag-group */
+    font-weight: bold;
+}
+.org-org-target {
+    /* org-target */
+    text-decoration: underline;
+}
+.org-org-time-grid {
+    /* org-time-grid */
+    color: #b8860b;
+}
+.org-org-todo {
+    /* org-todo */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-org-upcoming-deadline {
+    /* org-upcoming-deadline */
+    color: #b22222;
+}
+.org-org-verbatim {
+    /* org-verbatim */
+    color: #7f7f7f;
+}
+.org-org-verse {
+    /* org-verse */
+    color: #7f7f7f;
+}
+.org-org-warning {
+    /* org-warning */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-outline-1 {
+    /* outline-1 */
+    color: #0184bc;
+    font-weight: bold;
+}
+.org-outline-2 {
+    /* outline-2 */
+    color: #8b4513;
+    font-weight: bold;
+}
+.org-outline-3 {
+    /* outline-3 */
+    color: #a626a4;
+    font-weight: bold;
+}
+.org-outline-4 {
+    /* outline-4 */
+    color: #a0a1a7;
+    font-weight: bold;
+}
+.org-outline-5 {
+    /* outline-5 */
+    color: #c18401;
+    font-weight: bold;
+}
+.org-outline-6 {
+    /* outline-6 */
+    color: #008b8b;
+    font-weight: bold;
+}
+.org-outline-7 {
+    /* outline-7 */
+    color: #e44649;
+    font-weight: bold;
+}
+.org-outline-8 {
+    /* outline-8 */
+    color: #50a14f;
+    font-weight: bold;
+}
+.org-package-description {
+    /* package-description */
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-package-name {
+    /* package-name */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-package-status-avail-obso {
+    /* package-status-avail-obso */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-package-status-available {
+    /* package-status-available */
+    color: #383a42;
+    background-color: #fafafa;
+}
+.org-package-status-built-in {
+    /* package-status-built-in */
+    color: #e44649;
+}
+.org-package-status-dependency {
+    /* package-status-dependency */
+    color: #a0a1a7;
+}
+.org-package-status-disabled {
+    /* package-status-disabled */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-package-status-external {
+    /* package-status-external */
+    color: #e44649;
+}
+.org-package-status-held {
+    /* package-status-held */
+    color: #008b8b;
+}
+.org-package-status-incompat {
+    /* package-status-incompat */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-package-status-installed {
+    /* package-status-installed */
+    color: #a0a1a7;
+}
+.org-package-status-unsigned {
+    /* package-status-unsigned */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-preprocessor {
+    /* font-lock-preprocessor-face */
+    color: #e44649;
+}
+.org-query-replace {
+    /* query-replace */
+    color: #b0e2ff;
+    background-color: #cd00cd;
+}
+.org-read-multiple-choice {
+    /* read-multiple-choice-face */
+    font-weight: bold;
+    text-decoration: underline;
+}
+.org-regexp-grouping-backslash {
+    /* font-lock-regexp-grouping-backslash */
+    color: #000000;
+    font-weight: bold;
+}
+.org-regexp-grouping-construct {
+    /* font-lock-regexp-grouping-construct */
+    color: #000000;
+    font-weight: bold;
+}
+.org-region {
+    /* region */
+    background-color: #ffec8b;
+}
+.org-rmail-header-name {
+    /* rmail-header-name */
+    color: #0184bc;
+}
+.org-rmail-highlight {
+    /* rmail-highlight */
+    background-color: #b4eeb4;
+}
+.org-scroll-bar {
+}
+.org-secondary-selection {
+    /* secondary-selection */
+    background-color: #ffff00;
+}
+.org-sgml-namespace {
+    /* sgml-namespace */
+    color: #e44649;
+}
+.org-shadow {
+    /* shadow */
+    color: #7f7f7f;
+}
+.org-show-paren-match {
+    /* show-paren-match */
+    background-color: #00ffff;
+    font-weight: bold;
+}
+.org-show-paren-match-expression {
+    /* show-paren-match-expression */
+    background-color: #00ffff;
+    font-weight: bold;
+}
+.org-show-paren-mismatch {
+    /* show-paren-mismatch */
+    background-color: #ff1493;
+    font-weight: bold;
+}
+.org-shr-link {
+    /* shr-link */
+    color: #3a5fcd;
+    text-decoration: underline;
+}
+.org-shr-strike-through {
+    /* shr-strike-through */
+    text-decoration: line-through;
+}
+.org-string {
+    /* font-lock-string-face */
+    color: #50a14f;
+}
+.org-success {
+    /* success */
+    color: #228b22;
+    font-weight: bold;
+}
+.org-table-cell {
+    /* table-cell */
+    color: #e5e5e5;
+    background-color: #0000ff;
+}
+.org-tool-bar {
+    /* tool-bar */
+    color: #000000;
+    background-color: #bfbfbf;
+}
+.org-tooltip {
+    /* tooltip */
+    color: #000000;
+    background-color: #ffffe0;
+}
+.org-trailing-whitespace {
+    /* trailing-whitespace */
+    background-color: #ff0000;
+}
+.org-tty-menu-disabled {
+    /* tty-menu-disabled-face */
+    color: #d3d3d3;
+    background-color: #0000ff;
+}
+.org-tty-menu-enabled {
+    /* tty-menu-enabled-face */
+    color: #ffff00;
+    background-color: #0000ff;
+    font-weight: bold;
+}
+.org-tty-menu-selected {
+    /* tty-menu-selected-face */
+    background-color: #ff0000;
+}
+.org-type {
+    /* font-lock-type-face */
+    color: #c18401;
+}
+.org-underline {
+    /* underline */
+    text-decoration: underline;
+}
+.org-variable-name {
+    /* font-lock-variable-name-face */
+    color: #8b4513;
+}
+.org-variable-pitch {
+}
+.org-vc-conflict-state {
+}
+.org-vc-edited-state {
+}
+.org-vc-locally-added-state {
+}
+.org-vc-locked-state {
+}
+.org-vc-missing-state {
+}
+.org-vc-needs-update-state {
+}
+.org-vc-removed-state {
+}
+.org-vc-state-base {
+}
+.org-vc-up-to-date-state {
+}
+.org-vertical-border {
+}
+.org-warning {
+    /* warning */
+    color: #ff8c00;
+    font-weight: bold;
+}
+.org-warning-1 {
+    /* font-lock-warning-face */
+    color: #ff0000;
+    font-weight: bold;
+}
+.org-widget-button {
+    /* widget-button */
+    font-weight: bold;
+}
+.org-widget-button-pressed {
+    /* widget-button-pressed */
+    color: #ff0000;
+}
+.org-widget-documentation {
+    /* widget-documentation */
+    color: #006400;
+}
+.org-widget-field {
+    /* widget-field */
+    background-color: #d9d9d9;
+}
+.org-widget-inactive {
+    /* widget-inactive */
+    color: #7f7f7f;
+}
+.org-widget-single-line-field {
+    /* widget-single-line-field */
+    background-color: #d9d9d9;
+}
+.org-window-divider {
+    /* window-divider */
+    color: #999999;
+}
+.org-window-divider-first-pixel {
+    /* window-divider-first-pixel */
+    color: #cccccc;
+}
+.org-window-divider-last-pixel {
+    /* window-divider-last-pixel */
+    color: #666666;
+}
+
+a {
+    color: inherit;
+    background-color: inherit;
+    font: inherit;
+    text-decoration: inherit;
+}
+a:hover {
+    text-decoration: underline;
+}
+#+END_SRC

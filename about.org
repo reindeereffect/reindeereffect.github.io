@@ -1,0 +1,7 @@
+#+title: About
+
+#+BEGIN_QUOTE
+ I think there should be something in science called the ‘reindeer effect.’ I don’t know what it would be, but I think it’d be good to hear someone say, ‘Gentlemen, what we have here is a terrifying example of the reindeer effect.’
+
+– Jack Handey
+#+END_QUOTE

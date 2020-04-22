@@ -1,0 +1,358 @@
+#+TITLE: Skipping School with Finite State Machines
+#+DATE: 2018-01-20
+#+FILETAGS: :state-machines:numpy:matrix-product:
+#+TOC_NO_HEADING:t
+
+* Introduction
+  :PROPERTIES:
+  :CUSTOM_ID: introduction
+  :END:
+
+The best problems are not what you think they are. Take, for example,
+this nugget from [[https://projecteuler.net/problem=191][Project
+Euler]]:
+
+
+#+BEGIN_QUOTE
+A particular school offers cash rewards to children with good attendance
+and punctuality. If they are absent for three consecutive days or late
+on more than one occasion then they forfeit their prize.
+
+During an n-day period a trinary string is formed for each child
+consisting of L's (late), O's (on time), and A's (absent).
+
+[...]
+
+How many "prize" strings exist over a 30-day period?
+#+END_QUOTE
+
+
+When I first encountered it, I immediately started on an approach
+involving combinatorial counting; and then spent a good bit of the
+afternoon fighting gross over- and under-counting (due to the rule of
+absences). It wasn't until sometime after dinner that I devised a viable
+strategy to attack #191.
+
+This post covers a fair bit of ground, so, before diving in:
+
+1. We'll construct a formal model of the problem, and then use it to
+   actually arrive at a solution.
+2. For fun, we'll try an alternative approach to see whether we can
+   solve the problem faster.
+3. That will lead us into an investigation of the true computational
+   complexity of the solution methods, with a look at a corner of
+   Numpy's internals.
+4. Finally, we'll apply what we've learned to describe our solution's
+   execution time for various lengths of the attendance contest.
+
+* Modeling the Problem
+  :PROPERTIES:
+  :CUSTOM_ID: modeling-the-problem
+  :END:
+
+The set of losing strings can be easily described by a fairly simple
+regular expression:
+
+#+BEGIN_SRC perl
+/\^./AAA./$|^.*L.*L.*$/
+#+END_SRC
+
+Using this regular expression, we can craft a state machine that
+recognizes the language of loss:
+
+[[./aux/2018-01-20-euler-191_6_0.png]]
+
+Of the options for representing the transition function for this state
+machine, the most convenient for our purposes is a square matrix *D*
+where each element /d_{i,j}/ gives the number of inputs that will cause a
+transition from state /i/ to state /j/:
+
+[[./aux/2018-01-20-euler-191_8_0.png]]
+
+Once the contest begins, we could find ourselves at any of a number of
+states on any given day, depending on the input sequence. To represent
+this, we'll use a 7-element vector, *s_{/t/}*, where each element contains
+the number of input sequences that will land us in the corresponding
+state on day /t/. We begin at state 0:
+
+[[./aux/2018-01-20-euler-191_10_0.png]]
+
+* Winning the Game
+  :PROPERTIES:
+  :CUSTOM_ID: winning-the-game
+  :END:
+
+Multiplying *s_0* by the transition matrix *D* will yield a new vector,
+*s_1*, interpreted as described above. In general,
+
+[[./aux/2018-01-20-euler-191_13_0.png]]
+
+Since state 6 gives the number of possible losses by day /t/, the number
+of wins is
+
+[[./aux/2018-01-20-euler-191_15_0.png]]
+
+where *s_{/t/,6}* denotes the path count to state 6 (the failure state) at
+time /t/.
+
+Implementing this in Python:
+
+#+BEGIN_SRC python
+import numpy as np
+from numpy.linalg import matrix_power
+
+D = np.array(
+    [
+        [1, 1, 0, 1, 0, 0, 0],
+        [1, 0, 1, 1, 0, 0, 0],
+        [1, 0, 0, 1, 0, 0, 1],
+        [0, 0, 0, 1, 1, 0, 1],
+        [0, 0, 0, 1, 0, 1, 1],
+        [0, 0, 0, 1, 0, 0, 2],
+        [0, 0, 0, 0, 0, 0, 3]
+    ], dtype=np.uint64)
+
+s_0 = np.array([1, 0, 0, 0, 0, 0, 0])
+
+def wins(days):
+    s_t = s_0 @ matrix_power(D, 30)
+    return 3**t - s_t[6]
+#+END_SRC
+
+We can simplify things a bit with a few observations:
+
+- Row 0 of *D_{/t/}* equals *s_{/t/}*.
+- Summing over *s_{/t/}* yields 3 \times /t/, without having to do a single
+  multiplication.
+- There's no way out of state 6, the failure state, which means that it
+  can't influence the path counts for the other states.
+
+With these facts, we can shave off some work. First, let's write *D*
+without a failure state:
+
+#+BEGIN_SRC python
+D = np.array([[1, 1, 0, 1, 0, 0],
+              [1, 0, 1, 1, 0, 0],
+              [1, 0, 0, 1, 0, 0],
+              [0, 0, 0, 1, 1, 0],
+              [0, 0, 0, 1, 0, 1],
+              [0, 0, 0, 1, 0, 0]],
+             dtype=np.uint64)
+#+END_SRC
+
+Then, we can forget about using a state vector and find the number of
+wins directly:
+
+#+BEGIN_SRC python
+def wins(days): return sum(matrix_power(D, days)[0])
+#+END_SRC
+
+* Optimization
+  :PROPERTIES:
+  :CUSTOM_ID: optimization
+  :END:
+
+The implementation of =wins= above is based on interpreting *D* as an
+adjacency matrix rather than as a transition function. Suppose you have
+a binary adjacency matrix *A* and raise it to a power /n/:
+
+[[./aux/2018-01-20-euler-191_24_0.png]]
+
+Every cell of *B*, /b_{i,j}/, then gives the number of paths of length /n/
+from node /i/ to node /j/. That fact motivated the very clean approach
+that we just saw. However, multiplication is not so cheap as addition,
+and matrix multiplication is far from free. Can we do better than
+raising a 6×6 matrix to the 30th power?
+
+Let's go back to the interpretation of *D* as a state machine transition
+function. We'll still use *s_{/t/}* to represent the number of input
+sequences placing us in the various states at time /t/, but now we'll
+proceed one step:
+
+[[./aux/2018-01-20-euler-191_26_0.png]]
+
+From this, it's straightforward to write a simple function based on the
+idea of state transition.
+
+#+BEGIN_SRC python
+def wins_new(n):
+    s0 = 1
+    s1 = s2 = s3 = s4 = s5 = s6 = 0
+
+    for t in range(n):
+        s_0 = s0 + s1 + s2
+        s_1 = s0
+        s_2 = s1
+        s_3 = s0 + s1 + s2 + s3 + s4 + s5
+        s_4 = s3
+        s_5 = s4
+        s_6 = s2 + s3 + s4 + 2*s5 + 3*s6
+        
+        s0, s1, s2, s3, s4, s5, s6 = s_0, s_1, s_2, s_3, s_4, s_5, s_6
+        
+    return s0 + s1 + s2 + s3 + s4 + s5
+#+END_SRC
+
+We can trim here and reorder there to obtain:
+
+#+BEGIN_SRC python
+def wins_new(n):
+    s0 = 1
+    s1 = s2 = s3 = s4 = s5 = 0
+    s_0 = s_3 = 0
+
+    for t in range(n):
+        s_0 = s0 + s1 + s2
+        s2 = s1
+        s1 = s0
+        s_3 = s_0 + s3 + s4 + s5
+        s5 = s4
+        s4 = s3
+        s0 = s_0
+        s3 = s_3
+
+    return s0 + s1 + s2 + s3 + s4 + s5
+#+END_SRC
+
+Now, let's test to see if our new method is faster.
+
+[[./aux/2018-01-20-euler-191_32_0.png]]
+
+So far, so good---the new version is faster for contests of a sane length
+(never mind the wisdom of an attendance contest that incentivizes
+absence over tardiness). Notice, though, how =wins_new='s run time
+varies with the contest length; in particular, notice how it rises more
+steadily than the old version's. What happens if we continue the contest
+for, say, 300 days?
+
+[[./aux/2018-01-20-euler-191_34_0.png]]
+
+As the contest drags on (with hardly anyone getting an education), the
+matrix version shows itself clearly as the faster approach. Why?
+
+While a single iteration of =wins_new='s loop is faster than a single
+matrix multiplication (1.15 μs vs. 1.89 μs, respectively, on this
+machine), that isn't what really matters. What does matter is the number
+of times a candidate algorithm performs its dominating operation. In the
+case of the old version, that's a matrix multiplication; in the case of
+the new version, it's the entire state update. And it matters how the
+number of operations changes with respect to the job size (i.e., the
+number of days of the contest).
+
+In the case of =wins_new=, it's easy to see from the code that it's
+*O(/n/)* for the number of days, and its runtime curve above is
+empirical confirmation. But what about the complexity of the matrix
+version?
+
+Note that the grunt work of taking our transition matrix *D* to the
+appropriate power is actually handled by =numpy.linalg.matrix_power=;
+from its documentation:
+
+#+BEGIN_QUOTE
+  For positive integers `n`, the power is computed by repeated matrix
+  squarings and matrix multiplications.
+#+END_QUOTE
+
+What's described here is an approach called
+[[https://en.wikipedia.org/wiki/Exponentiation_by_squaring][/binary
+exponentiation/]], which is based on the observations that
+
+[[./aux/2018-01-20-euler-191_36_0.png]]
+
+and
+
+[[./aux/2018-01-20-euler-191_38_0.png]]
+
+These facts motivate a strategy of converting the exponent to its binary
+representation; and, for each bit /b/, squaring an accumulator before
+multiplying by /xb/. The core of =matrix_power= (excerpted from
+[[https://github.com/numpy/numpy/blob/master/numpy/matrixlib/defmatrix.py][here]])
+is:
+
+#+BEGIN_SRC python
+beta = binary_repr(n)
+Z, q, t = M, 0, len(beta)
+while beta[t-q-1] == '0':
+    Z = N.dot(Z, Z)
+    q += 1
+    result = Z
+    for k in range(q+1, t):
+        Z = N.dot(Z, Z)
+        if beta[t-k-1] == '1':
+            result = N.dot(result, Z)
+#+END_SRC
+
+The number of multiplications performed thus varies logarithmically,
+rather than linearly, with the exponent /n/. This is the source of our
+=wins='s performance edge over =wins_new= for ridiculously long
+contests.
+
+* Why the Sawtooth?
+  :PROPERTIES:
+  :CUSTOM_ID: why-the-sawtooth
+  :END:
+
+A quick glance at the runtime curve for =wins= tells us that its
+complexity isn't strictly logarithmic but, rather, a little more
+complex. By all appearances, there's a fairly regular sawtooth signal
+riding atop the expected logarithmic curve. How does that arise?
+
+The definition of binary exponentiation involves, in addition to
+repeated squarings, multiplications with the original matrix subject to
+the binary representation of the exponent; /i.e./, a 1 in the exponent's
+bit string indicates multiplication by the original matrix on the
+corresponding iteration, while a 0 does not. From the Wikipedia article:
+
+#+BEGIN_QUOTE
+  More precisely, the number of multiplications is one less than the
+  number of ones present in the binary expansion of n.
+#+END_QUOTE
+
+Putting that together with the logarithmic growth in squarings, we can
+depict the total number of multiplicative operations needed to raise a
+number to a particular power:
+
+[[./aux/2018-01-20-euler-191_40_0.png]]
+
+This looks familiar, but how well does it explain the timing curve we
+saw? Plotting measured execution times against the number of
+multiplications:
+
+[[./aux/2018-01-20-euler-191_42_0.png]]
+
+And the equation for the depicted regression line is:
+
+[[./aux/2018-01-20-euler-191_44_0.png]]
+
+Putting this together with our knowledge of how to find the total number
+of multiplcations required for exponentiation, we can, in principle,
+estimate =wins='s runtime for a given contest length.
+
+* Wrapping Up
+  :PROPERTIES:
+  :CUSTOM_ID: wrapping-up
+  :END:
+
+Now we have two methods for solving the same problem, with different
+performance characteristics, and we have the building blocks for
+predicting which will be faster for a given input. Given all of that, we
+could craft a function to decide which method to employ and, if the
+overhead of making the decision is slight, we'd have excellent execution
+speed for any length of the contest. For a toy problem, that level of
+effort is hardly justified; for more serious applications, however, it's
+well worth considering how to characterize and systematically balance
+the trade-offs between different approaches.
+
+There's one other thing to observe: We started with a nifty little math
+problem, and we found ourselves on a trail of thought leading from
+regular expressions and finite state machines into the code for a
+fundamental routine in a widely used numerical computing library. As
+programmers, we create solutions out of ideas. Those ideas have rich and
+complicated relationships with each other, and they have histories
+stretching back sometimes thousands of years. The most challenging and
+rewarding part of programming is not typing code but devising the
+solution that it represents. Programming languages, libraries, data
+formats, and others' programs are but material, like metal or wood.
+Certainly, material is important, but it's not everything; for all they
+have in common, there's a world of ideas between a bicycle and an
+airplane.

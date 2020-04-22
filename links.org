@@ -1,0 +1,31 @@
+#+title: Links
+
+Armstrong, Joseph (2003). 
+[[http://erlang.org/download/armstrong_thesis_2003.pdf][Making reliable distributed systems in the presence of software errors]].
+
+Bellman, Robert (1962). Dreyfus, Stuart. 
+[[https://www.rand.org/content/dam/rand/pubs/reports/2006/R352.pdf][Applied Dynamic Programming]].
+
+Curin, Sara; et al (2005). 
+[[https://informs-sim.org/wsc05papers/331.pdf][Reducing service time at a busy fast food restaurant on campus]]
+Proceedings of the 2005 Winter Simulation Conference.
+
+Intel Corp. 
+[[https://web.archive.org/web/20010802190844/http://www7.informatik.uni-erlangen.de/~msdoerfe/embedded/386html/toc.htm][Intel 80386 Programmer's Reference Manual]].
+
+Kleene, Stephen C. (1951). Shannon, Claude E.; McCarthy, John, eds. 
+[[https://www.rand.org/content/dam/rand/pubs/research_memoranda/2008/RM704.pdf][Representation of Events in Nerve Nets and Finite Automata (PDF)]]. 
+Automata Studies. Princeton University Press. pp. 3–42.
+
+Moore, Charles H. (1970). 
+[[http://www.forth.org/POL.pdf][Programming a Problem-Oriented Language]].
+
+P. Naur and B. Randell, (Eds.).
+[[http://homepages.cs.ncl.ac.uk/brian.randell/NATO/nato1968.PDF][Software Engineering: Report of a conference sponsored by the NATO Science Committee, Garmisch, Germany, 7-11Oct. 1968]].
+Brussels, Scientific Affairs Division, NATO (1969) 231pp.
+
+Schorre, D. V. (1964). 
+[[http://www.ibm-1401.info/Meta-II-schorre.pdf][META II: A Syntax-Oriented Compiler Writing Language]].
+
+
+
