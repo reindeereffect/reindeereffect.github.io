@@ -1,0 +1,63 @@
+#! /usr/bin/env python3
+
+'''
+Usage: %s [FILE]
+Find all solutions for a Sudoku puzzle.
+
+Options:
+  -h, --help    print this help and exit
+
+If FILE is omitted or `-', then the initial board is read from stdin.
+
+The input board should consist of a series of cells, each either a positive 
+integer or a `.' to denote an unknown value, separated by any characters not in 
+/[0-9.]/. The order of the board is automatically detected as the fourth root of 
+the number of cells, and it must be an integer. The numerical values are 
+constrained from 1 to order**2 inclusive.
+
+The solutions will always be ``pretty-printed'', e.g.,
+
+  solution 1:
+  4 2 7 | 1 3 6 | 5 8 9
+  6 5 1 | 9 2 8 | 4 7 3
+  3 8 9 | 5 4 7 | 1 6 2
+  ------+-------+------
+  2 3 5 | 8 1 9 | 7 4 6
+  9 6 8 | 3 7 4 | 2 1 5
+  7 1 4 | 2 6 5 | 9 3 8
+  ------+-------+------
+  8 9 6 | 7 5 1 | 3 2 4
+  1 4 3 | 6 9 2 | 8 5 7
+  5 7 2 | 4 8 3 | 6 9 1
+
+  solution 2:
+  ...
+
+It is the case that a ``proper'' Sudoku can have only one solution; however, 
+``improper'' Sudoku puzzles do exist.
+'''
+import sys
+import sudoku as sd
+def main(argv):
+    fn = argv[0] if argv else '-'
+    try:
+        bd = sd.load_board((sys.stdin if fn == '-' else open(fn)).read())
+    except ValueError:
+        sys.exit('ill-formed board')
+
+    for (i, soln) in enumerate(sd.solve(bd), start=1):
+        assert sd.isvalid(soln) and sd.issolved(soln)
+        print('solution %s:' % i)
+        print(sd.dump_board(soln))
+        print()
+def usage():
+    return __doc__.lstrip() % sys.argv[0]
+
+if __name__ == '__main__':
+    try:
+        if set(sys.argv) & {'-h', '--help'}:
+            sys.exit(usage())
+        else:
+            main(sys.argv[1:])
+    except Exception as e:
+        sys.exit('Unhandled %s' % e)

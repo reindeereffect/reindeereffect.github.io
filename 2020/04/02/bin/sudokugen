@@ -1,0 +1,53 @@
+#! /usr/bin/env python3
+'''
+Usage: %s [-o ORDER] [-g MAXGUESSES] [-m]
+Generate a Sudoku puzzle.
+
+Options:
+  -h, --help    print this help and exit
+
+  -g MAXGUESSES
+                when testing potential clues, restrict solver to a depth of 
+                MAXGUESSES
+
+  -m            only remove cells that can be deduced or have that might be
+                among the best candidates
+'''
+
+import getopt
+from math import inf
+import sys
+import sudoku as sd
+
+def main(argv):
+    opts_, args = getopt.gnu_getopt(argv, 'g:mo:')
+    opts = dict(opts_)
+    
+    order = int(opts.get('-o', 3))
+    maxguesses = int(opts['-g']) if '-g' in opts else inf
+    minrule = '-m' in opts
+
+    recursionlimit = sys.getrecursionlimit()
+    sys.setrecursionlimit(order**4 * 2)
+    soln = next(sd.solve(sd.blank(order)))
+    sys.setrecursionlimit(recursionlimit)
+    
+    bd = sd.generate_from(soln, minrule=minrule, maxdepth=maxguesses)
+    
+    print('difficulty:', sd.rate(bd))
+    print()
+    print(sd.dump_board(bd))
+    print()
+    print('> ' + sd.dump_board(soln).replace('\n', '\n> '))
+
+def usage():
+    return __doc__.lstrip() % sys.argv[0]
+
+if __name__ == '__main__':
+    try:
+        if set(sys.argv) & {'-h', '--help'}:
+            sys.exit(usage())
+        else:
+            main(sys.argv[1:])
+    except Exception as e:
+        sys.exit('Unhandled %s' % e)

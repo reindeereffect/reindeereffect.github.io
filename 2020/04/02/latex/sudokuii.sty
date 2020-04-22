@@ -1,0 +1,50 @@
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesPackage{sudokuii}[2020/04/18 Big Sudoku]
+
+\RequirePackage{sudoku}
+\RequirePackage{fp}
+
+\renewenvironment{sudoku}[1][3]{
+  \newcount\order
+  \order = #1
+  \newcount\n
+  \n = \numexpr(#1*#1)
+  \FPeval{\sudodelta}{1/#1/#1}
+
+  \renewenvironment{sudoku-block}{
+    \catcode`\|=\active
+    \@sudoku@activate
+    \setcounter{@sudoku@col}{-1}
+    \setcounter{@sudoku@row}{\numexpr(\n-1)}
+    \setlength\unitlength{\sudodelta\sudokusize}
+    \begin{picture}(\n,\n)
+      \@sudoku@grid\@sudoku@grab@arguments
+  }{
+    \end{picture}
+  }
+
+  \renewcommand*\@sudoku@grid{
+    \linethickness{\sudokuthinline}
+    \multiput(0,0)(1,0){\numexpr(\n+1)}{\line(0,1){\n}}
+    \multiput(0,0)(0,1){\numexpr(\n+1)}{\line(1,0){\n}}
+    \linethickness{\sudokuthickline}
+    \multiput(0,0)(\order,0){\numexpr(\order+1)}{\line(0,1){\n}}
+    \multiput(0,0)(0,\order){\numexpr(\order+1)}{\line(1,0){\n}}
+    \linethickness{0.5\sudokuthickline}
+    \put(0,0){\framebox(0,0){}}
+    \put(\n,0){\framebox(0,0){}}
+    \put(0,\n){\framebox(0,0){}}
+    \put(\n,\n){\framebox(0,0){}}}
+
+  \begin{center}
+    \begin{sudoku-block}
+}{
+    \end{sudoku-block}
+  \end{center}
+}
+
+
+\def\@sudoku@grab@arguments#1.{
+  \scantokens{#1.}}
+
+\endinput

@@ -23,6 +23,7 @@ function sudoset() {
 #+END_SRC
 
 #+RESULTS: sdtx
+:END:
 
 * Introduction
 
@@ -1068,7 +1069,8 @@ It is the case that a ``proper'' Sudoku can have only one solution; however,
 '''
 #+END_SRC
 
-to give our [[./sudoku][finished Sudoku solver]].
+to give our [[file:bin/sudoku][finished Sudoku solver]].
+
 ** The Generator
 The puzzle generator need only take a board order from the command line,
 defaulting to 3, for a standard Sudoku. For convenience, we'll have it spit out
@@ -1563,16 +1565,16 @@ in the distribution (sudokuii.sty).
 
     #+BEGIN_SRC shell :exports none :results none
     <<sdtx>>
-    sudokugen -o 5 -m -g2 | sudoku2img -P images/foo
+    sudokugen -o 5 -m -g2 | sudoku2img -P images/5x5
     #+END_SRC
 
-    Now we can work through the problem:
+    Now we have something to occupy a good bit of time:
 
-    [[file:images/foo/new.png]]
+    [[file:images/5x5/new.png]]
 
-    until we find the solution:
+    And, when we finally give up, here's the solution:
 
-    [[file:images/foo/solved.png]]
+    [[file:images/5x5/solved.png]]
 
 * Putting It All Together
 
