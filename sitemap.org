@@ -1,8 +1,0 @@
-#+TITLE: Sitemap for project org-to-html
-
-- [[file:about.org][About]]
-- [[file:links.org][Links]]
-- [[file:re.org][REINDEEREFFECT Tools]]
-- [[file:tags.org][Tags]]
-- [[file:testing.org][This is a test]]
-- [[file:index.org][index]]
