@@ -1,14 +1,21 @@
 #! /usr/bin/env python3
 
+# [[file:~/dev/re/2020/04/02/index.org::sudoku/__init__.py][sudoku/__init__.py]]
 'useful utilities for manipulating Sudoku puzzles'
 
 import copy
 
 
-from math import inf
+from functools import reduce
+
+
 import random
+
+
+from math import inf
 class board:
     'Utility class for representing and tracking board state.'
+
     def __init__(self, known, unknown, cell2divs, div2cells):
         '''
         known   dictionary mapping known cells to their respective values
@@ -57,9 +64,9 @@ def board_divs(order):
     '''
     n = order**2
     box = lambda i, j: i//order * order + j//order
-    cell2divs = dict(enumerate((i,
+    cell2divs = dict(enumerate({i,
                                 n + j,
-                                2*n + box(i, j))
+                                2*n + box(i, j)}
                                for i in range(n)
                                for j in range(n)))
 
@@ -75,7 +82,6 @@ def transpose(m):
 
     return the transpose of m.
     '''
-
     t = {}
     for i, js in m.items():
         for j in js:
@@ -101,7 +107,7 @@ def load_board(s, validate_vals=True):
 
     On failure, raises ValueError.
     '''
-    
+
     vals = [cell
             for cell in ''.join(c if c in '0123456789.' else ' '
                                 for c in s).strip().split()
@@ -110,7 +116,7 @@ def load_board(s, validate_vals=True):
     order = int(len(vals) ** 0.25)
     n = order**2
     if len(vals) != order**4: raise ValueError
-    
+
     bd = blank(order)
 
     for (cell, val_) in enumerate(vals):
@@ -123,25 +129,43 @@ def load_board(s, validate_vals=True):
 
 
 def blank(order):
+  'generate a blank board'
   n = order**2
   possible_vals = set(range(1, n + 1))
   return board({},
-              {i:set(possible_vals) for i in range(n**2)},
-              *board_divs(order))
+               {i:set(possible_vals) for i in range(n**2)},
+               *board_divs(order))
+
+
+def isvalid(bd):
+    '''
+    returns True if
+    - no known cells' values conflict
+    - no unknown cell's possibilities conflict with any known cell's value
+    '''
+    return not any(val0 in {bd.known.get(cell)} | bd.unknown.get(cell, set())
+                   for (cell0, val0) in bd.known.items()
+                   for cell in neighbors(bd, cell0)
+                   if cell in bd.known and cell != cell0)
+
+def neighbors(bd, cell0):
+    return union(bd.div2cells[div] for div in bd.cell2divs[cell0])
+
+def union(xss):
+    return {x for xs in xss for x in xs}
 
 
 def dump_board(bd):
     'returns a "pretty printed" string representation of board bd'
-
     order = int((len(bd.known) + len(bd.unknown)) ** 0.25)
     n = order**2
 
     svals = [str(bd.known[i] if i in bd.known else '.')
              for i in range(n**2)]
-    
+
     width = max(map(len, svals))
     fmt = lambda cell: ('%%%ds' % width) % cell
-    
+
     n_x_n = [svals[i*n : i*n + n] for i in range(n)]
     cols_grpd = [' | '.join(' '.join(map(fmt, row[j*order : j*order + order]))
                            for j in range(order))
@@ -150,7 +174,7 @@ def dump_board(bd):
                  for i in range(order)]
 
     rule = '\n' + ''.join('+' if c == '|' else '-' for c in cols_grpd[0]) + '\n'
-    
+
     return rule.join(rows_grpd)
 
 
@@ -168,62 +192,103 @@ def mark_single_vals(bd):
 def mark_single_cells(bd):
     'applies the "hidden single" rule'
     marked = False
-    for div, cells in bd.div2cells.items():
-        spots =  transpose({cell: bd.unknown.get(cell, set())
-                            for cell in cells})
-        for v, cs in spots.items():
-            if len(cs) == 1:
-                cell = cs.pop()
-                if v in bd.unknown.get(cell, set()):
-                    bd.mark(cell, v)
-                    marked = True
-
+    hidden = ((val, cells.pop())
+              for div in bd.div2cells
+              for (val, cells) in placements(bd, div).items()
+              if len(cells) == 1)
+    for (val, cell) in hidden:
+        if val in bd.unknown.get(cell, set()):
+            bd.mark(cell, val)
+            marked = True
     return marked
+
+
+def placements(bd, div):
+    return transpose({cell: bd.unknown[cell]
+                      for cell in bd.div2cells[div]
+                      if cell in bd.unknown})
+
+
+def mark_excluded(bd):
+    marked = False
+    excluded = ((cell, val)
+                for div0 in bd.div2cells
+                for (val, cells) in placements(bd, div0).items()
+                for div in (intersection(bd.cell2divs[cell] for cell in cells)
+                            - {div0})
+                for cell in bd.div2cells[div] - cells - set(bd.known)
+                if val in bd.unknown[cell])
+    for (cell, val) in excluded:
+        bd.elim(cell, val)
+        marked = True
+    return marked
+
+
+def intersection(xs): return reduce(lambda a,x: a&x, xs)
 
 
 def mark_forced(bd):
     '''
-    iteratively applies single candidate and hidden single rules until no
-    further modifications are possible
+    iteratively applies single candidate, hidden single, and rule of exclusion
+    until no further modifications are possible
     '''
-    fns = (mark_single_vals, mark_single_cells)
+    fns = (mark_single_vals, mark_single_cells, mark_excluded)
     while any(fn(bd) for fn in fns): pass
-
-
-def solve(bd, maxdepth=inf):
-    'given a board bd, generates all solutions in maxdepth guesses'
-    def _solve(bd, depth=0):
-        mark_forced(bd)    
-        if issolved(bd):
-            yield bd 
-        elif depth < maxdepth:
-            _, _, cell, vals = min((len(vals), random.random(), cell, vals)
-                                   for (cell, vals) in bd.unknown.items())
-            for val in random.sample(vals, len(vals)):
-                yield from _solve(bd.marked(cell, val), depth=depth+1)
-
-    return _solve(bd.copy())
+    return bd
 
 
 def issolved(bd):
-    'returns True when no unknown cells remain. Assumes the board is valid.'
+    'return True when no unknown cells remain. Assumes the board is valid.'
     return not bd.unknown
 
 
-def generate_from(soln, minrule=False, maxdepth=inf):
-    'given a solution, generate a puzzle (like Jeopardy!)'
+def solve(bd0, maxguesses=inf):
+    'given a board bd0, generate all solutions in maxguesses guesses'
+    stack = [(0, bd0.copy(), None)]
+    while stack:
+        depth, bd, delta = stack.pop()
+        if delta: bd = bd.marked(*delta)
+        mark_forced(bd)
+        if issolved(bd): yield bd
+        elif depth < maxguesses:
+            _, _, cell, vals = min((len(vals), random.random(), cell, vals)
+                                   for (cell, vals) in bd.unknown.items())
+            stack.extend((depth+1, bd, (cell, val))
+                         for val in random.sample(vals, len(vals)))
 
+
+def marked_up(order, *marks):
+    '''
+    returns a new board of the given order, with the given marks, (cell, val)
+    pairs, applied
+    '''
+    bd = blank(order)
+    for mark in marks: bd.mark(*mark)
+    return bd
+
+
+def generate_from(soln, minbranch=False, maxguesses=inf):
+    '''
+    Generate a board for which soln is a solution, within at most maxguesses
+    guesses. If set, minbranch restricts unknown cells to those that
+
+    - can be easily deduced or
+    - are among those with the fewest possible values.
+
+    If maxguesses < inf, the generated board is guaranteed to be solvable
+    within the prescribed number of guesses, but is not guaranteed to have only
+    one solution.
+
+    Returns (bd, difficulty) where bd is the generated board and diff is a 
+    difficulty estimate.
+    '''
     known = soln.known.copy()
     order = int(len(known) ** 0.25)
     clues = {}
-
-    def new():
-        bd = blank(order)
-        for (cell, val) in known.items(): bd.mark(cell, val)
-        for (cell, val) in clues.items(): bd.mark(cell, val)
-        return bd
-
-    minvals = lambda bd: min(map(len, bd.unknown.values()))
+    new = lambda: marked_up(order, *known.items(), *clues.items())    
+    minunks = lambda bd: min(map(len, bd.unknown.values()))
+    guesses = 0
+    difficulty = 1
 
     while known:
         cell = random.choice(list(known))
@@ -231,42 +296,32 @@ def generate_from(soln, minrule=False, maxdepth=inf):
         bd2 = new()
         mark_forced(bd2)
 
-        if cell in bd2.known:
-            pass
-        elif minrule and len(bd2.unknown[cell]) > minvals(bd2):
+        if cell in bd2.known: pass
+        elif (guesses >= maxguesses
+              or minbranch and len(bd2.unknown[cell]) > minunks(bd2)
+              or not isproper(bd2, maxguesses=maxguesses, clue=(cell, val))):
             clues[cell] = val
-        elif not isproper(bd2, maxdepth=maxdepth):
-            clues[cell] = val
+        else:
+            difficulty *= len(bd2.unknown[cell])
+            guesses += 1
 
-    return new()
+    return new(), difficulty
 
 
-def isproper(bd, maxdepth=inf):
+def isproper(bd, maxguesses=inf, clue=None):
+    'bd has exactly one solution within maxguesses guesses'
     nsolns = 0
-    for soln in solve(bd, maxdepth):
+    if clue:
+        cell0, val0 = clue
         nsolns += 1
-        if nsolns > 1: break
+        for val in bd.unknown[cell0] - {val0}:
+            for soln in solve(bd.marked(cell0, val), maxguesses):
+                nsolns += 1
+                if nsolns > 1: return False
+    else:
+        for soln in solve(bd, maxguesses):
+            nsolns += 1
+            if nsolns > 1: return False
 
     return nsolns == 1
-
-
-def rate(bd):
-    'estimate the difficulty of bd'
-    ncells = len(bd.known) + len(bd.unknown)
-    soln2 = bd.copy()
-    mark_forced(soln2)
-    first_guess = len(soln2.known)
-    return 1 - first_guess/ncells
-
-
-def isvalid(bd):
-    if not bd.known and not bd.unknown: return False
-    
-    for (div, cells) in bd.div2cells.items():
-        vals = [bd.known[cell] for cell in cells if cell in bd.known]
-        if len(vals) != len(set(vals)):
-            return False
-        elif any(bd.unknown.get(cell, set()) & set(vals) for cell in cells):
-            return False
-        
-    return True
+# sudoku/__init__.py ends here

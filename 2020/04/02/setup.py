@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# [[file:~/dev/re/2020/04/02/index.org::setup.py][setup.py]]
 import os
 from setuptools import setup, find_packages
 
@@ -10,5 +11,5 @@ setup(name='sudoku',
       description='Sudoku',
       packages=find_packages(),
       scripts=ls('bin'),
-      include_package_data=True,
       zip_safe=False)
+# setup.py ends here

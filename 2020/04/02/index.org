@@ -1,32 +1,34 @@
 #+TITLE: Sudoku of Any Size
 #+DATE: 2020-04-11
-#+PROPERTY: header-args :noweb no-export :noweb-sep "\n" :session :eval no-export :noweb-sep "\n\n\n" :mkdirp yes
+#+FILETAGS: sudoku:np-complete:backtracking:search
+#+PROPERTY: header-args :noweb no-export :noweb-sep "\n" :session :eval no-export :noweb-sep "\n\n\n" :mkdirp yes :comments link
 
-:0:
-#+NAME: install.sh
-#+BEGIN_SRC shell :exports none :results none :tangle install.sh :shebang "#! /bin/bash"
-./setup.py sdist
-virtualenv -p `which python3` $HOME/test
-. $HOME/test
-pip install dist/sudoku*
-mkdir -p images
-#+END_SRC
+* 0xdeadbeef                                                       :noexport:
+** todo
+   - 
+** code
+   #+NAME: install.sh
+   #+BEGIN_SRC shell :exports none :results none :tangle install.sh :shebang "#! /bin/bash"
+   ./setup.py sdist
+   virtualenv -p `which python3` $HOME/test
+   . $HOME/test/bin/activate
+   pip install dist/sudoku*
+   mkdir -p images
+   #+END_SRC
 
-#+NAME: sdtx
-#+BEGIN_SRC shell :exports none :results output
-export PATH=$HOME/test/bin:$PATH
-function sudoset() {
-    out=images/$1; shift
-    sudoku2img -- $@ > $out
-    echo -n $out
-}
-#+END_SRC
+   #+NAME: sdtx
+   #+BEGIN_SRC shell :exports none :results output
+   export PATH=$HOME/test/bin:$PATH
+   function sudoset() {
+       out=images/$1; shift
+       sudoku2img -- $@ > $out
+       echo -n $out
+   }
+   #+END_SRC
 
-#+RESULTS: sdtx
-:END:
+   #+RESULTS: sdtx
 
 * Introduction
-
   Quarantine is in full swing, and after watching a disturbing amount of TV, you
   plowed through a book of Sudoku puzzles that turned up in the basement. Now
   they're gone, and you're looking for something more. Bigger. Monstrous, you
@@ -36,771 +38,891 @@ function sudoset() {
   you sleep.
 
   In this article we will
-  - consider the structure of the Sudoku board
+  - consider the structure of the Sudoku board;
   - use that structure to capture, in a general way, common heuristics for
-    solving Sudoku puzzles
+    solving Sudoku puzzles;
   - employ both constraint propagation and backtracking to create a suitably
-    fast Sudoku solver
+    fast Sudoku solver; and
   - use that solver as building block for generating Sudoku puzzles of any size
-    we might desire
+    we might desire.
 
-  At the end, we'll have implemented a library for dealing with Sudoku, as
-  well as a small collection of command line tools for generating, solving,
-  and formatting puzzles.
+  By the end, we'll have implemented a library for dealing with Sudoku, as well
+  as a small collection of command line tools for generating, solving, and
+  formatting puzzles.
 
 * The Board
+  Before endeavoring to operate on Sudoku boards, we should first pin down some
+  useful representations, as well as conversions between them.
+
 ** Board Divisions
+   The classic Sudoku board consists of a 9\times9 grid of cells, with a
+   3x\times3 grid of boxes, each containing a 3\times3 grid of cells, overlaid:
 
-The Sudoku board consists of a 9x9 grid of cells, with a 3x3 grid of boxes, each
-containing a 3x3 grid of cells, overlaid:
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   seq 0 80 | sudoset cells.png
+   #+END_SRC
 
-#+BEGIN_SRC shell :results file :exports results
-<<sdtx>>
-seq 0 80 | sudoset cells.png
-#+END_SRC
-
-#+RESULTS:
-[[file:images/cells.png]]
+   #+RESULTS:
+   [[file:images/cells.png]]
 
 
- where the cells have been numbered in row-major order. Each cell is a member of
- a set of three divisions, namely 
+   where the cells have been numbered in row-major order. Each cell is a member of
+   a set of three divisions, namely 
 
- - rows:
+   - rows:
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- for i in {0..8}; do
-     for j in {0..8}; do echo $i; done
- done | sudoset row-divs.png
- #+END_SRC
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   for i in {0..8}; do
+       for j in {0..8}; do echo $i; done
+   done | sudoset row-divs.png
+   #+END_SRC
 
- #+RESULTS:
- [[file:images/row-divs.png]]
+   #+RESULTS:
+   [[file:images/row-divs.png]]
 
- where $\mathit{row} = \lfloor\mathit{cell}/9\rfloor$
+   - columns:
 
- - columns:
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   for i in {0..8}; do
+       for j in {0..8}; do echo $j; done
+   done | sudoset col-divs.png
+   #+END_SRC
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- for i in {0..8}; do
-     for j in {0..8}; do echo $j; done
- done | sudoset col-divs.png
- #+END_SRC
+   #+RESULTS:
+   [[file:images/col-divs.png]]
 
- #+RESULTS:
- [[file:images/col-divs.png]]
+   - boxes:
 
- where $\mathit{col} = \mathit{cell}\bmod 9$
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   for i in {1..9}; do
+       for j in {1..9}; do
+           echo -n "$(( ($i-1)/3 * 3 + ($j-1)/3 )) "
+       done
+       echo
+   done | sudoset box-divs.png
+   #+END_SRC
 
- - boxes:
+   #+RESULTS:
+   [[file:images/box-divs.png]]
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- for i in {1..9}; do
-     for j in {1..9}; do
-     echo -n "$(( ($i-1)/3 * 3 + ($j-1)/3 )) "
-     done
-     echo
- done | sudoset box-divs.png
- #+END_SRC
+   Of these, the most interesting division of the board is into boxes. The board
+   board can be viewed as a 3\times3 grid of boxes, each a 3\times3 grid of cells,
+   resulting in a grid of 3^4 cells arranged into 3^2 rows and 3^2 columns, for a
+   grand total of 3\times3^2 distinct divisions. When the board is complete, each
+   cell will contain a number from 1 to 9 (or 3^2) inclusive. Every interesting
+   dimension is describable in terms of power of 3, which we can think of as the
+   /order/ of a standard board. We can now think of Sudoku (or Sudoku-like) boards
+   a bit more generally. Given a board of order $\omega$, for any cell $c\in [1,
+   \omega^4]$, we can find the row number $I$ as
 
- #+RESULTS:
- [[file:images/box-divs.png]]
+   $$I(c) = \left\lfloor\frac{c}{\omega^2}\right\rfloor$$
 
- where $\mathit{box}(\mathit{cell}) = 3\times\lfloor\mathit{row}(cell)/3\rfloor + \mathit{col}(\mathit{cell})/3$.
+   the column number $J$ as
 
- Of these, the most interesting division of the board is into boxes. A Sudoku
- board can be viewed as a $3\times 3$ grid of boxes, each a $3\times 3$ grid of
- cells, resulting in a grid of $3^4$ cells arranged into $3^2$ rows and $3^2$
- columns, for a grand total of $3\times3^2$ distinct divisions. Furthermore, when the
- board is complete, each cell will contain a number from 1 to 9 (or $3^2$)
- inclusive. Every interesting dimension of the board is describable in terms of
- power of 3, which we can think of as the /order/ of a board. We can now think
- of Sudoku (or Sudoku-like) boards a bit more generally. Given a board of order
- $\omega$, for any $\mathit{cell}\in [1,\omega^4]$, we can find the row number
- as
+   $$J(c) = c\bmod \omega^2$$
 
- $$\mathit{row}(\mathit{cell}) = \left\lfloor\frac{\mathit{cell}}{\omega^2}\right\rfloor,$$
+   and the box number $B$ as
 
- the column number as
+   $$B(c) = \omega\times\left\lfloor\frac{I(c)}{\omega}\right\rfloor + \left\lfloor\frac{J(c)}{\omega}\right\rfloor.$$
 
- $$\mathit{col}(\mathit{cell}) = \mathit{cell}\bmod \omega^2,$$
+   This generalization allows us to handle larger boards with ease. For
+   simplicity, the discussion and examples below will center on conventional order
+   3 boards unless otherwise specified; even so, the principles remain the same
+   for other orders.
 
- and the box number as
+   If we sequentially number divisions like
 
- $$\mathit{box}(\mathit{cell}) = \omega\times\left\lfloor\frac{\mathit{row}(cell)}{\omega}\right\rfloor + \left\lfloor\frac{\mathit{col}(\mathit{cell})}{\omega}\right\rfloor.$$
+   | division | start       | end             |
+   |----------+-------------+-----------------|
+   | rows     | 0           | $\omega^2 - 1$  |
+   | columns  | $\omega^2$  | $2\omega^2 - 1$ |
+   | boxes    | $2\omega^2$ | $3\omega^2 - 1$ |
 
-This generalization allows us to handle larger boards with ease. For simplicity,
-the discussion and examples below will center on conventional order 3 boards,
-unless otherwise specified; even so, the principles remain the same for other orders.
+   then we can write a function to compute a mapping from cells to divisions, as
+   well as an inverse mapping from divisions to cells:
 
- If we sequentially number divisions in the following manner:
+   #+NAME: functions
+   #+BEGIN_SRC python :results none
+   def board_divs(order):
+       '''
+       generates a dictionary (cell2divs) mapping cells to their various divisions 
+       in boards of the given order. Also generates a complementary mapping, 
+       div2cells. Returns (cell2divs, div2cells).
+       '''
+       n = order**2
+       box = lambda i, j: i//order * order + j//order
+       cell2divs = dict(enumerate({i,
+                                   n + j,
+                                   2*n + box(i, j)}
+                                  for i in range(n)
+                                  for j in range(n)))
 
- | division | start       | end             |
- |----------+-------------+-----------------|
- | rows     | 0           | $\omega^2 - 1$  |
- | columns  | $\omega^2$  | $2\omega^2 - 1$ |
- | boxes    | $2\omega^2$ | $3\omega^2 - 1$ |
+       return cell2divs, transpose(cell2divs)
+   #+END_SRC
 
- then we can write a function to compute a mapping from cells to divisions, as
- well as an inverse mapping from divisions to cells:
+   where
 
- #+NAME: functions
- #+BEGIN_SRC python :results none
- def board_divs(order):
-     '''
-     generates a dictionary (cell2divs) mapping cells to their various divisions 
-     in boards of the given order. Also generates a complementary mapping, 
-     div2cells. Returns (cell2divs, div2cells).
-     '''
-     n = order**2
-     box = lambda i, j: i//order * order + j//order
-     cell2divs = dict(enumerate((i,
-                                 n + j,
-                                 2*n + box(i, j))
-                                for i in range(n)
-                                for j in range(n)))
-    
-     return cell2divs, transpose(cell2divs)
- #+END_SRC
+   #+NAME: functions
+   #+BEGIN_SRC python :results none
+   def transpose(m):
+       '''
+       given a binary matrix represented as a dictionary whose values are sets,
+       and where a 1 at (i,j) is indicated by
 
- where
+           j in m[i]
 
- #+NAME: functions
- #+BEGIN_SRC python :results none
- def transpose(m):
-     '''
-     given a binary matrix represented as a dictionary whose values are sets,
-     and where a 1 at (i,j) is indicated by
+       return the transpose of m.
+       '''
+       t = {}
+       for i, js in m.items():
+           for j in js:
+               t.setdefault(j, set()).add(i)
 
-         j in m[i]
+       return t
+   #+END_SRC
 
-     return the transpose of m.
-     '''
-
-     t = {}
-     for i, js in m.items():
-         for j in js:
-             t.setdefault(j, set()).add(i)
-
-     return t
- #+END_SRC
-
- In addition to allowing us to more concisely formulate algorithms operating on
- Sudoku boards, operating in terms of cells and divisions opens the door to
- adapting the program we develop here to Sudoku variants featuring
- irregularly-shaped divisions (like [[http://www.dailysudoku.com/sudoku/archive.shtml?type=squiggly][squiggly Sudoku]]).
+   Besides allowing more concise expression of algorithms operating on Sudoku
+   boards, thinking in terms of cells and divisions opens the door to adapting
+   some of what we develop here to Sudoku variants featuring irregularly-shaped
+   divisions (like [[http://www.dailysudoku.com/sudoku/archive.shtml?type=squiggly][squiggly Sudoku]]).
 
 ** Logical Representation
+   We'll need a convenient representation of the board state at any given time,
+   as well as a ways to sensibly change that state. For that, we'll define a
+   simple class:
 
-Our Sudoku solver will need a convenient representation of the board state at
-any given time, as well as a ways to sensibly change that state. For that, we'll
-define a simple class:
+   #+NAME: data types
+   #+BEGIN_SRC python :results none
+   class board:
+       'Utility class for representing and tracking board state.'
 
- #+NAME: data types
- #+BEGIN_SRC python :results none
- class board:
-     'Utility class for representing and tracking board state.'
-     <<board initialization>>
-     <<cell marking>>
-     <<copying>>
- #+END_SRC
+       <<board initialization>>
+       <<cell marking>>
+       <<copying>>
+   #+END_SRC
 
-Each cell is either known or unknown. For the known cells, we need only track
-their values. For the unknown cells, however, we need to either track or compute
-the values that they may possibly take. Since the requirements for the two cell
-classes are different, we handle them separately. 
+   Each cell is either known or unknown. For the known cells, we need only track
+   their values. For the unknown cells, however, we need to either track or
+   compute the values that they may possibly take. Since the requirements for
+   the two cell classes are different, we handle them separately.
 
- #+NAME: board initialization
- #+BEGIN_SRC python :results none
- def __init__(self, known, unknown, cell2divs, div2cells):
-     '''
-     known   dictionary mapping known cells to their respective values
-     unknown dictionary mapping unknown cells to sets of possible values
+   #+NAME: board initialization
+   #+BEGIN_SRC python :results none
+   def __init__(self, known, unknown, cell2divs, div2cells):
+       '''
+       known   dictionary mapping known cells to their respective values
+       unknown dictionary mapping unknown cells to sets of possible values
 
-     cell2divs, div2cells
-             complementary mappings describing the board structure, such as those
-             produced by board_divs
-     '''
-     assert not set(known) & set(unknown)
-     self.known = known
-     self.unknown = unknown
-     self.cell2divs = cell2divs
-     self.div2cells = div2cells
- #+END_SRC
+       cell2divs, div2cells
+               complementary mappings describing the board structure, such as those
+               produced by board_divs
+       '''
+       assert not set(known) & set(unknown)
+       self.known = known
+       self.unknown = unknown
+       self.cell2divs = cell2divs
+       self.div2cells = div2cells
+   #+END_SRC
 
-Solving a Sudoku involves repeatedly /marking/ the board until no empty cells
-remain, subject to the constraint that each division contains one each of the
-numbers from 1 to 9 inclusive. With each marking, we assert knowledge about a
-previously unknown cell, and the possible values that can be taken by unknown
-cells sharing a division become more constrained. To track this,
+   Solving a Sudoku involves repeatedly /marking/ the board until no empty cells
+   remain, subject to the constraint that each division contains one each of the
+   numbers from 1 to 9 inclusive. With each marking, we assert knowledge about a
+   previously unknown cell, and the possible values that can be taken by unknown
+   cells sharing a division become more constrained. To track this,
 
- #+NAME: cell marking
- #+BEGIN_SRC python :results none
- def mark(self, cell, val):
-     'set cell to val, updating unknowns as necessary'
-     self.known[cell] = val
-     self.unknown.pop(cell, None)
+   #+NAME: cell marking
+   #+BEGIN_SRC python :results none
+   def mark(self, cell, val):
+       'set cell to val, updating unknowns as necessary'
+       self.known[cell] = val
+       self.unknown.pop(cell, None)
 
-     for div in self.cell2divs[cell]:
-         for cell2 in self.div2cells[div]:
-             self.elim(cell2, val)
+       for div in self.cell2divs[cell]:
+           for cell2 in self.div2cells[div]:
+               self.elim(cell2, val)
 
- def elim(self, cell, val):
-     "remove val from cell's possibilities"
-     self.unknown.get(cell, set()).discard(val)
- #+END_SRC
+   def elim(self, cell, val):
+       "remove val from cell's possibilities"
+       self.unknown.get(cell, set()).discard(val)
+   #+END_SRC
 
-This is the basic mechanism of /constraint propagation/ that ultimately allows
-us to develop usefully fast solution techniques. For brevity, whenever we speak
-of marking a cell, we'll assume that the possibilities for other cells are
-updated as necessary, too.
+   This is the basic mechanism of /constraint propagation/ that ultimately allows
+   us to develop usefully fast solution techniques. For brevity, whenever we speak
+   of marking a cell, we'll assume that the possibilities for other cells are
+   updated as necessary, too.
 
-Sometimes we may not know that a given marking will work out---perhaps we're
-guessing---so we should support marking cells speculatively and recovering when
-we realize how wrong we are. The simplest method is to mark a copy of the
-current board state:  
+   Sometimes we may not know that a given marking will work out---perhaps we're
+   guessing---so we should support marking cells speculatively and recovering when
+   we realize how wrong we are. The simplest method is to mark a copy of the
+   current board state:  
 
- #+NAME: cell marking
- #+BEGIN_SRC python :results none
- def marked(self, cell, val):
-     'returns a new board, with cell marked as val and possibilities eliminated'
-     new = self.copy()
-     new.mark(cell, val)
-     return new
- #+END_SRC
+   #+NAME: cell marking
+   #+BEGIN_SRC python :results none
+   def marked(self, cell, val):
+       'returns a new board, with cell marked as val and possibilities eliminated'
+       new = self.copy()
+       new.mark(cell, val)
+       return new
+   #+END_SRC
 
- #+NAME: imports
- #+BEGIN_SRC python :results none
- import copy
- #+END_SRC
+   #+NAME: imports
+   #+BEGIN_SRC python :results none
+   import copy
+   #+END_SRC
 
- #+NAME: copying
- #+BEGIN_SRC python :results none
- def copy(self):
-     'copies board'
-     return self.__class__(copy.deepcopy(self.known),
-                           copy.deepcopy(self.unknown),
-                           self.cell2divs,
-                           self.div2cells)
+   #+NAME: copying
+   #+BEGIN_SRC python :results none
+   def copy(self):
+       'copies board'
+       return self.__class__(copy.deepcopy(self.known),
+                             copy.deepcopy(self.unknown),
+                             self.cell2divs,
+                             self.div2cells)
 
- #+END_SRC
+   #+END_SRC
+
 ** Textual Representation
-Our finished program must accept a textual board representation as input, and
-it must emit a textual representation of the completed board as output. Also,
-any supported format must be flexible enough to handle Sudoku boards of any
-order. 
+   Our finished program must accept a textual board representation as input, and
+   it must emit a textual representation of the completed board as output. Also,
+   any supported format must be flexible enough to handle Sudoku boards of any
+   order. 
 
 *** Converting from Strings
 
-We'll impose the following requirements on strings that represent Sudoku boards
-of any order $\omega$:
+    We'll impose the following requirements on strings that represent Sudoku boards
+    of any order $\omega$:
 
-- Each cell will be represented by an integer (if known) or a '.' (if unknown).
-- The number of cells must be $\omega^4$, where $\omega$ is some integer.
-- Cells can be separated by any other character.
-- Values for known cells must be in $[1, \omega^2]$.
+    - Each cell will be represented by an integer (if known) or a '.' (if unknown).
+    - The number of cells must be $\omega^4$, where $\omega$ is some integer.
+    - Cells can be separated by any other character.
+    - Values for known cells must be in $[1, \omega^2]$.
 
-These rules will allow us to handle
+    These rules will allow us to handle
 
-#+BEGIN_EXAMPLE
-1 3 | . .
-. . | 3 1
-----+----
-3 1 | . .
-. 2 | 1 3
-#+END_EXAMPLE
+    #+BEGIN_EXAMPLE
+    1 3 | . .
+    . . | 3 1
+    ----+----
+    3 1 | . .
+    . 2 | 1 3
+    #+END_EXAMPLE
 
-as easily as 
+    as easily as 
 
-#+BEGIN_EXAMPLE
-1 3 . .
-. . 3 1
-3 1 . .
-. 2 1 3
-#+END_EXAMPLE
+    #+BEGIN_EXAMPLE
+    1 3 . .
+    . . 3 1
+    3 1 . .
+    . 2 1 3
+    #+END_EXAMPLE
 
-or
+    or
 
-#+BEGIN_EXAMPLE
-1 3 . . . . 3 1 3 1 . . . 2 1 3
-#+END_EXAMPLE
+    #+BEGIN_EXAMPLE
+    1 3 . . . . 3 1 3 1 . . . 2 1 3
+    #+END_EXAMPLE
 
-They also allow us to compute the order directly from the number of cells.
+    They also allow us to compute the order directly from the number of cells.
 
-#+NAME: functions
-#+BEGIN_SRC python :results none
-def load_board(s, validate_vals=True):
-    '''
-    given a string representing a board, returns a board object. For a board of
-    a given order:
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def load_board(s, validate_vals=True):
+        '''
+        given a string representing a board, returns a board object. For a board of
+        a given order:
 
-    - Order is computed as the fourth root of board length, and it must be an 
-      integer.
+        - Order is computed as the fourth root of board length, and it must be an 
+          integer.
 
-    - Each cell must be represented by an integer in [1, order**2] inclusive, 
-      or `.' to denote unknown cells. This check can be disabled by setting
-      validate_vals to False.
+        - Each cell must be represented by an integer in [1, order**2] inclusive, 
+          or `.' to denote unknown cells. This check can be disabled by setting
+          validate_vals to False.
 
-    - Cells must be separated from each other by any sequences of characters in
-      /[^0-9.]+/.
+        - Cells must be separated from each other by any sequences of characters in
+          /[^0-9.]+/.
 
-    On failure, raises ValueError.
-    '''
-    
-    vals = [cell
-            for cell in ''.join(c if c in '0123456789.' else ' '
-                                for c in s).strip().split()
-            if cell.isdigit() or cell == '.']
+        On failure, raises ValueError.
+        '''
 
-    order = int(len(vals) ** 0.25)
-    n = order**2
-    if len(vals) != order**4: raise ValueError
-    
-    bd = blank(order)
+        vals = [cell
+                for cell in ''.join(c if c in '0123456789.' else ' '
+                                    for c in s).strip().split()
+                if cell.isdigit() or cell == '.']
 
-    for (cell, val_) in enumerate(vals):
-        if val_ == '.': continue
-        val = int(val_)
-        if validate_vals and (val < 1 or val > n): raise ValueError
-        bd.mark(cell, val)
+        order = int(len(vals) ** 0.25)
+        n = order**2
+        if len(vals) != order**4: raise ValueError
 
-    return bd
-#+END_SRC
+        bd = blank(order)
 
-where
+        for (cell, val_) in enumerate(vals):
+            if val_ == '.': continue
+            val = int(val_)
+            if validate_vals and (val < 1 or val > n): raise ValueError
+            bd.mark(cell, val)
 
-  #+NAME: functions
-  #+BEGIN_SRC python :results none
-  def blank(order):
-    n = order**2
-    possible_vals = set(range(1, n + 1))
-    return board({},
-                {i:set(possible_vals) for i in range(n**2)},
-                ,*board_divs(order))
-  #+END_SRC
+        return bd
+    #+END_SRC
+
+    where
+
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def blank(order):
+      'generate a blank board'
+      n = order**2
+      possible_vals = set(range(1, n + 1))
+      return board({},
+                   {i:set(possible_vals) for i in range(n**2)},
+                   ,*board_divs(order))
+    #+END_SRC
+
+    It would also be good know whether a board brought in from the outside world is
+    indeed valid, in the sense of having no conflicting cell values in any division.
+
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def isvalid(bd):
+        '''
+        returns True if
+        - no known cells' values conflict
+        - no unknown cell's possibilities conflict with any known cell's value
+        '''
+        return not any(val0 in {bd.known.get(cell)} | bd.unknown.get(cell, set())
+                       for (cell0, val0) in bd.known.items()
+                       for cell in neighbors(bd, cell0)
+                       if cell in bd.known and cell != cell0)
+
+    def neighbors(bd, cell0):
+        return union(bd.div2cells[div] for div in bd.cell2divs[cell0])
+
+    def union(xss):
+        return {x for xs in xss for x in xs}
+    #+END_SRC
 
 *** Converting to Strings
 
-Once we've solved a puzzle or otherwise modified a board, we'd like to get a
-readable representation back out. Given that there are further use cases for a
-completed Sudoku board, like deriving Sudoku puzzles of varying difficulty, it
-should be loadable via =load_board=, like:
+    Once we've solved a puzzle or otherwise modified a board, we'd like to get a
+    readable representation back out. Given that there are further use cases for a
+    completed Sudoku board, like deriving Sudoku puzzles of varying difficulty, it
+    should be loadable via =load_board=, like:
 
-#+BEGIN_EXAMPLE
-8 3 7 | 1 2 6 | 9 5 4
-9 5 4 | 3 8 7 | 1 6 2
-2 1 6 | 4 5 9 | 3 7 8
-------+-------+------
-7 . 9 | . 4 5 | 8 1 3
-3 4 5 | 9 1 8 | 6 2 7
-1 . 8 | . 7 3 | 4 9 5
-------+-------+------
-4 8 1 | 5 6 2 | 7 . 9
-5 9 3 | 7 . 1 | 2 8 6
-6 7 2 | 8 9 4 | 5 3 1
-#+END_EXAMPLE
+    #+BEGIN_EXAMPLE
+    8 3 7 | 1 2 6 | 9 5 4
+    9 5 4 | 3 8 7 | 1 6 2
+    2 1 6 | 4 5 9 | 3 7 8
+    ------+-------+------
+    7 . 9 | . 4 5 | 8 1 3
+    3 4 5 | 9 1 8 | 6 2 7
+    1 . 8 | . 7 3 | 4 9 5
+    ------+-------+------
+    4 8 1 | 5 6 2 | 7 . 9
+    5 9 3 | 7 . 1 | 2 8 6
+    6 7 2 | 8 9 4 | 5 3 1
+    #+END_EXAMPLE
 
-#+NAME: functions
-#+BEGIN_SRC python :results none
-def dump_board(bd):
-    'returns a "pretty printed" string representation of board bd'
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def dump_board(bd):
+        'returns a "pretty printed" string representation of board bd'
+        order = int((len(bd.known) + len(bd.unknown)) ** 0.25)
+        n = order**2
 
-    order = int((len(bd.known) + len(bd.unknown)) ** 0.25)
-    n = order**2
+        svals = [str(bd.known[i] if i in bd.known else '.')
+                 for i in range(n**2)]
 
-    svals = [str(bd.known[i] if i in bd.known else '.')
-             for i in range(n**2)]
-    
-    width = max(map(len, svals))
-    fmt = lambda cell: ('%%%ds' % width) % cell
-    
-    n_x_n = [svals[i*n : i*n + n] for i in range(n)]
-    cols_grpd = [' | '.join(' '.join(map(fmt, row[j*order : j*order + order]))
-                           for j in range(order))
-                 for row in n_x_n]    
-    rows_grpd = ['\n'.join(cols_grpd[i*order : i*order + order])
-                 for i in range(order)]
+        width = max(map(len, svals))
+        fmt = lambda cell: ('%%%ds' % width) % cell
 
-    rule = '\n' + ''.join('+' if c == '|' else '-' for c in cols_grpd[0]) + '\n'
-    
-    return rule.join(rows_grpd)
-#+END_SRC
+        n_x_n = [svals[i*n : i*n + n] for i in range(n)]
+        cols_grpd = [' | '.join(' '.join(map(fmt, row[j*order : j*order + order]))
+                               for j in range(order))
+                     for row in n_x_n]    
+        rows_grpd = ['\n'.join(cols_grpd[i*order : i*order + order])
+                     for i in range(order)]
+
+        rule = '\n' + ''.join('+' if c == '|' else '-' for c in cols_grpd[0]) + '\n'
+
+        return rule.join(rows_grpd)
+    #+END_SRC
 
 * Solving Sudoku
+  Having a suitable representation of the board state, we can now work out how to
+  solve a Sudoku puzzle. All of the techniques discussed here rely on the
+  constraint propagation that [[cell marking][=board.mark=]] performs automatically.
 
-Having a suitable representation of the board state, we can now work out how to
-solve a Sudoku puzzle. All of the techniques discussed here rely on the
-constraint propagation that [[cell marking][=board.mark=]] performs automatically.
+** Deductive Techniques
+   Consider how a human might approach a grid like
 
-** Forced Moves
-Consider how a human might approach a grid like
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   sudoset ex-1-1.png <<eof
+   8 3 . | . . . | . . 4
+   9 . . | . . . | . 6 .
+   . 1 . | 4 5 . | . 7 .
+   ------+-------+------
+   . . . | . . 5 | . . 3
+   . . 5 | . 1 8 | . . .
+   . . . | . . 3 | 4 9 .
+   ------+-------+------
+   . . . | . 6 . | 7 . .
+   . . . | . . 1 | . . .
+   . . . | 8 . . | . . 1
+   eof
+   #+END_SRC
 
-#+BEGIN_SRC shell :results file :exports results
-<<sdtx>>
-sudoset ex-1-1.png <<eof
-8 3 . | . . . | . . 4
-9 . . | . . . | . 6 .
-. 1 . | 4 5 . | . 7 .
-------+-------+------
-. . . | . . 5 | . . 3
-. . 5 | . 1 8 | . . .
-. . . | . . 3 | 4 9 .
-------+-------+------
-. . . | . 6 . | 7 . .
-. . . | . . 1 | . . .
-. . . | 8 . . | . . 1
-eof
-#+END_SRC
+   #+RESULTS:
+   [[file:images/ex-1-1.png]]
 
-#+RESULTS:
-[[file:images/ex-1-1.png]]
+   Let's immediately reject the idea of blindly trying numbers until something
+   works. Instead, let's annotate the board with the remaining possibilities
+   (called /pencil marks/) for each unknown cell, revealing our true situation:
 
-*** Single-Candidate
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   sudoset ex-1-2.png -p 43 <<eof
+   8 3 . | . . . | . . 4
+   9 . . | . . . | . 6 .
+   . 1 . | 4 5 . | . 7 .
+   ------+-------+------
+   . . . | . . 5 | . . 3
+   . . 5 | . 1 8 | . . .
+   . . . | . . 3 | 4 9 .
+   ------+-------+------
+   . . . | . 6 . | 7 . .
+   . . . | . . 1 | . . .
+   . . . | 8 . . | . . 1
+   eof
+   #+END_SRC
 
- Let's immediately reject the idea of blindly trying numbers until something
- works. Instead, let's annotate the board with the remaining possibilities for
- each unknown cell, revealing our true situation:
+   #+RESULTS:
+   [[file:images/ex-1-2.png]]
+*** Single Candidate/Naked Single
+    The cell indicated with a red box can only take on a value of 2; if we mark
+    it as such, then we have to remove 2 from the possibilities for the
+    remaining cells that share a row, column, or box (the cells to be modified
+    are indicated with red digits).
 
-#+BEGIN_SRC shell :results file :exports results
-<<sdtx>>
-sudoset ex-1-2.png -p 43 <<eof
-8 3 . | . . . | . . 4
-9 . . | . . . | . 6 .
-. 1 . | 4 5 . | . 7 .
-------+-------+------
-. . . | . . 5 | . . 3
-. . 5 | . 1 8 | . . .
-. . . | . . 3 | 4 9 .
-------+-------+------
-. . . | . 6 . | 7 . .
-. . . | . . 1 | . . .
-. . . | 8 . . | . . 1
-eof
-#+END_SRC
+    The process can be expressed as
 
-#+RESULTS:
-[[file:images/ex-1-2.png]]
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def mark_single_vals(bd):
+        'applies the "single candidate" (a.k.a. "naked single") rule'
+        marked = False
+        for (cell, vals) in list(bd.unknown.items()):
+            if len(vals) == 1:
+                bd.mark(cell, set(vals).pop())
+                marked = True
 
- The cell indicated with a red box can only take on a value of 2; if we mark it
- as such, then we have to remove 2 from the possibilities for the remaining cells
- that share a row, column, or box (the cells to be modified are indicated with
- red digits). 
+        return marked
+    #+END_SRC
 
- The process can be expressed as
+    Marking the cell with a 2 gives us
 
- #+NAME: functions
- #+BEGIN_SRC python :results none
- def mark_single_vals(bd):
-     'applies the "single candidate" (a.k.a. "naked single") rule'
-     marked = False
-     for (cell, vals) in list(bd.unknown.items()):
-         if len(vals) == 1:
-             bd.mark(cell, set(vals).pop())
-             marked = True
+    #+BEGIN_SRC shell :results file :exports results
+    <<sdtx>>
+    sudoset ex-1-4.png -p 42 <<eof
+    8 3 . | . . . | . . 4
+    9 . . | . . . | . 6 .
+    . 1 . | 4 5 . | . 7 .
+    ------+-------+------
+    . . . | . . 5 | . . 3
+    . . 5 | . 1 8 | . 2 .
+    . . . | . . 3 | 4 9 .
+    ------+-------+------
+    . . . | . 6 . | 7 . .
+    . . . | . . 1 | . . .
+    . . . | 8 . . | . . 1
+    eof
+    #+END_SRC
 
-     return marked
- #+END_SRC
+    #+RESULTS:
+    [[file:images/ex-1-4.png]]
 
- Marking the cell with a 2 gives us
+    Continuing on in this way eventually yields
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- sudoset ex-1-4.png -p 42 <<eof
- 8 3 . | . . . | . . 4
- 9 . . | . . . | . 6 .
- . 1 . | 4 5 . | . 7 .
- ------+-------+------
- . . . | . . 5 | . . 3
- . . 5 | . 1 8 | . 2 .
- . . . | . . 3 | 4 9 .
- ------+-------+------
- . . . | . 6 . | 7 . .
- . . . | . . 1 | . . .
- . . . | 8 . . | . . 1
- eof
- #+END_SRC
+    #+BEGIN_SRC shell :results file :exports results
+    <<sdtx>>
+    sudoset ex-1-5.png -p 10 53 <<eof
+    8 3 . | . . . | . . 4
+    9 . . | . . . | . 6 .
+    . 1 . | 4 5 . | . 7 .
+    ------+-------+------
+    . . . | . . 5 | . . 3
+    3 4 5 | 9 1 8 | 6 2 7
+    . . . | . . 3 | 4 9 .
+    ------+-------+------
+    . . . | . 6 . | 7 . .
+    . . . | . . 1 | . . .
+    . . . | 8 . . | . . 1
+    eof
+    #+END_SRC
 
- #+RESULTS:
- [[file:images/ex-1-4.png]]
+    #+RESULTS:
+    [[file:images/ex-1-5.png]]
 
- We now have a cell that can only Continuing in this fashion a few more yields
+*** Single Placement/Hidden Single
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- sudoset ex-1-5.png -p 10 53 <<eof
- 8 3 . | . . . | . . 4
- 9 . . | . . . | . 6 .
- . 1 . | 4 5 . | . 7 .
- ------+-------+------
- . . . | . . 5 | . . 3
- 3 4 5 | 9 1 8 | 6 2 7
- . . . | . . 3 | 4 9 .
- ------+-------+------
- . . . | . 6 . | 7 . .
- . . . | . . 1 | . . .
- . . . | 8 . . | . . 1
- eof
- #+END_SRC
+    While none of the unknown cells has only one possible value, there are two cells
+    that each can only hold a 5. Marking and eliminating, we have
 
- #+RESULTS:
- [[file:images/ex-1-5.png]]
+    #+BEGIN_SRC shell :results file :exports results
+    <<sdtx>>
+    sudoset ex-1-6.png -p 17 <<eof
+    8 3 . | . . . | . . 4
+    9 5 4 | . 8 . | . 6 .
+    . 1 . | 4 5 . | 3 7 .
+    ------+-------+------
+    . . . | . 4 5 | . . 3
+    3 4 5 | 9 1 8 | 6 2 7
+    . . . | . . 3 | 4 9 5
+    ------+-------+------
+    . . . | . 6 . | 7 . .
+    . . . | . . 1 | . . 6
+    . . . | 8 . . | . . 1
+    eof
+    #+END_SRC
 
-*** Single Cell
+    #+RESULTS:
+    [[file:images/ex-1-6.png]]
 
- While none of the unknown cells has only one possible value, there are two cells
- that each can only hold a 5. Marking and eliminating, we have:
+    We can express the technique like so:
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- sudoset ex-1-6.png -p 17 <<eof
- 8 3 . | . . . | . . 4
- 9 5 4 | . 8 . | . 6 .
- . 1 . | 4 5 . | 3 7 .
- ------+-------+------
- . . . | . 4 5 | . . 3
- 3 4 5 | 9 1 8 | 6 2 7
- . . . | . . 3 | 4 9 5
- ------+-------+------
- . . . | . 6 . | 7 . .
- . . . | . . 1 | . . 6
- . . . | 8 . . | . . 1
- eof
- #+END_SRC
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def mark_single_cells(bd):
+        'applies the "hidden single" rule'
+        marked = False
+        hidden = ((val, cells.pop())
+                  for div in bd.div2cells
+                  for (val, cells) in placements(bd, div).items()
+                  if len(cells) == 1)
+        for (val, cell) in hidden:
+            if val in bd.unknown.get(cell, set()):
+                bd.mark(cell, val)
+                marked = True
+        return marked
+    #+END_SRC
 
- #+RESULTS:
- [[file:images/ex-1-6.png]]
+    where
 
- #+NAME: functions
- #+BEGIN_SRC python :results none
- def mark_single_cells(bd):
-     'applies the "hidden single" rule'
-     marked = False
-     for div, cells in bd.div2cells.items():
-         spots =  transpose({cell: bd.unknown.get(cell, set())
-                             for cell in cells})
-         for v, cs in spots.items():
-             if len(cs) == 1:
-                 cell = cs.pop()
-                 if v in bd.unknown.get(cell, set()):
-                     bd.mark(cell, v)
-                     marked = True
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def placements(bd, div):
+        return transpose({cell: bd.unknown[cell]
+                          for cell in bd.div2cells[div]
+                          if cell in bd.unknown})
+    #+END_SRC
 
-     return marked
- #+END_SRC
- 
- We can continue applying these two heuristics, favoring the simpler whenever
- possible,
+*** Rule of Exclusion
+    Whenever a value in a division is constrained to two or more cells, we can
+    eliminate that value from any additional neighbors that those cells
+    share:
 
- #+NAME: functions
- #+BEGIN_SRC python :results none
- def mark_forced(bd):
-     '''
-     iteratively applies single candidate and hidden single rules until no
-     further modifications are possible
-     '''
-     fns = (mark_single_vals, mark_single_cells)
-     while any(fn(bd) for fn in fns): pass
- #+END_SRC
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def mark_excluded(bd):
+        marked = False
+        excluded = ((cell, val)
+                    for div0 in bd.div2cells
+                    for (val, cells) in placements(bd, div0).items()
+                    for div in (intersection(bd.cell2divs[cell] for cell in cells)
+                                - {div0})
+                    for cell in bd.div2cells[div] - cells - set(bd.known)
+                    if val in bd.unknown[cell])
+        for (cell, val) in excluded:
+            bd.elim(cell, val)
+            marked = True
+        return marked
+    #+END_SRC
 
- until we reach
+    where
 
- #+BEGIN_SRC shell :results file :exports results
- <<sdtx>>
- sudoset ex-1-7.png -p <<eof
- 8 3 7 | 1 2 6 | 9 5 4
- 9 5 4 | 3 8 7 | 1 6 2
- . 1 . | 4 5 9 | 3 7 8
- ------+-------+------
- . . . | . 4 5 | 8 1 3
- 3 4 5 | 9 1 8 | 6 2 7
- . . . | . 7 3 | 4 9 5
- ------+-------+------
- . . . | 5 6 . | 7 . 9
- . . . | 7 . 1 | . . 6
- . . . | 8 . . | . . 1
- eof
- #+END_SRC
+    #+NAME: imports
+    #+BEGIN_SRC python :results none
+    from functools import reduce
+    #+END_SRC
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def intersection(xs): return reduce(lambda a,x: a&x, xs)
+    #+END_SRC
 
- #+RESULTS:
- [[file:images/ex-1-7.png]]
+*** Combining Strategies
+    We can continue applying these techniques, favoring the simplest whenever
+    possible,
 
- which will not yield to either. At this point, we have a couple options:
+    #+NAME: functions
+    #+BEGIN_SRC python :results none
+    def mark_forced(bd):
+        '''
+        iteratively applies single candidate, hidden single, and rule of exclusion
+        until no further modifications are possible
+        '''
+        fns = (mark_single_vals, mark_single_cells, mark_excluded)
+        while any(fn(bd) for fn in fns): pass
+        return bd
+    #+END_SRC
 
- - We can crack open any number of guides on Sudoku to find other strategies that
-   might apply.
- - We can guess at the next play.
+    until we reach
+
+    #+BEGIN_SRC shell :results file :exports results
+    <<sdtx>>
+    sudoset ex-1-7.png -p <<eof
+    8 3 7 | 1 2 6 | 9 5 4
+    9 5 4 | 3 8 7 | 1 6 2
+    . 1 . | 4 5 9 | 3 7 8
+    ------+-------+------
+    . . . | . 4 5 | 8 1 3
+    3 4 5 | 9 1 8 | 6 2 7
+    . . . | . 7 3 | 4 9 5
+    ------+-------+------
+    . . . | 5 6 . | 7 . 9
+    . . . | 7 . 1 | . . 6
+    . . . | 8 . . | . . 1
+    eof
+    #+END_SRC
+
+    #+RESULTS:
+    [[file:images/ex-1-7.png]]
+
+    which will not yield to any of them. At this point, we have a couple
+    options:
+
+    - We can crack open any number of guides on Sudoku to find other strategies that
+      might apply, or,
+    - We can guess at the next play.
 
 ** Searching
 
-Rather than further accumulating strategies, eventually turning our solver into
-a corpus of Sudoku-solving lore, let's do what the inexperienced and the
-impatient do when faced with such a board: Let's guess. Once we've made our
-guess, we'll play it out, using our two rules for detecting forced assignments
-whenever we can, and guessing again as necessary. If it becomes clear that our
-guess is wrong, we'll come back to this board state and try something else. In
-short, we'll perform a depth-first search through the space of Sudoku boards.
+   Rather than further accumulating strategies until we build up a corpus of
+   Sudoku-solving lore, let's do what any player out of options would do: Let's
+   guess. Once we've made our guess, we'll play it out, using our deductive
+   rules as we can, and guessing again as necessary. If it becomes clear that
+   our guess is wrong, we'll come back to this board state and try something
+   else. In short, we'll perform a depth-first search through the space of
+   Sudoku boards.
 
-To decide how we'll guess, let's consider what happens if we choose poorly:
+   Let's consider what happens if we choose poorly:
 
-- We'll find ourselves back at our current board state, choosing a different
-  cell/value assignment to try.
-- We'll have eliminated the cell/value combination we just tried as being valid
-  for /any board state derived from our current state/.
+   - We'll find ourselves back at our current board state, choosing a different
+     cell/value assignment to try; and,
+   - We'll have eliminated the cell/value combination we just tried as being valid
+     for /any board state derived from our current state/.
 
-So, if an incorrect guess allows us to prune part of the search space, we should
-structure our guessing so that each incorrect choice prunes as large a subtree
-as possible. The simplest thing we can do, then, is to find the cell with the
-fewest possible values and then try each of the possibilities until we're
-successful. So, choosing the red-boxed cell in
+   So, if an incorrect guess allows us to /prune/ part of the search space, we
+   should structure our guessing so that each incorrect choice prunes as large a
+   subtree as possible, allowing us to more quickly focus on the correct
+   subtree. An easy and effective approach is to find the cell with the fewest
+   possible values and then try each of them until we're successful. So,
+   choosing the red-boxed cell in
 
-#+BEGIN_SRC shell :results file :exports results
-<<sdtx>>
-sudoset ex-1-8.png -p 18 <<eof
- 8 3 7 | 1 2 6 | 9 5 4
- 9 5 4 | 3 8 7 | 1 6 2
- . 1 . | 4 5 9 | 3 7 8
- ------+-------+------
- . . . | . 4 5 | 8 1 3
- 3 4 5 | 9 1 8 | 6 2 7
- . . . | . 7 3 | 4 9 5
- ------+-------+------
- . . . | 5 6 . | 7 . 9
- . . . | 7 . 1 | . . 6
- . . . | 8 . . | . . 1
-eof
-#+END_SRC
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   sudoset ex-1-8.png -p 18 <<eof
+    8 3 7 | 1 2 6 | 9 5 4
+    9 5 4 | 3 8 7 | 1 6 2
+    . 1 . | 4 5 9 | 3 7 8
+    ------+-------+------
+    . . . | . 4 5 | 8 1 3
+    3 4 5 | 9 1 8 | 6 2 7
+    . . . | . 7 3 | 4 9 5
+    ------+-------+------
+    . . . | 5 6 . | 7 . 9
+    . . . | 7 . 1 | . . 6
+    . . . | 8 . . | . . 1
+   eof
+   #+END_SRC
 
-#+RESULTS:
-[[file:images/ex-1-8.png]]
+   #+RESULTS:
+   [[file:images/ex-1-8.png]]
 
-we can choose either a 2 or a 6. If the solution is ultimately derived from our
-current board state, then one of these values must be correct, giving a 50%
-chance of guessing correctly the first time. Should we exhaust both numbers
-without finding a solution, then there is no solution to be had from our current
-state--either the game is unsolvable or we previously made a mistake.
+   we can choose either a 2 or a 6. If the solution is ultimately derived from our
+   current board state, then one of these values must be correct, giving a 50%
+   chance of guessing correctly the first time. Should we exhaust both numbers
+   without finding a solution, then there is no solution to be had from our current
+   state--either the game is unsolvable or we previously made a mistake. A first
+   draft might look like
 
-For most Sudoku boards the author has tested, there does not seem any decisive
-advantage to preferring one ordering of the possible values over another. By
-randomizing the order in which possibilities are tried, combined with randomly
-selecting from the cells meeting our fewest possibilities criterion, we can
-use our solver, fed with a blank board, as a building block for a Sudoku puzzle
-generator. Also, there are times when we want to restrict the number of guesses
-made on the way to a solution, e.g., when testing potential clues while
-generating a puzzle.
+   #+BEGIN_SRC python
+   def solve(bd):
+       def _solve(bd):
+           mark_forced(bd)
+           if issolved(bd): yield bd
+           else:
+               _, cell, vals = min((len(vals), cell, vals)
+                                   for (cell, vals) in bd.unknwon.items())
+               for val in vals:
+                   yield from _solve(bd.marked(cell, val))
+       return solve(bd.copy())
+   #+END_SRC
 
-The overall solution procedure, incorporating both backtracking and constraint
-propagation, generates all solutions for a given board that can be found in
-=maxdepth= guesses.
+   where
 
-#+NAME: functions
-#+BEGIN_SRC python :results none
-def solve(bd, maxdepth=inf):
-    'given a board bd, generates all solutions in maxdepth guesses'
-    def _solve(bd, depth=0):
-        mark_forced(bd)    
-        if issolved(bd):
-            yield bd 
-        elif depth < maxdepth:
-            _, _, cell, vals = min((len(vals), random.random(), cell, vals)
-                                   for (cell, vals) in bd.unknown.items())
-            for val in random.sample(vals, len(vals)):
-                yield from _solve(bd.marked(cell, val), depth=depth+1)
+   #+NAME: functions
+   #+BEGIN_SRC python :results none
+   def issolved(bd):
+       'return True when no unknown cells remain. Assumes the board is valid.'
+       return not bd.unknown
+   #+END_SRC
 
-    return _solve(bd.copy())
-#+END_SRC
+   Because =mark_forced= results in modifications to the board passed in, rather
+   than a new board suitably modified, =solve= begins by making a copy of the
+   board to be solved; this gives us a pure functional interface.
 
-where
+   Besides solving Sudoku puzzles, =solve= actually plays two key roles in the
+   puzzle generation procedure. The first of those is generating the solved
+   board. Once a cell is selected, there is no decisive advantage to preferring
+   one ordering of the possible values over another. Likewise, if there are two
+   or more cells meeting our minimum-values criterion, there is little reason to
+   prefer one over another. By randomizing both cell selection and value
+   ordering, we can retrieve all solutions of a given board in random
+   order. This allows us to pass =solve= a blank board, and the first solution
+   generated will be a randomly-selected Sudoku solution:
 
-#+NAME: functions
-#+BEGIN_SRC python :results none
-def issolved(bd):
-    'returns True when no unknown cells remain. Assumes the board is valid.'
-    return not bd.unknown
-#+END_SRC
+   #+BEGIN_SRC python :results none
+   def solve(bd):
+          def _solve(bd):
+                 mark_forced(bd)
+              if issolved(bd): yield bd
+              else:
+                     _, _, cell, vals = min((len(vals), random.random(), cell, vals)
+                                         for (cell, vals) in bd.unknwon.items())
+                  for val in random.sample(vals, len(vals)):
+                         yield from _solve(bd.marked(cell, val))
+          return solve(bd.copy())
 
-We should also
+   #+END_SRC
 
-#+NAME: imports
-#+BEGIN_SRC python :results none
-from math import inf
-import random
-#+END_SRC
+   for which we'd need
 
-Now, we can generate the final solution to our original puzzle:
+   #+NAME: imports
+   #+BEGIN_SRC python :results none
+   import random
+   #+END_SRC
 
-#+BEGIN_SRC python :session :exports none :results none
-from sudoku import * #import sudoku 
-#+END_SRC
+   For reasons of both performance and controlling difficulty, we might need to
+   limit the number of guesses needed to solve a given board.
 
-#+BEGIN_SRC python :session :results value
-next(solve(load_board('''
-8 3 . | . . . | . . 4
-9 . . | . . . | . 6 .
-. 1 . | 4 5 . | . 7 .
-------+-------+------
-. . . | . . 5 | . . 3
-. . 5 | . 1 8 | . . .
-. . . | . . 3 | 4 9 .
-------+-------+------
-. . . | . 6 . | 7 . .
-. . . | . . 1 | . . .
-. . . | 8 . . | . . 1
-''')))
-#+END_SRC
+   #+BEGIN_SRC python :results none
+   def solve(bd, maxguesses=inf):
+       def _solve(bd, depth=0):
+           mark_forced(bd)    
+           if issolved(bd):
+               yield bd 
+           elif depth < maxguesses:
+               _, _, cell, vals = min((len(vals), random.random(), cell, vals)
+                                      for (cell, vals) in bd.unknown.items())
+               for val in random.sample(vals, len(vals)):
+                   yield from _solve(bd.marked(cell, val), depth=depth+1)
 
-#+RESULTS:
-: <sudoku.board object at 0x7f65595bfcc0>
+       return _solve(bd.copy())
+   #+END_SRC
 
-yields
+   which requires
 
-#+BEGIN_SRC shell :results file :exports results
-<<sdtx>>
-sudoset ex-1-soln.png <<eof
-8 3 7 | 1 2 6 | 9 5 4
-9 5 4 | 3 8 7 | 1 6 2
-6 1 2 | 4 5 9 | 3 7 8
-------+-------+------
-7 6 9 | 2 4 5 | 8 1 3
-3 4 5 | 9 1 8 | 6 2 7
-2 8 1 | 6 7 3 | 4 9 5
-------+-------+------
-1 2 3 | 5 6 4 | 7 8 9
-5 9 8 | 7 3 1 | 2 4 6
-4 7 6 | 8 9 2 | 5 3 1
-eof
-#+END_SRC
+   #+NAME: imports
+   #+BEGIN_SRC python :results none
+   from math import inf
+   #+END_SRC
 
-#+RESULTS:
-[[file:images/ex-1-soln.png]]
+   However, Python has a default maximum recursion depth of 1000 calls; when
+   generating solutions for boards requiring large numbers of guesses (e.g.,
+   when filling in blank boards of order 6 or larger), generating a
+   =RecursionError= is a very real possibility. This concern leads us to the
+   iterative implementation that we actually use.
+
+   #+NAME: functions
+   #+BEGIN_SRC python :results none
+   def solve(bd0, maxguesses=inf):
+       'given a board bd0, generate all solutions in maxguesses guesses'
+       stack = [(0, bd0.copy(), None)]
+       while stack:
+           depth, bd, delta = stack.pop()
+           if delta: bd = bd.marked(*delta)
+           mark_forced(bd)
+           if issolved(bd): yield bd
+           elif depth < maxguesses:
+               _, _, cell, vals = min((len(vals), random.random(), cell, vals)
+                                      for (cell, vals) in bd.unknown.items())
+               stack.extend((depth+1, bd, (cell, val))
+                            for val in random.sample(vals, len(vals)))
+   #+END_SRC
+
+   Delaying production of each intermediate board until it's required saves us
+   significant amounts of memory for large boards.
+
+   Now, we can generate the final solution to our original puzzle:
+
+   #+BEGIN_SRC python :session :exports none :results none
+   from sudoku import * #import sudoku 
+   #+END_SRC
+
+   #+BEGIN_SRC python :session :results value
+   next(solve(load_board('''
+   8 3 . | . . . | . . 4
+   9 . . | . . . | . 6 .
+   . 1 . | 4 5 . | . 7 .
+   ------+-------+------
+   . . . | . . 5 | . . 3
+   . . 5 | . 1 8 | . . .
+   . . . | . . 3 | 4 9 .
+   ------+-------+------
+   . . . | . 6 . | 7 . .
+   . . . | . . 1 | . . .
+   . . . | 8 . . | . . 1
+   ''')))
+   #+END_SRC
+
+   #+RESULTS:
+   : <sudoku.board object at 0x7f65595bfcc0>
+
+   yields
+
+   #+BEGIN_SRC shell :results file :exports results
+   <<sdtx>>
+   sudoset ex-1-soln.png <<eof
+   8 3 7 | 1 2 6 | 9 5 4
+   9 5 4 | 3 8 7 | 1 6 2
+   6 1 2 | 4 5 9 | 3 7 8
+   ------+-------+------
+   7 6 9 | 2 4 5 | 8 1 3
+   3 4 5 | 9 1 8 | 6 2 7
+   2 8 1 | 6 7 3 | 4 9 5
+   ------+-------+------
+   1 2 3 | 5 6 4 | 7 8 9
+   5 9 8 | 7 3 1 | 2 4 6
+   4 7 6 | 8 9 2 | 5 3 1
+   eof
+   #+END_SRC
+
+   #+RESULTS:
+   [[file:images/ex-1-soln.png]]
 
 * Generating Sudoku
-  To generate a puzzle, we'll work backwards from the solution, iteratively 
+  To generate a puzzle, we'll work backwards from the solution, iteratively
   testing each cell to determine whether the board remains /proper/---i.e., has
   exactly one solutions---if the cell is made an unknown. Those that can be
-  masked out are; those that can't become the clues. A naive first version would
-  look something like
+  masked out (i.e., rendered unknown) are; those that can't become the clues. A
+  naive first version would look something like
 
   #+BEGIN_SRC python :results none
   def generate_from(soln):
       known = soln.known.copy()
       order = int(len(known) ** 0.25)
       clues = {}
-
-      def new():
-          bd = blank(order)
-          for (cell, val) in known.items(): bd.mark(cell, val)
-          for (cell, val) in clues.items(): bd.mark(cell, val)
-          return bd
-
+      new = lambda: marked_up(order, *known.items(), *clues.items())
+    
       while known:
           cell = random.choice(list(known))
           val = known.pop(cell)
           if not isproper(new()):
               clues[cell] = val
-            
+
       return new()
   #+END_SRC
 
@@ -816,65 +938,105 @@ eof
       return nsolns == 1
   #+END_SRC
 
+  and
+
+  #+NAME: functions
+  #+BEGIN_SRC python :results none
+  def marked_up(order, *marks):
+      '''
+      returns a new board of the given order, with the given marks, (cell, val)
+      pairs, applied
+      '''
+      bd = blank(order)
+      for mark in marks: bd.mark(*mark)
+      return bd
+  #+END_SRC
+
   However, the naive procedure's performance degrades rapidly with increasing
   order---checking a board's propriety requires solving it, and =solve='s
-  complexity grows combinatorially with the number of unknown cells. We can
-  salvage the situation with a few measures:
+  complexity grows exponentially with the number of unknown cells. A few
+  measures can salvage this situation:
 
   - We can safely mask out any cell that can be deduced based on the currently
-    known cells.
+    known cells. 
   - Checking whether masking out a given cell would result in proper board
     requires attempting to solve the board resulting from masking the cell. We
-    can constrain the solver to only generate solutions within =maxdepth=
-    guesses.
-  - The solver chooses from the unknown cells with the fewest possible
-    values. If set, the =minrule= option causes us to check whether a potential
-    clue cell would be among those the backtracker would consider. 
+    can constrain the solver to only generate solutions within a certain number
+    of guesses. Doing so allows a faster, though weaker, check for propriety. It
+    also provides us a means of limiting the end result's difficulty.
+  - The solver chooses from the unknown cells with the fewest possible values,
+    i.e., it attempts to minimize the branching factor. We can limit unknown
+    cells only to those that the solver would choose among.
+
+  We can estimate difficulty by multiplying the number of possibilities for each
+  cell we mask; this represents the total number of choices that a perfect
+  player would face. 
 
   The generation procedure we'll actually use is
 
   #+NAME: functions
   #+BEGIN_SRC python :results none
-  def generate_from(soln, minrule=False, maxdepth=inf):
-      'given a solution, generate a puzzle (like Jeopardy!)'
+  def generate_from(soln, minbranch=False, maxguesses=inf):
+      '''
+      Generate a board for which soln is a solution, within at most maxguesses
+      guesses. If set, minbranch restricts unknown cells to those that
 
+      - can be easily deduced or
+      - are among those with the fewest possible values.
+
+      If maxguesses < inf, the generated board is guaranteed to be solvable
+      within the prescribed number of guesses, but is not guaranteed to have only
+      one solution.
+
+      Returns (bd, difficulty) where bd is the generated board and diff is a 
+      difficulty estimate.
+      '''
       known = soln.known.copy()
       order = int(len(known) ** 0.25)
       clues = {}
+      new = lambda: marked_up(order, *known.items(), *clues.items())    
+      minunks = lambda bd: min(map(len, bd.unknown.values()))
+      guesses = 0
+      difficulty = 1
 
-      def new():
-          bd = blank(order)
-          for (cell, val) in known.items(): bd.mark(cell, val)
-          for (cell, val) in clues.items(): bd.mark(cell, val)
-          return bd
-
-      minvals = lambda bd: min(map(len, bd.unknown.values()))
-        
       while known:
           cell = random.choice(list(known))
           val = known.pop(cell)
           bd2 = new()
           mark_forced(bd2)
-        
-          if cell in bd2.known:
-              pass
-          elif minrule and len(bd2.unknown[cell]) > minvals(bd2):
-              clues[cell] = val
-          elif not isproper(bd2, maxdepth=maxdepth):
-              clues[cell] = val
 
-      return new()
+          if cell in bd2.known: pass
+          elif (guesses >= maxguesses
+                or minbranch and len(bd2.unknown[cell]) > minunks(bd2)
+                or not isproper(bd2, maxguesses=maxguesses, clue=(cell, val))):
+              clues[cell] = val
+          else:
+              difficulty *= len(bd2.unknown[cell])
+              guesses += 1
+
+      return new(), difficulty
   #+END_SRC
 
-  where 
+  We know that marking the masked cell with the value it previously had will
+  ultimately result in a solution; exploiting that knowledge when testing a
+  board derived from a board known to be proper,
 
   #+NAME: functions
   #+BEGIN_SRC python :results none
-  def isproper(bd, maxdepth=inf):
+  def isproper(bd, maxguesses=inf, clue=None):
+      'bd has exactly one solution within maxguesses guesses'
       nsolns = 0
-      for soln in solve(bd, maxdepth):
+      if clue:
+          cell0, val0 = clue
           nsolns += 1
-          if nsolns > 1: break
+          for val in bd.unknown[cell0] - {val0}:
+              for soln in solve(bd.marked(cell0, val), maxguesses):
+                  nsolns += 1
+                  if nsolns > 1: return False
+      else:
+          for soln in solve(bd, maxguesses):
+              nsolns += 1
+              if nsolns > 1: return False
 
       return nsolns == 1
   #+END_SRC
@@ -883,7 +1045,8 @@ eof
 
   #+NAME: order
   #+BEGIN_SRC python :results value :var order=2 :exports none
-  dump_board(generate_from(next(solve(blank(order)))))
+  from sudoku import *
+  dump_board(generate_from(next(solve(blank(order))))[0])
   #+END_SRC
 
   #+BEGIN_SRC shell :noweb yes :results file :exports results
@@ -919,27 +1082,8 @@ eof
   #+RESULTS:
   [[file:images/order4.png]]
 
-  Once we've made a puzzle, we might like some idea of how difficult it
-  is. There are many ways to go about this---keeping track of which of a stable
-  of heuristics are needed, how many guesses are needed, etc.---but the one
-  we'll use here is based on how much of the puzzle our solver can complete
-  before it has to resort to guessing.
-
-  #+NAME: functions
-  #+BEGIN_SRC python :results none
-  def rate(bd):
-      'estimate the difficulty of bd'
-      ncells = len(bd.known) + len(bd.unknown)
-      soln2 = bd.copy()
-      mark_forced(soln2)
-      first_guess = len(soln2.known)
-      return 1 - first_guess/ncells
-  #+END_SRC
-
 * Utility Library
-
-  Since much of what we've written so far is useful for multiple purposes, we'll
-  package it into a library:
+  Before going any further, let's package what we have so far into a library:
 
   #+NAME: sudoku/__init__.py
   #+BEGIN_SRC python :results none :tangle sudoku/__init__.py :shebang "#! /usr/bin/env python3\n"
@@ -954,458 +1098,492 @@ eof
 * Command Line Tools
   Having a library encapsulating the bulk of what we might wish to do, let's
   make it more operationally useful by creating a series of tools that we can
-  use from a command line or shell script. Each tool should emit a usage message
-  if requested, and each should die gracefully on error. 
+  use from a command line or shell script. 
 
   #+NAME: common
   #+BEGIN_SRC python :results none
+  import sys
+
   def usage():
       return __doc__.lstrip() % sys.argv[0]
 
   if __name__ == '__main__':
-      try:
-          if set(sys.argv) & {'-h', '--help'}:
-              sys.exit(usage())
-          else:
-              main(sys.argv[1:])
-      except Exception as e:
-          sys.exit('Unhandled %s' % e)
+      if set(sys.argv) & {'-h', '--help'}:
+          sys.exit(usage())
+      else:
+          main(sys.argv[1:])
   #+END_SRC
 
 ** The Solver
+   The solver should read a board, as defined by =load_board=, from either a
+   file or standard input, and emit all the solutions to standard output. The
+   overall program structure should look something like
 
-For simplicity, the solver should read a board, parsable by =load_board=,
-from either a file or standard input, and emit all the solutions to standard
-output. The overall structure of our file should look something like:
+   #+NAME: bin/sudoku
+   #+BEGIN_SRC python :results none :tangle bin/sudoku :shebang "#! /usr/bin/env python3\n"
+   <<solver usage>>
+   <<solver imports>>
+   <<solver functions>>
+   <<common>>
+   #+END_SRC
 
-#+NAME: bin/sudoku
-#+BEGIN_SRC python :results none :tangle bin/sudoku :shebang "#! /usr/bin/env python3\n"
-<<solver usage>>
-<<solver imports>>
-<<solver functions>>
-<<common>>
-#+END_SRC
+   where 
 
-where 
+   #+NAME: solver usage
+   #+BEGIN_SRC python :results none
+   '''
+   Usage: %s [FILE]
+   Find all solutions for a Sudoku puzzle.
 
-#+NAME: solver imports
-#+BEGIN_SRC python :results none
-import sys
-import sudoku as sd
-#+END_SRC
+   Options:
+     -h, --help    print this help and exit
 
-#+NAME: solver functions
-#+BEGIN_SRC python :results none
-def main(argv):
-    fn = argv[0] if argv else '-'
-    try:
-        bd = sd.load_board((sys.stdin if fn == '-' else open(fn)).read())
-    except ValueError:
-        sys.exit('ill-formed board')
+   If FILE is omitted or `-', then the initial board is read from stdin.
 
-    for (i, soln) in enumerate(sd.solve(bd), start=1):
-        assert sd.isvalid(soln) and sd.issolved(soln)
-        print('solution %s:' % i)
-        print(sd.dump_board(soln))
-        print()
-#+END_SRC
+   The input board should consist of a series of cells, each either a positive 
+   integer or a `.' to denote an unknown value, separated by any characters not in 
+   /[0-9.]/. The order of the board is automatically detected as the fourth root of 
+   the number of cells, and it must be an integer. The numerical values are 
+   constrained from 1 to order**2 inclusive.
 
-and
+   The solutions will always be ``pretty-printed'', e.g.,
 
-#+NAME: functions
-#+BEGIN_SRC python :results none
-def isvalid(bd):
-    if not bd.known and not bd.unknown: return False
-    
-    for (div, cells) in bd.div2cells.items():
-        vals = [bd.known[cell] for cell in cells if cell in bd.known]
-        if len(vals) != len(set(vals)):
-            return False
-        elif any(bd.unknown.get(cell, set()) & set(vals) for cell in cells):
-            return False
-        
-    return True
-#+END_SRC
+     solution 1:
+     4 2 7 | 1 3 6 | 5 8 9
+     6 5 1 | 9 2 8 | 4 7 3
+     3 8 9 | 5 4 7 | 1 6 2
+     ------+-------+------
+     2 3 5 | 8 1 9 | 7 4 6
+     9 6 8 | 3 7 4 | 2 1 5
+     7 1 4 | 2 6 5 | 9 3 8
+     ------+-------+------
+     8 9 6 | 7 5 1 | 3 2 4
+     1 4 3 | 6 9 2 | 8 5 7
+     5 7 2 | 4 8 3 | 6 9 1
 
-We should also have a civilized help message:
+     solution 2:
+     ...
 
-#+NAME: solver usage
-#+BEGIN_SRC python :results none
-'''
-Usage: %s [FILE]
-Find all solutions for a Sudoku puzzle.
+   It is the case that a ``proper'' Sudoku can have only one solution; however, 
+   ``improper'' Sudoku puzzles do exist.
+   '''
+   #+END_SRC
 
-Options:
-  -h, --help    print this help and exit
+   #+NAME: solver imports
+   #+BEGIN_SRC python :results none
+   import sys
+   import sudoku as sd
+   #+END_SRC
 
-If FILE is omitted or `-', then the initial board is read from stdin.
+   #+NAME: solver functions
+   #+BEGIN_SRC python :results none
+   def main(argv):
+       fn = argv[0] if argv else '-'
+       try:
+           bd = sd.load_board((sys.stdin if fn == '-' else open(fn)).read())
+       except ValueError:
+           sys.exit('ill-formed board')
 
-The input board should consist of a series of cells, each either a positive 
-integer or a `.' to denote an unknown value, separated by any characters not in 
-/[0-9.]/. The order of the board is automatically detected as the fourth root of 
-the number of cells, and it must be an integer. The numerical values are 
-constrained from 1 to order**2 inclusive.
+       for (i, soln) in enumerate(sd.solve(bd), start=1):
+           assert sd.isvalid(soln) and sd.issolved(soln)
+           print('solution %s:' % i)
+           print(sd.dump_board(soln))
+           print()
+   #+END_SRC
 
-The solutions will always be ``pretty-printed'', e.g.,
-
-  solution 1:
-  4 2 7 | 1 3 6 | 5 8 9
-  6 5 1 | 9 2 8 | 4 7 3
-  3 8 9 | 5 4 7 | 1 6 2
-  ------+-------+------
-  2 3 5 | 8 1 9 | 7 4 6
-  9 6 8 | 3 7 4 | 2 1 5
-  7 1 4 | 2 6 5 | 9 3 8
-  ------+-------+------
-  8 9 6 | 7 5 1 | 3 2 4
-  1 4 3 | 6 9 2 | 8 5 7
-  5 7 2 | 4 8 3 | 6 9 1
-
-  solution 2:
-  ...
-
-It is the case that a ``proper'' Sudoku can have only one solution; however, 
-``improper'' Sudoku puzzles do exist.
-'''
-#+END_SRC
-
-to give our [[file:bin/sudoku][finished Sudoku solver]].
+   to give our [[file:bin/sudoku][finished Sudoku solver]].
 
 ** The Generator
-The puzzle generator need only take a board order from the command line,
-defaulting to 3, for a standard Sudoku. For convenience, we'll have it spit out
-the solution and a difficulty estimate, too.
+   The overall structure for the generator is much like that of the solver:
 
-#+NAME: bin/sudokugen
-#+BEGIN_SRC python :results none :tangle bin/sudokugen :shebang "#! /usr/bin/env python3"
-'''
-Usage: %s [-o ORDER] [-g MAXGUESSES] [-m]
-Generate a Sudoku puzzle.
+   #+NAME: bin/sudokugen
+   #+BEGIN_SRC python :results none :tangle bin/sudokugen :shebang "#! /usr/bin/env python3"
+   <<generator usage>>
+   <<generator imports>>
+   <<generator functions>>
+   <<common>>
+   #+END_SRC
 
-Options:
-  -h, --help    print this help and exit
+   where
 
-  -g MAXGUESSES
-                when testing potential clues, restrict solver to a depth of 
-                MAXGUESSES
+   #+NAME: generator usage
+   #+BEGIN_SRC python :results none
+   '''
+   Usage: %s [-o ORDER] [-g MAXGUESSES] [-m]
+   Generate a Sudoku puzzle.
 
-  -m            only remove cells that can be deduced or have that might be
-                among the best candidates
-'''
+   Options:
+     -h, --help    print this help and exit
 
-import getopt
-from math import inf
-import sys
-import sudoku as sd
+     -g MAXGUESSES
+                   when testing potential clues, restrict solver to a depth of 
+                   MAXGUESSES
 
-def main(argv):
-    opts_, args = getopt.gnu_getopt(argv, 'g:mo:')
-    opts = dict(opts_)
-    
-    order = int(opts.get('-o', 3))
-    maxguesses = int(opts['-g']) if '-g' in opts else inf
-    minrule = '-m' in opts
+     -m            only remove cells that can be deduced or have that might be
+                   among the best candidates
 
-    recursionlimit = sys.getrecursionlimit()
-    sys.setrecursionlimit(order**4 * 2)
-    soln = next(sd.solve(sd.blank(order)))
-    sys.setrecursionlimit(recursionlimit)
-    
-    bd = sd.generate_from(soln, minrule=minrule, maxdepth=maxguesses)
-    
-    print('difficulty:', sd.rate(bd))
-    print()
-    print(sd.dump_board(bd))
-    print()
-    print('> ' + sd.dump_board(soln).replace('\n', '\n> '))
+   If the computed puzzle is not proper (i.e., has exactly one solution), exits 
+   with nonzero status.
+   '''
+   #+END_SRC
 
-<<common>>
-#+END_SRC
+   #+NAME: generator imports
+   #+BEGIN_SRC python :results none
+   import getopt
+   from math import inf
+   import sudoku as sd
+   #+END_SRC
+
+   #+NAME: generator functions
+   #+BEGIN_SRC python :results none
+   def main(argv):
+       opts_, args = getopt.gnu_getopt(argv, 'g:mo:')
+       opts = dict(opts_)
+
+       order = int(opts.get('-o', 3))
+       maxguesses = int(opts['-g']) if '-g' in opts else inf
+       minbranch = '-m' in opts
+       soln = next(sd.solve(sd.blank(order)))
+       bd, difficulty = sd.generate_from(soln,
+                                         minbranch=minbranch,
+                                         maxguesses=maxguesses)
+       proper = sd.isproper(bd)
+
+       print('difficulty:', difficulty)
+       print('proper:', proper)
+       print()
+       print(sd.dump_board(bd))
+       print()
+       print('> ' + sd.dump_board(soln).replace('\n', '\n> '))
+
+       if not proper: exit(1)
+   #+END_SRC
 ** The Formatter
-
    Having the means to both generate and solve Sudoku puzzles, the next thing is
-   to nicely present them. For flexibility, we'll generate Latex source code for
-   inclusion into any document we please, allowing us to generate figures (like
-   the ones in this article), booklets, etc. Additionally, we'll lean on the
-   facilities of a custom Latex package.
+   to nicely present them. We'll generate Latex source code as an intermediate
+   form, leaning on a custom Latex package for setting boards. Finally, we tie
+   things together with a convenience script that orchestrates conversion from
+   readable boards to transparent PNGs, like the figures in this article. What
+   follows depends on Latex and ImageMagick.
 
 *** Conversion to Latex
 
-The Latex environment we'll use expects as input something like
+    The overal structure of the Latex converter is
 
-#+BEGIN_SRC latex :eval never
-\begin{sudoku}[2]
-  |1|2|3|4|.
-  |1|2|3|4|.
-  |1|2|3|4|.
-  |1|2|3|4|.
-\end{sudoku}
-#+END_SRC
+    #+NAME: bin/sudoku2tex
+    #+BEGIN_SRC python :results none :tangle bin/sudoku2tex :shebang "#! /usr/bin/env python3"
+    <<formatter usage>>
+    <<formatter imports>>
+    <<formatter functions>>
+    <<common>>
+    #+END_SRC
 
-The individual cells can contain more complex items than numbers, provided
-they're suitably wrapped.
+    where the usage statement is
 
-Generating the =sudoku= environment falls to
-
-#+NAME: formatter functions
-#+BEGIN_SRC python :results none
-def sudoku_env(bd, pencil_marks, special):
-    ncells = len(bd.known) + len(bd.unknown)
-    order = int(ncells**0.25)
-    n = order**2
-    cells = [str(bd.known.get(i, ' ')) for i in range(ncells)]
-    
-    if pencil_marks: apply_pencils(bd, cells, order)
-
-    reds = set()
-    redboxes = set()
-
-    for cell in special:
-        dr, drb = highlight(cell, bd, cells, order)
-        reds |= dr
-        redboxes |= drb
-
-    cells_fmtd = fmt_cells(cells, bd, reds, redboxes)
-    grid = form_body(cells_fmtd, n)
-    sudokusize = n/9 * (17 if pencil_marks or redboxes else 12)
-    unitlength = sudokusize / n
-    fboxsep = {2: 2, 3: 7, 4: 9}.get(order, 9) / 4 / n
-
-    return f'''
-    \\setlength\\sudokusize{{{sudokusize}cm}}
-    \\setlength\\unitlength{{{1/n}\\sudokusize}}
-    \\setlength\\fboxsep{{-{fboxsep}\\unitlength}}
-    \\renewcommand\\sudokuformat[1]{{\\Huge\\sffamily#1}}
-
-    \\begin{{sudoku}}[{order}]
-    {grid}
-    \\end{{sudoku}}
+    #+NAME: formatter usage
+    #+BEGIN_SRC python :results none
     '''
+    Usage: %s [OPTIONS] [HIGHLIGHT]...
+    Given a Sudoku board, generate Latex source code.
 
-def form_body(cells, n):
-    rows = [cells[i*n : (i + 1) * n] for i in range(n)]
-    lines = ['|%s|.' % '|'.join(row) for row in rows]
-    return '\n'.join(lines)
+    Options:
+                    x
+      -h, --help    print this help and exit
 
-#+END_SRC
+      -p            print pencil marks for all unknown cells
 
-The calculations for =sudokusize= and =fboxsep= are the product of considerable
-trial and error to determine what would look decent/reasonable/not terrible over
-a range of board sizes.
+    Cells are numbered sequentially from 0 in row-major order. Each HIGHLIGHT 
+    indicates a cell whose value (or pencil marks) will have its value surrounded
+    by a red box; HIGHLIGHTs and any cell sharing a possible value with a HIGHLIGHT
+    will have their possibilities set in red. In the absence of the -p option, only
+    cells sharing a division with a HIGHLIGHT will be pencil marked.
 
-Pencil marks should be formed in a square array containing just the values of
-interest and little else. In practice, we have to add some blank rows and
-columns to give more favorable placement in the cells.
-
-#+NAME: formatter functions
-#+BEGIN_SRC python :results none
-def pencils(possible, order):
-    vals = [str(val) if val in possible else '.'
-            for val in range(1, 1 + order**2)]
-    coldesc = 'c' + 'c' * order
-    grid = ' \\\\\n'.join(' & '.join(map(str, ['\\ \\ ']
-                                         + vals[order*i : order*(i + 1)]))
-                          for i in range(order))
-    
-    return f'''
-    \\resizebox{{\\unitlength}}{{.6\\unitlength}}{{
-    \\begin{{tabular}}{{{coldesc}}}
-    \\ \\\\
-    {grid} \\\\
-    \\ \\\\
-    \\end{{tabular}}
-    }}
+    Used separately, the code generated by this program requires the sudokuii Latex 
+    package, included in the source repository (as latex/sudokuii.sty).
     '''
+    #+END_SRC
 
-def apply_pencils(bd, cells, order):
-    for (unk, vals) in bd.unknown.items():
-        cells[unk] = pencils(vals, order)
-#+END_SRC
+    The Latex environment we'll use expects as input something like
 
-We wish to call out cells of interest, and we also want to indicate how
-constraints might propagate:
+    #+BEGIN_SRC latex :eval never
+    \begin{sudoku}[2]
+      |1|2|3|4|.
+      |1|2|3|4|.
+      |1|2|3|4|.
+      |1|2|3|4|.
+    \end{sudoku}
+    #+END_SRC
 
-#+NAME: formatter functions
-#+BEGIN_SRC python :results none
-def highlight(cell0, bd, cells, order):
-    reds = set()
-    redboxes = {cell0}
-    
-    for div in bd.cell2divs[cell0]:
-        for cell in bd.div2cells[div] - set(bd.known):
-            cells[cell] = pencils(bd.unknown[cell], order)
-            if bd.unknown[cell0] & bd.unknown[cell]:
-                reds.add(cell)
-    return reds, redboxes
-#+END_SRC
+    The individual cells can contain more complex items than numbers, provided
+    they're suitably wrapped. Generating the =sudoku= environment falls to
 
-Once the pencil marks and highlights have been computed, we can format each cell
-to show pencil marks, highlighted cells, and the possible effects of constraint
-propagation:
+    #+NAME: formatter functions
+    #+BEGIN_SRC python :results none
+    def sudoku_env(bd, pencil_marks, special):
+        ncells = len(bd.known) + len(bd.unknown)
+        order = int(ncells**0.25)
+        n = order**2
+        cells = [str(bd.known.get(i, ' ')) for i in range(ncells)]
 
-#+NAME: formatter functions
-#+BEGIN_SRC python :results none
-def fmt_cells(cells, bd, reds, redboxes):
-    red = lambda s: '{\\color{red}%s}' % s
-    redboxed = lambda s: '{\\color{red}\\fbox{%s}}' % s
-    black = lambda s: '{\\color{black}%s}' % s
+        if pencil_marks: apply_pencils(bd, cells, order)
 
-    return [redboxed(cell) if i in redboxes
-            else red(cell) if i in reds
-            else black(cell)
-            for (i, cell) in enumerate(cells)]
-#+END_SRC
+        reds = set()
+        redboxes = set()
 
-With the formatting machinery out of the way, =main= becomes quite simple:
+        for cell in special:
+            dr, drb = highlight(cell, bd, cells, order)
+            reds |= dr
+            redboxes |= drb
 
-#+NAME: formatter imports    
-#+BEGIN_SRC python :results none
-import getopt
-import sys
-import sudoku as sd
-#+END_SRC
+        cells_fmtd = fmt_cells(cells, bd, reds, redboxes)
+        grid = form_body(cells_fmtd, n)
+        sudokusize = n/9 * (17 if pencil_marks or redboxes else 12)
+        unitlength = sudokusize / n
+        fboxsep = {2: 2, 3: 7, 4: 9}.get(order, 9) / 4 / n
 
-#+NAME: formatter functions
-#+BEGIN_SRC python :results none
-def main(argv):
-    try:
-        opts_, args = getopt.gnu_getopt(argv, 'hp')
-        special = {int(cell) for cell in args}
-    except getopt.GetoptError: sys.exit(usage())
-    except ValueError: sys.exit(usage())
-    
-    opts = dict(opts_)
-    pencil_marks = '-p' in opts
-    
-    try:
-        bd = sd.load_board(sys.stdin.read(), validate_vals=False)
-    except ValueError:
-        sys.exit('ill-formed board')
-        
-    print(sudoku_env(bd, pencil_marks, special))
-#+END_SRC
+        return f'''
+        \\setlength\\sudokusize{{{sudokusize}cm}}
+        \\setlength\\unitlength{{{1/n}\\sudokusize}}
+        \\setlength\\fboxsep{{-{fboxsep}\\unitlength}}
+        \\renewcommand\\sudokuformat[1]{{\\Huge\\sffamily#1}}
 
-Since we're not attempting to generate solutions, it is not critical that input
-boards be restricted in their cell values. Setting =validate_vals= is =False=
-facilitates producing diagrams.
+        \\begin{{sudoku}}[{order}]
+        {grid}
+        \\end{{sudoku}}
+        '''
 
-We can now collect the pieces into a single file, like so:
+    def form_body(cells, n):
+        rows = [cells[i*n : (i + 1) * n] for i in range(n)]
+        lines = ['|%s|.' % '|'.join(row) for row in rows]
+        return '\n'.join(lines)
 
-#+NAME: bin/sudoku2tex
-#+BEGIN_SRC python :results none :tangle bin/sudoku2tex :shebang "#! /usr/bin/env python3"
-<<formatter usage>>
-<<formatter imports>>
-<<formatter functions>>
-<<common>>
-#+END_SRC
+    #+END_SRC
 
-where the usage statement is
+    The calculations for =sudokusize= and =fboxsep= are the product of considerable
+    trial and error to determine what would look decent/reasonable/not terrible over
+    a range of board sizes.
 
-#+NAME: formatter usage
-#+BEGIN_SRC python :results none
-'''
-Usage: %s [OPTIONS] [HIGHLIGHT]...
-Given a Sudoku board, generate Latex source code.
+    Pencil marks should be formed in a square array containing just the values of
+    interest and little else. In practice, we have to add some blank rows and
+    columns to give more favorable placement in the cells.
 
-Options:
-                x
-  -h, --help    print this help and exit
+    #+NAME: formatter functions
+    #+BEGIN_SRC python :results none
+    def pencils(possible, order):
+        vals = [str(val) if val in possible else '.'
+                for val in range(1, 1 + order**2)]
+        coldesc = 'c' + 'c' * order
+        grid = ' \\\\\n'.join(' & '.join(map(str, ['\\ \\ ']
+                                             + vals[order*i : order*(i + 1)]))
+                              for i in range(order))
 
-  -p            print pencil marks for all unknown cells
+        return f'''
+        \\resizebox{{\\unitlength}}{{.6\\unitlength}}{{
+        \\begin{{tabular}}{{{coldesc}}}
+        \\ \\\\
+        {grid} \\\\
+        \\ \\\\
+        \\end{{tabular}}
+        }}
+        '''
 
-Cells are numbered sequentially from 0 in row-major order. Each HIGHLIGHT 
-indicates a cell whose value (or pencil marks) will have its value surrounded
-by a red box; HIGHLIGHTs and any cell sharing a possible value with a HIGHLIGHT
-will have their possibilities set in red. In the absence of the -p option, only
-cells sharing a division with a HIGHLIGHT will be pencil marked.
+    def apply_pencils(bd, cells, order):
+        for (unk, vals) in bd.unknown.items():
+            cells[unk] = pencils(vals, order)
+    #+END_SRC
 
-The code generated by this program requires the sudokuii Latex package, included
-in the distribution (sudokuii.sty).
-'''
-#+END_SRC
+    We wish to call out cells of interest, and we also want to indicate how
+    constraints might propagate:
+
+    #+NAME: formatter functions
+    #+BEGIN_SRC python :results none
+    def highlight(cell0, bd, cells, order):
+        reds = set()
+        redboxes = {cell0}
+
+        for div in bd.cell2divs[cell0]:
+            for cell in bd.div2cells[div] - set(bd.known):
+                cells[cell] = pencils(bd.unknown[cell], order)
+                if bd.unknown[cell0] & bd.unknown[cell]:
+                    reds.add(cell)
+        return reds, redboxes
+    #+END_SRC
+
+    Once the pencil marks and highlights have been computed, we can format each cell
+    to show pencil marks, highlighted cells, and the possible effects of constraint
+    propagation:
+
+    #+NAME: formatter functions
+    #+BEGIN_SRC python :results none
+    def fmt_cells(cells, bd, reds, redboxes):
+        red = lambda s: '{\\color{red}%s}' % s
+        redboxed = lambda s: '{\\color{red}\\fbox{%s}}' % s
+        black = lambda s: '{\\color{black}%s}' % s
+
+        return [redboxed(cell) if i in redboxes
+                else red(cell) if i in reds
+                else black(cell)
+                for (i, cell) in enumerate(cells)]
+    #+END_SRC
+
+    With the formatting machinery out of the way,
+
+    #+NAME: formatter imports    
+    #+BEGIN_SRC python :results none
+    import getopt
+    import sys
+    import sudoku as sd
+    #+END_SRC
+
+    #+NAME: formatter functions
+    #+BEGIN_SRC python :results none
+    def main(argv):
+        try:
+            opts_, args = getopt.gnu_getopt(argv, 'hp')
+            special = {int(cell) for cell in args}
+        except getopt.GetoptError: sys.exit(usage())
+        except ValueError: sys.exit(usage())
+
+        opts = dict(opts_)
+        pencil_marks = '-p' in opts
+
+        try:
+            bd = sd.load_board(sys.stdin.read(), validate_vals=False)
+        except ValueError:
+            sys.exit('ill-formed board')
+
+        not_special = set(special) & set(bd.known)
+        if not_special:
+            print("Won't hightlight known cells", not_special, file=sys.stderr)
+            exit(1)
+
+        print(sudoku_env(bd, pencil_marks, special))
+    #+END_SRC
+
+    Since we're not attempting to generate solutions, it is not critical that input
+    boards be restricted in their cell values. Setting =validate_vals= to =False=
+    gives the flexibility needed for such things as illustrations of the division
+    memberships.
 
 *** The Latex Package
 
-   Latex has had for years a package for formatting Sudoku boards, but it
-   focuses purely on the classic 9x9 grid. To get around this, we can create a
-   package of our own that redefines the =sudoku= environment to deal with
-   boards of any order.
+    Latex has had for years a package for formatting Sudoku boards, but it
+    focuses purely on the classic 9\times9 grid. To get around this, we can create a
+    package of our own that redefines the =sudoku= environment to deal with
+    boards of any order.
 
-   #+NAME: latex sudoku definitions
-   #+BEGIN_SRC latex :results none
-   \renewenvironment{sudoku}[1][3]{
-     \newcount\order
-     \order = #1
-     \newcount\n
-     \n = \numexpr(#1*#1)
-     \FPeval{\sudodelta}{1/#1/#1}
-  
-     \renewenvironment{sudoku-block}{
-       \catcode`\|=\active
-       \@sudoku@activate
-       \setcounter{@sudoku@col}{-1}
-       \setcounter{@sudoku@row}{\numexpr(\n-1)}
-       \setlength\unitlength{\sudodelta\sudokusize}
-       \begin{picture}(\n,\n)
-         \@sudoku@grid\@sudoku@grab@arguments
-     }{
-       \end{picture}
-     }
-  
-     \renewcommand*\@sudoku@grid{
-       \linethickness{\sudokuthinline}
-       \multiput(0,0)(1,0){\numexpr(\n+1)}{\line(0,1){\n}}
-       \multiput(0,0)(0,1){\numexpr(\n+1)}{\line(1,0){\n}}
-       \linethickness{\sudokuthickline}
-       \multiput(0,0)(\order,0){\numexpr(\order+1)}{\line(0,1){\n}}
-       \multiput(0,0)(0,\order){\numexpr(\order+1)}{\line(1,0){\n}}
-       \linethickness{0.5\sudokuthickline}
-       \put(0,0){\framebox(0,0){}}
-       \put(\n,0){\framebox(0,0){}}
-       \put(0,\n){\framebox(0,0){}}
-       \put(\n,\n){\framebox(0,0){}}}
+    #+NAME: latex sudoku definitions
+    #+BEGIN_SRC latex :results none
+    \renewenvironment{sudoku}[1][3]{
+      \newcount\order
+      \order = #1
+      \newcount\n
+      \n = \numexpr(#1*#1)
+      \FPeval{\sudodelta}{1/#1/#1}
 
-     \begin{center}
-       \begin{sudoku-block}
-   }{
-       \end{sudoku-block}
-     \end{center}
-   }
-   #+END_SRC
+      \renewenvironment{sudoku-block}{
+        \catcode`\|=\active
+        \@sudoku@activate
+        \setcounter{@sudoku@col}{-1}
+        \setcounter{@sudoku@row}{\numexpr(\n-1)}
+        \setlength\unitlength{\sudodelta\sudokusize}
+        \begin{picture}(\n,\n)
+          \@sudoku@grid\@sudoku@grab@arguments
+      }{
+        \end{picture}
+      }
 
-   The original =\@sudoku@grab@arguments= also presumes too much about its
-   input, which becomes a problem for boards of order 2.
+      \renewcommand*\@sudoku@grid{
+        \linethickness{\sudokuthinline}
+        \multiput(0,0)(1,0){\numexpr(\n+1)}{\line(0,1){\n}}
+        \multiput(0,0)(0,1){\numexpr(\n+1)}{\line(1,0){\n}}
+        \linethickness{\sudokuthickline}
+        \multiput(0,0)(\order,0){\numexpr(\order+1)}{\line(0,1){\n}}
+        \multiput(0,0)(0,\order){\numexpr(\order+1)}{\line(1,0){\n}}
+        \linethickness{0.5\sudokuthickline}
+        \put(0,0){\framebox(0,0){}}
+        \put(\n,0){\framebox(0,0){}}
+        \put(0,\n){\framebox(0,0){}}
+        \put(\n,\n){\framebox(0,0){}}}
 
-   #+NAME: latex sudoku definitions
-   #+BEGIN_SRC latex :results none 
-   \def\@sudoku@grab@arguments#1.{
-     \scantokens{#1.}}
-   #+END_SRC
+      \begin{center}
+        \begin{sudoku-block}
+    }{
+        \end{sudoku-block}
+      \end{center}
+    }
+    #+END_SRC
 
-   Now we can assemble these with a bit of boilerplate and dependency
-   information to form the [[file:share/sudokuii.sty][finished Latex package]]
+    The original =\@sudoku@grab@arguments= also presumes too much about its
+    input, which becomes a problem for boards of order 2.
 
-   #+NAME: latex/sudokuii.sty
-   #+BEGIN_SRC latex :results none :tangle latex/sudokuii.sty
-   \NeedsTeXFormat{LaTeX2e}[1999/12/01]
-   \ProvidesPackage{sudokuii}[2020/04/18 Big Sudoku]
+    #+NAME: latex sudoku definitions
+    #+BEGIN_SRC latex :results none 
+    \def\@sudoku@grab@arguments#1.{
+      \scantokens{#1.}}
+    #+END_SRC
 
-   \RequirePackage{sudoku}
-   \RequirePackage{fp}
+    Now we can assemble these with a bit of boilerplate and dependency
+    information to form the [[file:latex/sudokuii.sty][finished Latex package]].
 
-   <<latex sudoku definitions>>
+    #+NAME: latex/sudokuii.sty
+    #+BEGIN_SRC latex :results none :tangle latex/sudokuii.sty
+    \NeedsTeXFormat{LaTeX2e}[1999/12/01]
+    \ProvidesPackage{sudokuii}[2020/04/18 Big Sudoku]
 
-   \endinput
-   #+END_SRC
+    \RequirePackage{sudoku}
+    \RequirePackage{fp}
+
+    <<latex sudoku definitions>>
+
+    \endinput
+    #+END_SRC
 
 *** Converting Boards to Images
 
     We can streamline board formatting a bit more. The output of =sudoku2tex=
     is meant to be combined with =sudokuii.sty= in a Latex document, which would
     then be converted to some convenient format. Let's assume that that format
-    will be transparent PNG. To pull this off gracefully, we'll start by
-    wrapping the invocation of =pdflatex= into something we can use in a
-    pipeline:
+    will be transparent PNG. The overall structure of the image converter will be
+
+    #+NAME: bin/sudoku2img
+    #+BEGIN_SRC shell :results none :tangle bin/sudoku2img :shebang "#! /bin/bash"
+    <<image converter functions>>
+    <<handle image converter arguments>>
+    <<image converter dispatch>>
+    #+END_SRC
+
+    with the following usage:
+
+    #+NAME: image converter functions
+    #+BEGIN_SRC shell :results none
+    function usage() {
+        cat <<EOF
+    Usage: `basename $0` [OPTIONS]
+    Generate images from Sudoku boards or puzzles (i.e., paired boards and
+    solutions, as produced by sudokugen).
+
+    Options
+      -h, --help  print this help and exit
+
+      -P OUTDIR   generate images for a puzzle. Expected input is of the form
+                  produced by sudokugen. At conclusion, OUTDIR will contain:
+
+                    - new.png       the unsolved board
+                    - solved.png    the completed board
+                    - penciled.png  the unsolved board with pencil marks applied
+                    - input.txt     the original input
+
+      --          indicates the end of options for `basename $0`; any remaining 
+                  arguments will be passed to sudoku2tex
+
+    Input is taken from STDIN.
+    EOF
+    }
+    #+END_SRC
+
+    Let's begin by wrapping the invocation of =pdflatex= into something we can
+    use in a pipeline:
 
     #+NAME: image converter functions
     #+BEGIN_SRC shell :results none
@@ -1424,8 +1602,10 @@ in the distribution (sudokuii.sty).
     }
     #+END_SRC
 
-    Including the contents of =sudokuii.sty= in this way saves us from having to
-    fiddle with TeX's search path.
+    Including the contents of =sudokuii.sty= in this way ensures that we always
+    have a copy on hand for this application, regardless of what happens on the
+    wider system. It also side-steps any issues that might arise from installing
+    in a non-=/usr= prefix, having a misconfigured =TEXINPUTS=, etc.
 
     With =pipetex= defined, we can express conversion of the Latex for a single
     board:
@@ -1463,10 +1643,10 @@ in the distribution (sudokuii.sty).
         shift 2
 
         mkdir -p $outd
-        grep difficulty $infile > $outd/meta.txt
-        grep    \> $infile | sudoku2tex "$@"    | tex2png > $outd/solved.png
-        grep -v \> $infile | sudoku2tex "$@"    | tex2png > $outd/new.png
-        grep -v \> $infile | sudoku2tex -p "$@" | tex2png > $outd/penciled.png
+        cp $infile $outd/input.txt
+        egrep    '>'    $infile | sudoku2tex "$@"    | tex2png > $outd/solved.png
+        egrep -v '[:>]' $infile | sudoku2tex "$@"    | tex2png > $outd/new.png
+        egrep -v '[:>]' $infile | sudoku2tex -p "$@" | tex2png > $outd/penciled.png
     }
 
     function convert_board() {
@@ -1489,13 +1669,17 @@ in the distribution (sudokuii.sty).
                 outd="$1"
                 problem=1
                 if ! [[ "$outd" ]]; then
+                    echo "'-P' requires output directory"
                     usage
                     exit 1
                 fi
                 ;;
-            --) break ;;
-            ,,*)
-                echo $1
+            --)
+                shift
+                break
+                ;;
+            ,*)
+                echo unknown option "'$1'"
                 usage
                 exit 1
                 ;;
@@ -1506,11 +1690,8 @@ in the distribution (sudokuii.sty).
 
     we can get on with dispatching to the proper conversion routine:
 
-    #+NAME: bin/sudoku2img
-    #+BEGIN_SRC shell :tangle bin/sudoku2img :shebang "#! /bin/bash"
-    <<image converter functions>>
-    <<handle image converter arguments>>
-
+    #+NAME: image converter dispatch
+    #+BEGIN_SRC shell 
     tmpfile=`mktemp`
     cat > $tmpfile
     err=0
@@ -1528,40 +1709,9 @@ in the distribution (sudokuii.sty).
     exit $err
     #+END_SRC
 
-    The usage statement:
-
-    #+NAME: image converter functions
-    #+BEGIN_SRC shell :results none
-    function usage() {
-        cat <<EOF
-    Usage: `basename $0` [OPTIONS]
-    Generate images from Sudoku boards or puzzles (i.e., paired boards and
-    solutions, as produced by sudokugen).
-
-    Options
-      -h, --help  print this help and exit
-
-      -P OUTDIR   generate images for a puzzle. Expected input is of the form
-                  produced by sudokugen. At conclusion, OUTDIR will contain:
-
-                    - new.png       the unsolved board
-                    - solved.png    the completed board
-                    - penciled.png  the unsolved board with pencil marks applied
-                    - meta.txt      any additional metadata, like the difficulty
-
-      --          indicates the end of options for `basename $0`; any remaining 
-                  arguments will be passed to sudoku2tex
-
-    Input is taken from STDIN.
-    EOF
-    }
-    #+END_SRC
-
     At this point, generating a large Sudoku is as simple as
 
-    #+BEGIN_SRC shell :results none :eval never
-    sudokugen -o 5 -m -g2 | sudoku2img -P foo
-    #+END_SRC
+    : sudokugen -o 5 -m -g2 | sudoku2img -P foo
 
     #+BEGIN_SRC shell :exports none :results none
     <<sdtx>>
@@ -1580,20 +1730,178 @@ in the distribution (sudokuii.sty).
 
   There's just one more item to make this into a usable package.
 
-#+NAME: setup.py
-#+BEGIN_SRC python :tangle setup.py :shebang "#! /usr/bin/env python3"
-import os
-from setuptools import setup, find_packages
+  #+NAME: setup.py
+  #+BEGIN_SRC python :tangle setup.py :shebang "#! /usr/bin/env python3"
+  import os
+  from setuptools import setup, find_packages
 
-def ls(base):
-    return [os.path.join(base, fn) for fn in os.listdir(base)]
+  def ls(base):
+      return [os.path.join(base, fn) for fn in os.listdir(base)]
 
-setup(name='sudoku',
-      version='0.1',
-      description='Sudoku',
-      packages=find_packages(),
-      scripts=ls('bin'),
-      include_package_data=True,
-      zip_safe=False)
-#+END_SRC
+  setup(name='sudoku',
+        version='0.1',
+        description='Sudoku',
+        packages=find_packages(),
+        scripts=ls('bin'),
+        zip_safe=False)
+  #+END_SRC
+
+  Now installation is a simple
+
+  : ./setup.py install
+
+  away.
+
+* Performance
+  With all the work we've put in, how well does all of this perform? Let's go by
+  major use-case.
+
+** Generating Puzzles
+   The following depicts the run time distributions for creating puzzles, via
+   =sudokugen=, of orders 2--5, with =maxguesses= varying in \omega steps from 0
+   to $\omega^2$. Each pairing was run 100 times, and each run was capped at 300
+   seconds of real time.
+
+   #+NAME: genpuzzles.sh
+   #+BEGIN_SRC shell :results none :exports none :shebang "#! /bin/bash" :tangle genpuzzles.sh
+   mkdir -p data/puzzle/{2,3,4,5}
+
+   for order in 2 3 4 5; do
+       for (( guesses=0; $guesses <= $order**2; guesses += $order )); do
+           for i in {1..100}; do
+               echo sudokugen -o$order -m -g$guesses \> data/puzzle/$order/$guesses.$i
+           done
+       done
+   done | sort -R | parallel -P2 --timeout 300 --joblog data/genlog
+   #+END_SRC
+
+   #+BEGIN_SRC shell :results none :exports none
+   sed -re 's/-[og]/ /g' data/genlog | awk '{printf("%s %d %d\n", $4, $10, $12)}' | tail -n+2 | sort -k2,2n -k3,3n | awk '{printf("%s (%s,%s)\n", $1, $2, $3)}' > data/gentime.dat
+   gnuplot <<EOF > images/gentime.png
+   set terminal pngcairo enhanced transparent size 1024,768 crop
+   set style boxplot nooutliers
+   set style data boxplot
+   set logscale y 2
+   set title 'Generator Runtime for Various Settings' font 'Times,20'
+   set xlabel '(order, maxguesses)' font 'Times,14'
+   set ylabel 'Runtime (seconds)' font 'Times,14'
+   set tics font "Times,12"
+   plot 'data/gentime.dat' using (1.0):1:(0):2 notitle
+   EOF
+   #+END_SRC
+
+   [[./images/gentime.png]]
+
+   As a practical matter, =maxguesses= doesn't seem to matter until order 5, at
+   least for performance. At order 5, though, once we allow 10 or more guesses,
+   generation time ramps up very quickly. (As a practical matter, though,
+   =maxguesses= is key to ensuring that humans can handle larger boards
+   manually.) We can get an alternate perspective by looking at how the mix of
+   job results varies:
+
+   #+BEGIN_SRC shell :results none :exports none
+   sed -re 's/-[og]/ /g' data/genlog \
+       | awk '{printf("%s (%.2d,%.2d)\n", $7, $10, $12)}' \
+       | tail -n+2 \
+       | sort -k2,2n -k1,1n  | awk '
+   $1==0 {$1="proper\t\t"} 
+   $1==1 {$1="improper\t"} 
+   $1==-1 {$1="timed-out\t"}
+   {print $2,$1,$3}
+   ' | uniq -c | awk '
+   {
+           s2c[$3][$2]=$1;
+           c2s[$2][$3]=$1;
+   }
+
+   END {
+       for (c in c2s) {
+           printf("%s\t", c);
+           for (s in s2c) {
+               printf("%s\t", 0+s2c[s][c]);
+           }
+           printf("\n");
+       }
+   }
+   ' | sort -k1,1 | sed -re 's/\(0/(/; s/,0/,/'> data/genstat.dat
+
+   gnuplot <<EOF > images/genstat.png
+   set terminal pngcairo enhanced transparent size 1024,768 crop
+   set style histogram
+   set style data histogram
+   set style fill solid border -1
+
+   set title 'Generator Status for Various Settings' font 'Times,20'
+   set xlabel '(order, maxguesses)' font 'Times,14'
+   set ylabel 'Trials' font 'Times,14'
+   set tics font "Times,12"
+
+   plot 'data/genstat.dat' using 2:xtic(1) title 'improper', '' using 3 title 'proper', '' using 4 title 'timed out'
+   EOF
+   #+END_SRC
+
+   [[./images/genstat.png]]
+
+   The explosion in generation time shows here in the growth of job timeouts. We
+   can also see the effect that =maxguesses= has on our ability to ensure that a
+   generated board is proper.
+
+** Solving
+
+   #+BEGIN_SRC shell :results none :exports none :tangle gensolns.sh :shebang "#! /bin/bash"
+   awk '$7==0 {print $NF}' data/genlog \
+       | sort -R \
+       | parallel -P2 --joblog=data/solvelog --timeout 300 'egrep -v \> {} | grep -v : | sudoku > {}.soln'
+   #+END_SRC
+
+
+   #+BEGIN_SRC shell :results none :exports none
+   tail -n+2 data/solvelog \
+       | sed -re '
+   s|egrep.+puzzle/||; 
+   s|.soln||; 
+   s|(.+)/(.+)\..+$|\1 \2|' \
+       | awk '{print $4, $9, $10}' \
+       | sort -k2,2n -k3,3n \
+       | awk '{printf("%s (%s,%s)\n", $1, $2, $3)}' > data/solvetime.dat
+
+   gnuplot <<EOF > images/solvetime.png
+   set terminal pngcairo enhanced transparent size 1024,768 crop
+   set style boxplot nooutliers
+   set style data boxplot
+   set logscale y 2
+   set title 'Solver Runtime for Various Settings' font 'Times,20'
+   set xlabel '(order, maxguesses)' font 'Times,14'
+   set ylabel 'Runtime (seconds)' font 'Times,14'
+   set tics font "Times,12"
+   plot 'data/solvetime.dat' using (1.0):1:(0):2 notitle
+   EOF
+   #+END_SRC
+
+   The generation test produced a total of 1438 proper boards. Solving each
+   gives the following distribution of runtimes vs. generation parameters:
+
+   [[./images/solvetime.png]]
+
 * Wrapping Up
+
+  The library that implements all of the core logic for generating, solving,
+  parsing, and serializing boards weighs in at 258 lines, excluding blanks; the
+  command line tools, 363 lines. There is much, much more that we could do:
+
+  - We could create related tools that, rather than assuming the nested-grid
+    structure that we've been enforcing so far, instead read the cell/division
+    structure from a file, allowing us to lean on both the generation and
+    solution logic for nearly arbitrary board arrangements (like Squiggly Sudoku
+    or Jigsaw Sudoku).
+  - We could implement more strategies for solving puzzles, and then build out
+    machinery for tracking which get used, allowing us to more meaningfully
+    estimate difficulty.
+  - We could rework the formatting tools to jettison the dependence on Latex and
+    ImageMagick.
+  - We could lavish attention on performance.
+
+  But there's little reason. Now that we know how to generate and solve
+  basically anything that is recognizably a Sudoku board, we can consider
+  ourselves free to think of [[https://en.wikipedia.org/wiki/NP-completeness][other]] problems, like [[https://en.wikipedia.org/wiki/Register_allocation#Graph-coloring_allocation][register allocation]] and [[https://en.wikipedia.org/wiki/Job_shop_scheduling][job
+  scheduling]]. 

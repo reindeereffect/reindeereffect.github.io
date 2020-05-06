@@ -1,4 +1,30 @@
 #! /bin/bash
+# [[file:~/dev/re/2020/04/02/index.org::bin/sudoku2img][bin/sudoku2img]]
+function usage() {
+    cat <<EOF
+Usage: `basename $0` [OPTIONS]
+Generate images from Sudoku boards or puzzles (i.e., paired boards and
+solutions, as produced by sudokugen).
+
+Options
+  -h, --help  print this help and exit
+
+  -P OUTDIR   generate images for a puzzle. Expected input is of the form
+              produced by sudokugen. At conclusion, OUTDIR will contain:
+
+                - new.png       the unsolved board
+                - solved.png    the completed board
+                - penciled.png  the unsolved board with pencil marks applied
+                - input.txt     the original input
+
+  --          indicates the end of options for `basename $0`; any remaining 
+              arguments will be passed to sudoku2tex
+
+Input is taken from STDIN.
+EOF
+}
+
+
 function pipetex() {
     d=`mktemp -d`
     pushd $d >/dev/null
@@ -89,39 +115,14 @@ function convert_puzzle() {
     shift 2
 
     mkdir -p $outd
-    grep difficulty $infile > $outd/meta.txt
-    grep    \> $infile | sudoku2tex "$@"    | tex2png > $outd/solved.png
-    grep -v \> $infile | sudoku2tex "$@"    | tex2png > $outd/new.png
-    grep -v \> $infile | sudoku2tex -p "$@" | tex2png > $outd/penciled.png
+    cp $infile $outd/input.txt
+    egrep    '>'    $infile | sudoku2tex "$@"    | tex2png > $outd/solved.png
+    egrep -v '[:>]' $infile | sudoku2tex "$@"    | tex2png > $outd/new.png
+    egrep -v '[:>]' $infile | sudoku2tex -p "$@" | tex2png > $outd/penciled.png
 }
 
 function convert_board() {
     sudoku2tex "$@" | tex2png
-}
-
-
-function usage() {
-    cat <<EOF
-Usage: `basename $0` [OPTIONS]
-Generate images from Sudoku boards or puzzles (i.e., paired boards and
-solutions, as produced by sudokugen).
-
-Options
-  -h, --help  print this help and exit
-
-  -P OUTDIR   generate images for a puzzle. Expected input is of the form
-              produced by sudokugen. At conclusion, OUTDIR will contain:
-
-                - new.png       the unsolved board
-                - solved.png    the completed board
-                - penciled.png  the unsolved board with pencil marks applied
-                - meta.txt      any additional metadata, like the difficulty
-
-  --          indicates the end of options for `basename $0`; any remaining 
-              arguments will be passed to sudoku2tex
-
-Input is taken from STDIN.
-EOF
 }
 while [[ "$1" ]]; do
     case "$1" in
@@ -134,20 +135,23 @@ while [[ "$1" ]]; do
             outd="$1"
             problem=1
             if ! [[ "$outd" ]]; then
+                echo "'-P' requires output directory"
                 usage
                 exit 1
             fi
             ;;
-        --) break ;;
-        ,*)
-            echo $1
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo unknown option "'$1'"
             usage
             exit 1
             ;;
     esac
     shift
 done
-
 tmpfile=`mktemp`
 cat > $tmpfile
 err=0
@@ -163,3 +167,4 @@ fi
 
 rm -f $tmpfile
 exit $err
+# bin/sudoku2img ends here

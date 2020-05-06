@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+# [[file:~/dev/re/2020/04/02/index.org::bin/sudoku][bin/sudoku]]
 '''
 Usage: %s [FILE]
 Find all solutions for a Sudoku puzzle.
@@ -50,14 +51,14 @@ def main(argv):
         print('solution %s:' % i)
         print(sd.dump_board(soln))
         print()
+import sys
+
 def usage():
     return __doc__.lstrip() % sys.argv[0]
 
 if __name__ == '__main__':
-    try:
-        if set(sys.argv) & {'-h', '--help'}:
-            sys.exit(usage())
-        else:
-            main(sys.argv[1:])
-    except Exception as e:
-        sys.exit('Unhandled %s' % e)
+    if set(sys.argv) & {'-h', '--help'}:
+        sys.exit(usage())
+    else:
+        main(sys.argv[1:])
+# bin/sudoku ends here
