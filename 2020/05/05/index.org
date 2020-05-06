@@ -58,7 +58,7 @@
 
 ** Board Divisions
    The classic Sudoku board consists of a 9\times9 grid of cells, with a
-   3x\times3 grid of boxes, each containing a 3\times3 grid of cells, overlaid:
+   3\times3 grid of boxes, each containing a 3\times3 grid of cells, overlaid:
 
    #+BEGIN_SRC shell :results file :exports results
    <<sdtx>>
@@ -112,14 +112,15 @@
    [[file:images/box-divs.png]]
 
    Of these, the most interesting division of the board is into boxes. The board
-   board can be viewed as a 3\times3 grid of boxes, each a 3\times3 grid of cells,
-   resulting in a grid of 3^4 cells arranged into 3^2 rows and 3^2 columns, for a
-   grand total of 3\times3^2 distinct divisions. When the board is complete, each
-   cell will contain a number from 1 to 9 (or 3^2) inclusive. Every interesting
-   dimension is describable in terms of power of 3, which we can think of as the
-   /order/ of a standard board. We can now think of Sudoku (or Sudoku-like) boards
-   a bit more generally. Given a board of order $\omega$, for any cell $c\in [1,
-   \omega^4]$, we can find the row number $I$ as
+   board can be viewed as a 3\times3 grid of boxes, each a 3\times3 grid of
+   cells, resulting in a grid of 3^4 cells arranged into 3^2 rows and 3^2
+   columns, for a grand total of 3\times3^2 distinct divisions. When the board
+   is complete, each cell will contain a number from 1 to 9 (or 3^2)
+   inclusive. Every interesting dimension is describable in terms of powers of
+   3, which we can think of as the /order/ of a standard board. We can now think
+   of Sudoku (or Sudoku-like) boards a bit more generally. Given a board of
+   order $\omega$, for any cell $c\in [1, \omega^4]$, we can find the row number
+   $I$ as
 
    $$I(c) = \left\lfloor\frac{c}{\omega^2}\right\rfloor$$
 
@@ -288,10 +289,9 @@
    #+END_SRC
 
 ** Textual Representation
-   Our finished program must accept a textual board representation as input, and
-   it must emit a textual representation of the completed board as output. Also,
-   any supported format must be flexible enough to handle Sudoku boards of any
-   order. 
+   Humans hardly want to look at Python dictionaries when there are better
+   representations available, so let's work out a textual representation for our
+   boards, and let's make it flexible enough to handle boards of any order.
 
 *** Converting from Strings
 
@@ -788,15 +788,15 @@
 
    #+BEGIN_SRC python :results none
    def solve(bd):
-          def _solve(bd):
-                 mark_forced(bd)
-              if issolved(bd): yield bd
-              else:
-                     _, _, cell, vals = min((len(vals), random.random(), cell, vals)
-                                         for (cell, vals) in bd.unknwon.items())
-                  for val in random.sample(vals, len(vals)):
-                         yield from _solve(bd.marked(cell, val))
-          return solve(bd.copy())
+       def _solve(bd):
+           mark_forced(bd)
+           if issolved(bd): yield bd
+           else:
+               _, _, cell, vals = min((len(vals), random.random(), cell, vals)
+                                      for (cell, vals) in bd.unknwon.items())
+               for val in random.sample(vals, len(vals)):
+                   yield from _solve(bd.marked(cell, val))
+       return solve(bd.copy())
 
    #+END_SRC
 
@@ -856,7 +856,7 @@
    #+END_SRC
 
    Delaying production of each intermediate board until it's required saves us
-   significant amounts of memory for large boards.
+   significant amounts of memory when solving large boards.
 
    Now, we can generate the final solution to our original puzzle:
 
@@ -990,8 +990,8 @@
       within the prescribed number of guesses, but is not guaranteed to have only
       one solution.
 
-      Returns (bd, difficulty) where bd is the generated board and diff is a 
-      difficulty estimate.
+      Returns (bd, difficulty) where bd is the generated board and difficulty is 
+      a difficulty estimate.
       '''
       known = soln.known.copy()
       order = int(len(known) ** 0.25)
