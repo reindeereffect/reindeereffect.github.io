@@ -3,6 +3,8 @@
 #+FILETAGS: sudoku:np-complete:backtracking:search
 #+PROPERTY: header-args :noweb no-export :noweb-sep "\n" :session :eval no-export :noweb-sep "\n\n\n" :mkdirp yes :comments link
 
+/All of the code described in this article is available [[https://github.com/reindeereffect/reindeereffect.github.io/tree/master/2020/05/05][here]]./
+
 * 0xdeadbeef                                                       :noexport:
 ** todo
    - 
