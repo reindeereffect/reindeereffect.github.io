@@ -1,5 +1,5 @@
 #! /bin/bash
-# [[file:~/dev/re/2020/04/02/index.org::bin/sudoku2img][bin/sudoku2img]]
+# [[file:~/dev/re/2020/05/05/index.org::bin/sudoku2img][bin/sudoku2img]]
 function usage() {
     cat <<EOF
 Usage: `basename $0` [OPTIONS]

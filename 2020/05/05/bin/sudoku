@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# [[file:~/dev/re/2020/04/02/index.org::bin/sudoku][bin/sudoku]]
+# [[file:~/dev/re/2020/05/05/index.org::bin/sudoku][bin/sudoku]]
 '''
 Usage: %s [FILE]
 Find all solutions for a Sudoku puzzle.

@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# [[file:~/dev/re/2020/04/02/index.org::setup.py][setup.py]]
+# [[file:~/dev/re/2020/05/05/index.org::setup.py][setup.py]]
 import os
 from setuptools import setup, find_packages
 

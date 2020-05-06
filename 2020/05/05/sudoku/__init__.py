@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# [[file:~/dev/re/2020/04/02/index.org::sudoku/__init__.py][sudoku/__init__.py]]
+# [[file:~/dev/re/2020/05/05/index.org::sudoku/__init__.py][sudoku/__init__.py]]
 'useful utilities for manipulating Sudoku puzzles'
 
 import copy
