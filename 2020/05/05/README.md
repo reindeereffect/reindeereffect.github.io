@@ -19,5 +19,5 @@ a `-h` or `--help` is passed as an argument.
 ## Further Discussion
 Detailed information on the principles of operation, as well as additional
 information regarding usage, performance, etc., is available at
-[https://reindeereffect.github.io/2020/05/05/index.html](Making and Slaying
-Monster Sudoku), also derived from `index.org`.
+[Making and Slaying Monster Sudoku](https://reindeereffect.github.io/2020/05/05/index.html), 
+also derived from `index.org`.
