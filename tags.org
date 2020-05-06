@@ -2,11 +2,17 @@
 #+OPTIONS: toc:nil
 #+TOC_NO_HEADING: t
 
+* backtracking
+- [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
+
 * dynamic-programming
 - [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
 
 * matrix-product
 - [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
+
+* np-complete
+- [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
 
 * numpy
 - [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
@@ -14,6 +20,12 @@
 * options
 - [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
 
+* search
+- [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
+
 * state-machines
 - [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
+
+* sudoku
+- [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
 

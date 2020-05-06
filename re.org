@@ -162,8 +162,8 @@ and
 
 #+NAME: TOC options
 #+BEGIN_SRC elisp
- :with-toc t
- :html-toc-no-heading t
+:with-toc t
+:html-toc-no-heading t
 #+END_SRC
 
 There's no need for any of our tables of content to have a headline declaring it

@@ -1,5 +1,5 @@
-#+TITLE: Sudoku of Any Size
-#+DATE: 2020-04-11
+#+TITLE: Making and Slaying Monster Sudoku
+#+DATE: 2020-05-05
 #+FILETAGS: sudoku:np-complete:backtracking:search
 #+PROPERTY: header-args :noweb no-export :noweb-sep "\n" :session :eval no-export :noweb-sep "\n\n\n" :mkdirp yes :comments link
 
