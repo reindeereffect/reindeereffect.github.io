@@ -680,6 +680,8 @@ pandoc -f markdown -t org $1 | sed -re 's|/aux/2018.*files/|aux/|g' | grep -v CA
 
 #+BEGIN_SRC css :tangle css/main.css
 
+.abstract { display: none; }
+
 .chunk-chain {
     float:right;
 }

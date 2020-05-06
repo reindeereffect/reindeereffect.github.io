@@ -1,3 +1,5 @@
+.abstract { display: none; }
+
 .chunk-chain {
     float:right;
 }
