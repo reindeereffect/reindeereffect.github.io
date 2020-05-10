@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-# [[file:~/dev/re/2020/05/05/index.org::bin/sudokugen][bin/sudokugen]]
 '''
 Usage: %s [-o ORDER] [-g MAXGUESSES] [-m]
 Generate a Sudoku puzzle.
@@ -51,4 +50,3 @@ if __name__ == '__main__':
         sys.exit(usage())
     else:
         main(sys.argv[1:])
-# bin/sudokugen ends here

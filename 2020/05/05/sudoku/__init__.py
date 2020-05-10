@@ -1,17 +1,9 @@
 #! /usr/bin/env python3
-
-# [[file:~/dev/re/2020/05/05/index.org::sudoku/__init__.py][sudoku/__init__.py]]
 'useful utilities for manipulating Sudoku puzzles'
 
 import copy
-
-
 from functools import reduce
-
-
 import random
-
-
 from math import inf
 class board:
     'Utility class for representing and tracking board state.'
@@ -42,8 +34,6 @@ class board:
     def elim(self, cell, val):
         "remove val from cell's possibilities"
         self.unknown.get(cell, set()).discard(val)
-    
-    
     def marked(self, cell, val):
         'returns a new board, with cell marked as val and possibilities eliminated'
         new = self.copy()
@@ -71,8 +61,6 @@ def board_divs(order):
                                for j in range(n)))
 
     return cell2divs, transpose(cell2divs)
-
-
 def transpose(m):
     '''
     given a binary matrix represented as a dictionary whose values are sets,
@@ -88,8 +76,6 @@ def transpose(m):
             t.setdefault(j, set()).add(i)
 
     return t
-
-
 def load_board(s, validate_vals=True):
     '''
     given a string representing a board, returns a board object. For a board of
@@ -126,8 +112,6 @@ def load_board(s, validate_vals=True):
         bd.mark(cell, val)
 
     return bd
-
-
 def blank(order):
   'generate a blank board'
   n = order**2
@@ -135,8 +119,6 @@ def blank(order):
   return board({},
                {i:set(possible_vals) for i in range(n**2)},
                *board_divs(order))
-
-
 def isvalid(bd):
     '''
     returns True if
@@ -153,8 +135,6 @@ def neighbors(bd, cell0):
 
 def union(xss):
     return {x for xs in xss for x in xs}
-
-
 def dump_board(bd):
     'returns a "pretty printed" string representation of board bd'
     order = int((len(bd.known) + len(bd.unknown)) ** 0.25)
@@ -176,8 +156,6 @@ def dump_board(bd):
     rule = '\n' + ''.join('+' if c == '|' else '-' for c in cols_grpd[0]) + '\n'
 
     return rule.join(rows_grpd)
-
-
 def mark_single_vals(bd):
     'applies the "single candidate" (a.k.a. "naked single") rule'
     marked = False
@@ -187,8 +165,6 @@ def mark_single_vals(bd):
             marked = True
 
     return marked
-
-
 def mark_single_cells(bd):
     'applies the "hidden single" rule'
     marked = False
@@ -201,14 +177,10 @@ def mark_single_cells(bd):
             bd.mark(cell, val)
             marked = True
     return marked
-
-
 def placements(bd, div):
     return transpose({cell: bd.unknown[cell]
                       for cell in bd.div2cells[div]
                       if cell in bd.unknown})
-
-
 def mark_excluded(bd):
     marked = False
     excluded = ((cell, val)
@@ -222,11 +194,7 @@ def mark_excluded(bd):
         bd.elim(cell, val)
         marked = True
     return marked
-
-
 def intersection(xs): return reduce(lambda a,x: a&x, xs)
-
-
 def mark_forced(bd):
     '''
     iteratively applies single candidate, hidden single, and rule of exclusion
@@ -235,13 +203,9 @@ def mark_forced(bd):
     fns = (mark_single_vals, mark_single_cells, mark_excluded)
     while any(fn(bd) for fn in fns): pass
     return bd
-
-
 def issolved(bd):
     'return True when no unknown cells remain. Assumes the board is valid.'
     return not bd.unknown
-
-
 def solve(bd0, maxguesses=inf):
     'given a board bd0, generate all solutions in maxguesses guesses'
     stack = [(0, bd0.copy(), None)]
@@ -255,8 +219,6 @@ def solve(bd0, maxguesses=inf):
                                    for (cell, vals) in bd.unknown.items())
             stack.extend((depth+1, bd, (cell, val))
                          for val in random.sample(vals, len(vals)))
-
-
 def marked_up(order, *marks):
     '''
     returns a new board of the given order, with the given marks, (cell, val)
@@ -265,8 +227,6 @@ def marked_up(order, *marks):
     bd = blank(order)
     for mark in marks: bd.mark(*mark)
     return bd
-
-
 def generate_from(soln, minbranch=False, maxguesses=inf):
     '''
     Generate a board for which soln is a solution, within at most maxguesses
@@ -306,8 +266,6 @@ def generate_from(soln, minbranch=False, maxguesses=inf):
             guesses += 1
 
     return new(), difficulty
-
-
 def isproper(bd, maxguesses=inf, clue=None):
     'bd has exactly one solution within maxguesses guesses'
     nsolns = 0
@@ -324,4 +282,3 @@ def isproper(bd, maxguesses=inf, clue=None):
             if nsolns > 1: return False
 
     return nsolns == 1
-# sudoku/__init__.py ends here

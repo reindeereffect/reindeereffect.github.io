@@ -184,12 +184,12 @@ to be one, so let's make it go away. The following creates a keyword,
    "Avoid toc heading in html export if the keyword TOC_HO_HEADING is t or yes.
   Works as a :filter-args advice for `org-html-toc' with argument list ARGS."
    (let* ((depth (nth 0 args))
-	  (info (nth 1 args))
-	  (scope (nth 2 args)))
+          (info (nth 1 args))
+          (scope (nth 2 args)))
      (when (and (assoc-string (plist-get info :html-toc-no-heading)
-			      '(t yes)
-			      t)
-		(null scope))
+                              '(t yes)
+                              t)
+                (null scope))
        (setq scope (plist-get info :parse-tree)))
      (list depth info scope)))
 
@@ -393,20 +393,20 @@ work, requires that the =ID= or =CUSTOM_ID= property be set.
      (todo todo-type priority text tags info)
    "Format a headline with a link to itself."
    (let* ((headline (get-text-property 0 :parent text))
-	  (id (or (org-element-property :CUSTOM_ID headline)
-		  ;; (org-export-get-reference headline info)
-		  (org-element-property :ID headline)))
-	  (link (if id
-		    (format "<a href=\"#%s\">%s</a>" id text)
-		  text))
-	  (default-format 'org-html-format-headline-default-function))
+          (id (or (org-element-property :CUSTOM_ID headline)
+                  ;; (org-export-get-reference headline info)
+                  (org-element-property :ID headline)))
+          (link (if id
+                    (format "<a href=\"#%s\">%s</a>" id text)
+                  text))
+          (default-format 'org-html-format-headline-default-function))
      (org-html-format-headline-default-function todo todo-type priority link tags info)))
 
  (setq org-html-format-headline-function 'my-org-html-format-headline-function)
  #+END_SRC
 
 ** Literate Programming
-
+*** Weaving
 Chunk definitions in literate org files exist as named source blocks. Since we
 aim to eventually link initial and continuation chunks together, we need to
 maintain just enough data for the task, i.e., a name and some kind of ID or
@@ -476,7 +476,7 @@ the fragment navigation links:
  #+NAME: literate
  #+BEGIN_SRC elisp :results none
  (add-hook 'org-export-before-parsing-hook
-	   (lambda (backend) (init-block-defs)))
+           (lambda (backend) (init-block-defs)))
  #+END_SRC
 
  Handling the noweb syntax comes in two parts:
@@ -503,49 +503,49 @@ the fragment navigation links:
 
  (defun block-intro (src)
    (let* ((name (src->block-name src))
-	  (label (format "%s-%s" name (src->block-id src)))
-	  (next (src->next-block-id src))
-	  (next-link (if next
-			 (format "<a href='#%s-%s'>&darr;</a>" name next)
-		       ""))
-	  (prev (src->prev-block-id src))
-	  (prev-link (if prev
-			 (format "<a href='#%s-%s'>&uarr;</a>" name prev)
-		       ""))
-	  (chunk-nav (format "<span class='chunk-chain'>%s%s</span>"
-			     prev-link
-			     next-link)))
+          (label (format "%s-%s" name (src->block-id src)))
+          (next (src->next-block-id src))
+          (next-link (if next
+                         (format "<a href='#%s-%s'>&darr;</a>" name next)
+                       ""))
+          (prev (src->prev-block-id src))
+          (prev-link (if prev
+                         (format "<a href='#%s-%s'>&uarr;</a>" name prev)
+                       ""))
+          (chunk-nav (format "<span class='chunk-chain'>%s%s</span>"
+                             prev-link
+                             next-link)))
      (if name
-	 (if prev
-	     (format
-	      "<div id='%s'>&langle;<a href='#%s' class='noweb-ref'>%s</a>&rangle; +&equiv; %s</div>"
-	      label
-	      name
-	      name chunk-nav)
-	 (format
-	  "<div id='%s'>&langle;<span class='noweb-def' id='%s'>%s</span>&rangle; &equiv; %s</div>"
-	  name
-	  label
-	  name chunk-nav))
+         (if prev
+             (format
+              "<div id='%s'>&langle;<a href='#%s' class='noweb-ref'>%s</a>&rangle; +&equiv; %s</div>"
+              label
+              name
+              name chunk-nav)
+           (format
+            "<div id='%s'>&langle;<span class='noweb-def' id='%s'>%s</span>&rangle; &equiv; %s</div>"
+            name
+            label
+            name chunk-nav))
        "")))	  
 
  (defun block-caption (src-block info)
    (let ((caption (org-export-get-caption src-block)))
      (if (not caption) ""
        (let ((listing-number
-	      (format
-	       "<span class=\"listing-number\">%s </span>"
-	       (format
-		(org-html--translate "Listing %d:" info)
-		(org-export-get-ordinal
-		 src-block info nil #'org-html--has-caption-p)))))
-	 (format "<label class=\"org-src-name\">%s%s</label>"
-		 listing-number
-		 (org-trim (org-export-data caption info)))))))
+              (format
+               "<span class=\"listing-number\">%s </span>"
+               (format
+                (org-html--translate "Listing %d:" info)
+                (org-export-get-ordinal
+                 src-block info nil #'org-html--has-caption-p)))))
+         (format "<label class=\"org-src-name\">%s%s</label>"
+                 listing-number
+                 (org-trim (org-export-data caption info)))))))
 
  (defun block-label (src-block info)
    (let ((lbl (and (org-element-property :name src-block)
-		   (org-export-get-reference src-block info))))
+                   (org-export-get-reference src-block info))))
      (if lbl (format " id=\"%s\"" lbl) "")))
 
  (defun org-html-src-block (src-block _contents info)
@@ -555,24 +555,199 @@ the fragment navigation links:
    (if (org-export-read-attribute :attr_html src-block :textarea)
        (org-html--textarea-block src-block)
      (let* ((lang (org-element-property :language src-block))
-	    (name (org-element-property :name src-block))
-	    (intro (block-intro src-block))
-	    (code (org-html-format-code src-block info))
-	    (fixed-code (string-trim-right (noweb-links (if (string= intro "")
-							   code
-							 (indent code)))))
-	    (label (block-label src-block info)))
+            (name (org-element-property :name src-block))
+            (intro (block-intro src-block))
+            (code (org-html-format-code src-block info))
+            (fixed-code (string-trim-right (noweb-links (if (string= intro "")
+                                                            code
+                                                          (indent code)))))
+            (label (block-label src-block info)))
        (if (not lang)
-	   (format "<pre class=\"example\"%s>%s</pre>" label code)
-	 (format "<div class=\"org-src-container\">\n%s%s\n</div>"
-		(block-caption src-block info)
-		 (format "<pre class=\"src src-%s\"%s>%s%s</pre>"
-			 lang 
-			 label
-			 intro
-			 fixed-code))))))
+           (format "<pre class=\"example\"%s>%s</pre>" label code)
+         (format "<div class=\"org-src-container\">\n%s%s\n</div>"
+                 (block-caption src-block info)
+                 (format "<pre class=\"src src-%s\"%s>%s%s</pre>"
+                         lang 
+                         label
+                         intro
+                         fixed-code))))))
  #+END_SRC
+*** Tangling
 
+#+NAME: bin/zig
+#+BEGIN_SRC python :tangle bin/zig :shebang "#! /usr/bin/env python3" :noweb no
+import sys
+
+def seq(*ps):
+    def parse(s):
+        acc = []
+        for p in ps:
+            try:
+                x, s = p(s)
+                acc.append(x)
+            except TypeError: return
+        return acc, s
+    return parse
+
+
+def alt(*ps):
+    def parse(s):
+        for p in ps:
+            try:
+                x, s = p(s)
+                return x, s
+            except TypeError: pass
+    return parse
+
+
+def rep(p):
+    def parse(s):
+        acc = []
+        try:
+            while s:
+                x, s = p(s)
+                acc.append(x)
+        except TypeError: pass
+        return acc, s
+    return parse
+
+
+def startswith(prefix):
+    def ret(lines):
+        if lines:
+            line, rest = lines[0], lines[1:]
+            if line.strip().lower().startswith(prefix):
+                return line, rest
+    return ret
+
+
+NAME = startswith('#+name:')
+BEGIN_SRC = startswith('#+begin_src')
+END_SRC = startswith('#+end_src')
+
+
+def LINE(lines):
+    try:
+        if not any(p(lines) for p in (NAME, BEGIN_SRC, END_SRC)):
+            return lines[0], lines[1:]
+    except IndexError: pass
+
+
+def block_body(lines):
+    return rep(alt(named_block, anon_block, LINE))(lines)
+
+
+def named_block(lines):
+    xs = seq(NAME, BEGIN_SRC, block_body, END_SRC)(lines)
+    if xs:
+        (name, begin, body, end), rest = xs
+        return {'name': name,
+                'begin': begin,
+                'body': body,
+                'end': end}, rest
+
+    
+def anon_block(lines):
+    xs = seq(BEGIN_SRC, block_body, END_SRC)(lines)
+    if xs:
+        (begin, body, end), rest = xs
+        return {'name': None,
+                'begin': begin,
+                'body': body,
+                'end': end}, rest
+
+
+def doc(lines):
+    return rep(alt(named_block, anon_block, LINE))(lines)
+
+import itertools as it
+def indentation(s):
+    return ''.join(it.takewhile(str.isspace, s))
+
+def isref(line):
+    line = line.strip()
+    return line.startswith('<<') and line.endswith('>>')
+
+def crackref(line):
+    return line.strip()[2:-2]
+
+def dump_block(b):
+    name = b['name'].split(':', 1)[1].strip() if b['name'] else None
+    top = ':tangle' in b['begin']
+    filename = None
+    leading = indentation(b['begin'])
+
+    if top:
+        filename = b['begin'][b['begin'].index(':tangle'):].split()[1]
+    elif not name: return
+
+
+    try:
+        assert all(line.startswith(leading) for line in b['body'] if line.strip())
+    except AssertionError as e:
+        print(b['name'])
+        print([line for line in b['body'] if line.strip() and not line.startswith(leading)])
+        raise
+    
+    body = [line.replace(leading, '', 1) for line in b['body']]
+
+    return (name, body, filename)
+
+def shebang(b):
+    if ':shebang' not in b['begin']: return ''
+    shebang = b['begin'].split(':shebang')[1].strip()
+    if '"' in shebang: shebang = shebang.split('"')[1].replace('\\n', '')
+    return shebang.strip() + '\n'
+
+def expand(name, chunks):
+    for line in chunks[name]:
+        if not isref(line):
+            if line.strip().startswith(','):
+                yield line.replace(',', '', 1)
+            else:
+                yield line
+        else:
+            leading = indentation(line)
+            for line2 in expand(crackref(line), chunks):
+                yield leading + line2
+            
+import json
+import os
+
+xs = doc(list(sys.stdin if not sys.argv[1:] or sys.argv[1] == '-' else open(sys.argv[1])))
+
+if xs:
+    parts, rest = xs
+    assert not rest
+    chunks = {}
+    start = {}
+    for part in parts:
+        if type(part) == dict:
+            try:
+                name, body, filename = dump_block(part)
+            except TypeError: continue
+            assert name or filename
+            name = name if name else filename
+            chunks.setdefault(name, []).extend(body)
+            if filename:
+                start[filename] = name
+                chunks[name].insert(0, shebang(part))
+                
+    for fn, first in start.items():
+        #fn = os.path.join('test', fn)
+        try: os.makedirs(os.path.dirname(fn))
+        except FileExistsError: pass
+        except FileNotFoundError: pass
+        body = ''.join(expand(first, chunks))
+        open(fn, 'w').write(body)
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle bin/ziggy :shebang "#! /bin/bash\n"
+while true; do
+    inotifywait -e modify $1
+    `dirname $0`/zig $1
+done
+#+END_SRC
 * File Listings
 Following are complete file listings, with all chunk references expanded.
 ** default.el
@@ -582,7 +757,7 @@ Following are complete file listings, with all chunk references expanded.
 (require 'subr-x)
 <<default/export>>
 <<default/publishing>>
-<<default/formatting>>
+; <<default/formatting>>
 <<default/formatting/frontmatter>>
 <<default/formatting/toc-no-head>>
 <<default/formatting/backmatter>>
@@ -2333,3 +2508,5 @@ a:hover {
     text-decoration: underline;
 }
 #+END_SRC
+
+

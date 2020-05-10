@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-# [[file:~/dev/re/2020/05/05/index.org::bin/sudoku2tex][bin/sudoku2tex]]
 '''
 Usage: %s [OPTIONS] [HIGHLIGHT]...
 Given a Sudoku board, generate Latex source code.
@@ -60,8 +59,6 @@ def form_body(cells, n):
     lines = ['|%s|.' % '|'.join(row) for row in rows]
     return '\n'.join(lines)
 
-
-
 def pencils(possible, order):
     vals = [str(val) if val in possible else '.'
             for val in range(1, 1 + order**2)]
@@ -83,8 +80,6 @@ def pencils(possible, order):
 def apply_pencils(bd, cells, order):
     for (unk, vals) in bd.unknown.items():
         cells[unk] = pencils(vals, order)
-
-
 def highlight(cell0, bd, cells, order):
     reds = set()
     redboxes = {cell0}
@@ -95,8 +90,6 @@ def highlight(cell0, bd, cells, order):
             if bd.unknown[cell0] & bd.unknown[cell]:
                 reds.add(cell)
     return reds, redboxes
-
-
 def fmt_cells(cells, bd, reds, redboxes):
     red = lambda s: '{\\color{red}%s}' % s
     redboxed = lambda s: '{\\color{red}\\fbox{%s}}' % s
@@ -106,8 +99,6 @@ def fmt_cells(cells, bd, reds, redboxes):
             else red(cell) if i in reds
             else black(cell)
             for (i, cell) in enumerate(cells)]
-
-
 def main(argv):
     try:
         opts_, args = getopt.gnu_getopt(argv, 'hp')
@@ -139,4 +130,3 @@ if __name__ == '__main__':
         sys.exit(usage())
     else:
         main(sys.argv[1:])
-# bin/sudoku2tex ends here

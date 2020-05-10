@@ -1,6 +1,4 @@
 #! /usr/bin/env python3
-
-# [[file:~/dev/re/2020/05/05/index.org::bin/sudoku][bin/sudoku]]
 '''
 Usage: %s [FILE]
 Find all solutions for a Sudoku puzzle.
@@ -61,4 +59,3 @@ if __name__ == '__main__':
         sys.exit(usage())
     else:
         main(sys.argv[1:])
-# bin/sudoku ends here

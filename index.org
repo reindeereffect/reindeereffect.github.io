@@ -1,0 +1,48 @@
+#+TITLE: R E I N D E E R E F F E C T
+#+OPTIONS: toc:nil title:nil
+#+HTML_HEAD_EXTRA: <style>.title {display:none;} .abstract {display:inline} </style>
+
+#+begin_index-entry
+	#+begin_pubdate
+		2020-05-05
+	#+end_pubdate
+	#+begin_post-title
+		[[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
+	#+end_post-title
+        #+begin_post-tags
+                [[./tags.org::*backtracking][backtracking]] [[./tags.org::*np-complete][np-complete]] [[./tags.org::*search][search]] [[./tags.org::*sudoku][sudoku]] 
+        #+end_post-tags
+	#+begin_abstract
+		If you have a taste for NP-completeness, Sudoku, or literate programming, then
+this one's for you.
+	#+end_abstract
+#+end_index-entry
+#+begin_index-entry
+	#+begin_pubdate
+		2018-03-08
+	#+end_pubdate
+	#+begin_post-title
+		[[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
+	#+end_post-title
+        #+begin_post-tags
+                [[./tags.org::*dynamic-programming][dynamic-programming]] [[./tags.org::*options][options]] 
+        #+end_post-tags
+	#+begin_abstract
+		You're certain the price of that stock will take off—your broker says so---but 
+you don't want to commit all your money just yet. What are your options?
+	#+end_abstract
+#+end_index-entry
+#+begin_index-entry
+	#+begin_pubdate
+		2018-01-20
+	#+end_pubdate
+	#+begin_post-title
+		[[./2018/01/20/index.org][Skipping School with Finite State Machines]]
+	#+end_post-title
+        #+begin_post-tags
+                [[./tags.org::*matrix-product][matrix-product]] [[./tags.org::*numpy][numpy]] [[./tags.org::*state-machines][state-machines]] 
+        #+end_post-tags
+	#+begin_abstract
+		
+	#+end_abstract
+#+end_index-entry

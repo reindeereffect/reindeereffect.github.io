@@ -20,14 +20,9 @@
 	 :with-toc t
 	 :html-toc-no-heading t
 	)
-                                        ;("supporting"
-                                        ; :base-directory ""
-                                        ; :base-extension "png\\|jpg\\|css\\|html\\|py"
-                                        ; :publishing-directory ""
-                                        ; :publishing-function org-publish-attachment
-                                        ; :recursive t)
+                                        ;<<supporting files>>
 	))
-
+; <<default/formatting>>
 (setq org-html-preamble-format
       '(("en"
 	 "
@@ -57,12 +52,12 @@
   "Avoid toc heading in html export if the keyword TOC_HO_HEADING is t or yes.
  Works as a :filter-args advice for `org-html-toc' with argument list ARGS."
   (let* ((depth (nth 0 args))
-	 (info (nth 1 args))
-	 (scope (nth 2 args)))
+         (info (nth 1 args))
+         (scope (nth 2 args)))
     (when (and (assoc-string (plist-get info :html-toc-no-heading)
-			     '(t yes)
-			     t)
-	       (null scope))
+                             '(t yes)
+                             t)
+               (null scope))
       (setq scope (plist-get info :parse-tree)))
     (list depth info scope)))
 
@@ -76,13 +71,13 @@
     (todo todo-type priority text tags info)
   "Format a headline with a link to itself."
   (let* ((headline (get-text-property 0 :parent text))
-	 (id (or (org-element-property :CUSTOM_ID headline)
-		 ;; (org-export-get-reference headline info)
-		 (org-element-property :ID headline)))
-	 (link (if id
-		   (format "<a href=\"#%s\">%s</a>" id text)
-		 text))
-	 (default-format 'org-html-format-headline-default-function))
+         (id (or (org-element-property :CUSTOM_ID headline)
+                 ;; (org-export-get-reference headline info)
+                 (org-element-property :ID headline)))
+         (link (if id
+                   (format "<a href=\"#%s\">%s</a>" id text)
+                 text))
+         (default-format 'org-html-format-headline-default-function))
     (org-html-format-headline-default-function todo todo-type priority link tags info)))
 
 (setq org-html-format-headline-function 'my-org-html-format-headline-function)
@@ -126,7 +121,7 @@
 (defun src->first-block-id (src)
   (apply 'min (src->block-ids src)))
 (add-hook 'org-export-before-parsing-hook
-	  (lambda (backend) (init-block-defs)))
+          (lambda (backend) (init-block-defs)))
 (defun noweb-links (src)
   (replace-regexp-in-string
    "&lt;&lt;\\([^&]+\\)&gt;&gt;"
@@ -137,49 +132,49 @@
 
 (defun block-intro (src)
   (let* ((name (src->block-name src))
-	 (label (format "%s-%s" name (src->block-id src)))
-	 (next (src->next-block-id src))
-	 (next-link (if next
-			(format "<a href='#%s-%s'>&darr;</a>" name next)
-		      ""))
-	 (prev (src->prev-block-id src))
-	 (prev-link (if prev
-			(format "<a href='#%s-%s'>&uarr;</a>" name prev)
-		      ""))
-	 (chunk-nav (format "<span class='chunk-chain'>%s%s</span>"
-			    prev-link
-			    next-link)))
+         (label (format "%s-%s" name (src->block-id src)))
+         (next (src->next-block-id src))
+         (next-link (if next
+                        (format "<a href='#%s-%s'>&darr;</a>" name next)
+                      ""))
+         (prev (src->prev-block-id src))
+         (prev-link (if prev
+                        (format "<a href='#%s-%s'>&uarr;</a>" name prev)
+                      ""))
+         (chunk-nav (format "<span class='chunk-chain'>%s%s</span>"
+                            prev-link
+                            next-link)))
     (if name
-	(if prev
-	    (format
-	     "<div id='%s'>&langle;<a href='#%s' class='noweb-ref'>%s</a>&rangle; +&equiv; %s</div>"
-	     label
-	     name
-	     name chunk-nav)
-	(format
-	 "<div id='%s'>&langle;<span class='noweb-def' id='%s'>%s</span>&rangle; &equiv; %s</div>"
-	 name
-	 label
-	 name chunk-nav))
+        (if prev
+            (format
+             "<div id='%s'>&langle;<a href='#%s' class='noweb-ref'>%s</a>&rangle; +&equiv; %s</div>"
+             label
+             name
+             name chunk-nav)
+          (format
+           "<div id='%s'>&langle;<span class='noweb-def' id='%s'>%s</span>&rangle; &equiv; %s</div>"
+           name
+           label
+           name chunk-nav))
       "")))	  
 
 (defun block-caption (src-block info)
   (let ((caption (org-export-get-caption src-block)))
     (if (not caption) ""
       (let ((listing-number
-	     (format
-	      "<span class=\"listing-number\">%s </span>"
-	      (format
-	       (org-html--translate "Listing %d:" info)
-	       (org-export-get-ordinal
-		src-block info nil #'org-html--has-caption-p)))))
-	(format "<label class=\"org-src-name\">%s%s</label>"
-		listing-number
-		(org-trim (org-export-data caption info)))))))
+             (format
+              "<span class=\"listing-number\">%s </span>"
+              (format
+               (org-html--translate "Listing %d:" info)
+               (org-export-get-ordinal
+                src-block info nil #'org-html--has-caption-p)))))
+        (format "<label class=\"org-src-name\">%s%s</label>"
+                listing-number
+                (org-trim (org-export-data caption info)))))))
 
 (defun block-label (src-block info)
   (let ((lbl (and (org-element-property :name src-block)
-		  (org-export-get-reference src-block info))))
+                  (org-export-get-reference src-block info))))
     (if lbl (format " id=\"%s\"" lbl) "")))
 
 (defun org-html-src-block (src-block _contents info)
@@ -189,19 +184,19 @@
   (if (org-export-read-attribute :attr_html src-block :textarea)
       (org-html--textarea-block src-block)
     (let* ((lang (org-element-property :language src-block))
-	   (name (org-element-property :name src-block))
-	   (intro (block-intro src-block))
-	   (code (org-html-format-code src-block info))
-	   (fixed-code (string-trim-right (noweb-links (if (string= intro "")
-							  code
-							(indent code)))))
-	   (label (block-label src-block info)))
+           (name (org-element-property :name src-block))
+           (intro (block-intro src-block))
+           (code (org-html-format-code src-block info))
+           (fixed-code (string-trim-right (noweb-links (if (string= intro "")
+                                                           code
+                                                         (indent code)))))
+           (label (block-label src-block info)))
       (if (not lang)
-	  (format "<pre class=\"example\"%s>%s</pre>" label code)
-	(format "<div class=\"org-src-container\">\n%s%s\n</div>"
-	       (block-caption src-block info)
-		(format "<pre class=\"src src-%s\"%s>%s%s</pre>"
-			lang 
-			label
-			intro
-			fixed-code))))))
+          (format "<pre class=\"example\"%s>%s</pre>" label code)
+        (format "<div class=\"org-src-container\">\n%s%s\n</div>"
+                (block-caption src-block info)
+                (format "<pre class=\"src src-%s\"%s>%s%s</pre>"
+                        lang 
+                        label
+                        intro
+                        fixed-code))))))

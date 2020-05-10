@@ -1,5 +1,4 @@
 #! /bin/bash
-# [[file:~/dev/re/2020/05/05/index.org::bin/sudoku2img][bin/sudoku2img]]
 function usage() {
     cat <<EOF
 Usage: `basename $0` [OPTIONS]
@@ -23,14 +22,12 @@ Options
 Input is taken from STDIN.
 EOF
 }
-
-
 function pipetex() {
     d=`mktemp -d`
     pushd $d >/dev/null
     {
         cat <<'EOF' > sudokuii.sty
- \NeedsTeXFormat{LaTeX2e}[1999/12/01]
+  \NeedsTeXFormat{LaTeX2e}[1999/12/01]
  \ProvidesPackage{sudokuii}[2020/04/18 Big Sudoku]
  
  \RequirePackage{sudoku}
@@ -74,8 +71,6 @@ function pipetex() {
      \end{sudoku-block}
    \end{center}
  }
- 
- 
  \def\@sudoku@grab@arguments#1.{
    \scantokens{#1.}}
  
@@ -87,8 +82,6 @@ EOF
     popd > /dev/null
     rm -rf $d
 }
-
-
 function topng() { convert - -trim -transparent white -colorspace RGB png:-; }
 
 function tex2png() {
@@ -107,8 +100,6 @@ $(cat)
 \end{document}
 EOF
 }
-
-
 function convert_puzzle() {
     infile=$1
     outd=$2
@@ -167,4 +158,3 @@ fi
 
 rm -f $tmpfile
 exit $err
-# bin/sudoku2img ends here

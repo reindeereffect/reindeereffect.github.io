@@ -5,6 +5,9 @@
 * backtracking
 - [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
 
+* configuration
+- [[./re.org][REINDEEREFFECT Tools R E I N D E E R E F F E C T Tags]]
+
 * dynamic-programming
 - [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
 
