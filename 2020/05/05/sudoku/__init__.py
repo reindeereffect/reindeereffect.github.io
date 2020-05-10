@@ -279,8 +279,8 @@ def generate_from(soln, minbranch=False, maxguesses=inf):
     within the prescribed number of guesses, but is not guaranteed to have only
     one solution.
 
-    Returns (bd, difficulty) where bd is the generated board and diff is a 
-    difficulty estimate.
+    Returns (bd, difficulty) where bd is the generated board and difficulty is 
+    a difficulty estimate.
     '''
     known = soln.known.copy()
     order = int(len(known) ** 0.25)
