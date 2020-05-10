@@ -1,5 +1,6 @@
 #+TITLE: REINDEEREFFECT Tools
 #+PROPERTY: header-args :exports both :eval no-export :noweb no-export :mkdirp yes
+#+FILETAGS: configuration
 
 * Introduction
 
@@ -276,7 +277,14 @@ org-publishing begins.
 #+NAME: generate index
 #+BEGIN_SRC sh
 <<index generation functions>>
-echo '#+OPTIONS: toc:nil title:nil'
+
+cat <<EOF
+,#+TITLE: R E I N D E E R E F F E C T
+,#+OPTIONS: toc:nil title:nil
+,#+HTML_HEAD_EXTRA: <style>.title {display:none;} .abstract {display:inline} </style>
+
+EOF
+
 pushd $1 >/dev/null
 find ./???? -type f -name '*.org' | sort -r | while read post; do
     entry $post
@@ -284,7 +292,8 @@ done
 popd >/dev/null
 #+END_SRC
 
-Each entry consists of a post's publication date, title, and abstract (if present):
+Each entry consists of a post's publication date, title, tags, and abstract (if
+present):
 
 #+NAME: index generation functions
 #+BEGIN_SRC sh
@@ -294,9 +303,12 @@ function entry() {
 	,#+begin_pubdate
 		`property DATE $1`
 	,#+end_pubdate
-	,#+begin_title
+	,#+begin_post-title
 		`post-title $1`
-	,#+end_title
+	,#+end_post-title
+        ,#+begin_post-tags
+                `post-tags $1`
+        ,#+end_post-tags
 	,#+begin_abstract
 		`post-abstract $1`
 	,#+end_abstract
@@ -344,7 +356,7 @@ function post-tags() {
 }
 
 function extract-tags() {
-    property FILETAGS $1 | sed -re 's/:/ /g; s/^\s+//; s/\s+$//'
+    property FILETAGS $1 | sed -re 's/:/ /g; s/^\s+//; s/\s+$//; s/\s+/\n/g' | sort
 }
 #+END_SRC
 
@@ -784,8 +796,16 @@ pre.src:hover:before {
     display: inline;
 }
 
-.index-entry .title {
+.index-entry .post-title {
     font-size: 24px; 
+}
+
+.index-entry .post-tags {
+    font-size: small;
+}
+
+.index-entry .pubdate {
+    font-size: small;
 }
 
 .index-entry {
@@ -793,6 +813,10 @@ pre.src:hover:before {
 }
 
 table { margin: auto; }
+
+.post-pubdate {
+    font-size: small;
+}
 #+END_SRC
 ** css/syntax.css
 
