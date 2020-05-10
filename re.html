@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-10 Sun 03:23 -->
+<!-- 2020-05-10 Sun 04:06 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>REINDEEREFFECT Tools</title>
@@ -254,7 +254,7 @@ for the JavaScript code in this tag.
 <ul>
 <li><a href="#org06771d1">2.1. Setup</a></li>
 <li><a href="#org7478dc4">2.2. Build</a></li>
-<li><a href="#orgfedc83e">2.3. Literate Programming</a></li>
+<li><a href="#org799d7dc">2.3. Literate Programming</a></li>
 </ul>
 </li>
 <li><a href="#org38fb8f7">3. Description</a>
@@ -276,7 +276,7 @@ for the JavaScript code in this tag.
 </ul>
 </li>
 <li><a href="#org4d63ea7">3.6. Clickable Headlines</a></li>
-<li><a href="#org799d7dc">3.7. Literate Programming</a>
+<li><a href="#org9da1dd3">3.7. Literate Programming</a>
 <ul>
 <li><a href="#orgf368e21">3.7.1. Weaving</a></li>
 <li><a href="#org17b7575">3.7.2. Tangling</a></li>
@@ -346,8 +346,8 @@ In the base directory,
 </div>
 </div>
 
-<div id="outline-container-orgfedc83e" class="outline-3">
-<h3 id="orgfedc83e"><span class="section-number-3">2.3</span> Literate Programming</h3>
+<div id="outline-container-org799d7dc" class="outline-3">
+<h3 id="org799d7dc"><span class="section-number-3">2.3</span> Literate Programming</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 Minimal support for Noweb-style literate programming is provided, built atop
@@ -360,7 +360,7 @@ the usual conventions:
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-python" id="orge6442f9"><div id='chunk'>&langle;<span class='noweb-def' id='chunk-1267'>chunk</span>&rangle; &equiv; <span class='chunk-chain'><a href='#chunk-1353'>&darr;</a></span></div>  ...</pre>
+<pre class="src src-python" id="org4a536b4"><div id='chunk'>&langle;<span class='noweb-def' id='chunk-1267'>chunk</span>&rangle; &equiv; <span class='chunk-chain'><a href='#chunk-1353'>&darr;</a></span></div>  ...</pre>
 </div>
 
 <ul class="org-ul">
@@ -368,7 +368,7 @@ the usual conventions:
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-python" id="org4a536b4"><div id='chunk-1353'>&langle;<a href='#chunk' class='noweb-ref'>chunk</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#chunk-1267'>&uarr;</a></span></div>  ...</pre>
+<pre class="src src-python" id="orga0928b3"><div id='chunk-1353'>&langle;<a href='#chunk' class='noweb-ref'>chunk</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#chunk-1267'>&uarr;</a></span></div>  ...</pre>
 </div>
 
 <p>
@@ -657,7 +657,7 @@ present):
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh" id="org5341882"><div id='index generation functions'>&langle;<span class='noweb-def' id='index generation functions-7094'>index generation functions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#index generation functions-7827'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">entry</span>() {
+<pre class="src src-sh" id="org8d0355c"><div id='index generation functions'>&langle;<span class='noweb-def' id='index generation functions-7094'>index generation functions</span>&rangle; &equiv; <span class='chunk-chain'><a href='#index generation functions-7827'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">entry</span>() {
       cat &lt;&lt;EOF
   <span class="org-sh-heredoc">#+begin_index-entry</span>
   <span class="org-sh-heredoc">        #+begin_pubdate</span>
@@ -709,7 +709,7 @@ To fill in the rest of the structure, we need to retrieve each post&rsquo;s titl
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh" id="orgf28dba1"><div id='index generation functions-7827'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7094'>&uarr;</a><a href='#index generation functions-7961'>&darr;</a></span></div>  
+<pre class="src src-sh" id="org2407c02"><div id='index generation functions-7827'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7094'>&uarr;</a><a href='#index generation functions-7961'>&darr;</a></span></div>  
   <span class="org-keyword">function</span> <span class="org-function-name">post-title</span>() {
       <span class="org-builtin">echo</span> <span class="org-string">"[[$1][`property TITLE $1`]]"</span>
   }</pre>
@@ -720,7 +720,7 @@ tags:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh" id="orgf8c2682"><div id='index generation functions-7961'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7827'>&uarr;</a><a href='#index generation functions-8265'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">post-tags</span>() {
+<pre class="src src-sh" id="org871d66d"><div id='index generation functions-7961'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7827'>&uarr;</a><a href='#index generation functions-8265'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">post-tags</span>() {
       extract-tags $<span class="org-variable-name">1</span> | <span class="org-keyword">while </span><span class="org-builtin">read</span> tag; <span class="org-keyword">do</span>
           <span class="org-builtin">echo</span> -n <span class="org-string">"[[./tags.org::*$tag][$tag]] "</span>
       <span class="org-keyword">done</span>
@@ -736,7 +736,7 @@ and abstract:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh" id="orgb37c323"><div id='index generation functions-8265'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7961'>&uarr;</a><a href='#index generation functions-8457'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">post-abstract</span>() {
+<pre class="src src-sh" id="org4949051"><div id='index generation functions-8265'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-7961'>&uarr;</a><a href='#index generation functions-8457'>&darr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">post-abstract</span>() {
       awk <span class="org-string">'</span>
   <span class="org-string">/#\+END_abstract/   {emit=0}</span>
   <span class="org-string">emit                {print}</span>
@@ -747,7 +747,7 @@ and abstract:
 
 
 <div class="org-src-container">
-<pre class="src src-sh" id="org8d0355c"><div id='index generation functions-8457'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-8265'>&uarr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">property</span>() {
+<pre class="src src-sh" id="org7842dae"><div id='index generation functions-8457'>&langle;<a href='#index generation functions' class='noweb-ref'>index generation functions</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#index generation functions-8265'>&uarr;</a></span></div>  <span class="org-keyword">function</span> <span class="org-function-name">property</span>() {
       egrep <span class="org-string">"#\+${1}:"</span> $<span class="org-variable-name">2</span> | cut -d: -f2- | sed -re <span class="org-string">'s/^\s+//; s/\s+$//'</span>
   }</pre>
 </div>
@@ -786,8 +786,8 @@ work, requires that the <code>ID</code> or <code>CUSTOM_ID</code> property be se
 </div>
 </div>
 
-<div id="outline-container-org799d7dc" class="outline-3">
-<h3 id="org799d7dc"><span class="section-number-3">3.7</span> Literate Programming</h3>
+<div id="outline-container-org9da1dd3" class="outline-3">
+<h3 id="org9da1dd3"><span class="section-number-3">3.7</span> Literate Programming</h3>
 <div class="outline-text-3" id="text-3-7">
 </div>
 <div id="outline-container-orgf368e21" class="outline-4">
@@ -803,7 +803,7 @@ name and its starting position (or positions, if there are continuation blocks).
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="orgc36eebe"><div id='literate'>&langle;<span class='noweb-def' id='literate-10067'>literate</span>&rangle; &equiv; <span class='chunk-chain'><a href='#literate-10383'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-name</span> (src)
+<pre class="src src-elisp" id="orgf0c16b2"><div id='literate'>&langle;<span class='noweb-def' id='literate-10067'>literate</span>&rangle; &equiv; <span class='chunk-chain'><a href='#literate-10383'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-name</span> (src)
     (org-element-property <span class="org-builtin">:name</span> src))
   
   (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-id</span> (src)
@@ -819,7 +819,7 @@ With that, we can build a tracker all the named source blocks:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org1c9795a"><div id='literate-10383'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10067'>&uarr;</a><a href='#literate-10691'>&darr;</a></span></div>  (<span class="org-keyword">setq</span> block-defs '())
+<pre class="src src-elisp" id="org9430208"><div id='literate-10383'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10067'>&uarr;</a><a href='#literate-10691'>&darr;</a></span></div>  (<span class="org-keyword">setq</span> block-defs '())
   
   (<span class="org-keyword">defun</span> <span class="org-function-name">init-block-defs</span> ()
     (<span class="org-keyword">setq</span> block-defs
@@ -835,7 +835,7 @@ the fragment navigation links:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org95916da"><div id='literate-10691'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10383'>&uarr;</a><a href='#literate-11449'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-ids</span> (src)
+<pre class="src src-elisp" id="org5770793"><div id='literate-10691'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10383'>&uarr;</a><a href='#literate-11449'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">src-&gt;block-ids</span> (src)
     (<span class="org-keyword">let</span> ((name (org-element-property <span class="org-builtin">:name</span> src)))
       (mapcar 'cdr (seq-filter (<span class="org-keyword">lambda</span> (x)
                                  (string= (car x) name))
@@ -865,7 +865,7 @@ anything of consequence:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org1b500d6"><div id='literate-11449'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10691'>&uarr;</a><a href='#literate-11706'>&darr;</a></span></div>  (add-hook 'org-export-before-parsing-hook
+<pre class="src src-elisp" id="org58b7cb3"><div id='literate-11449'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-10691'>&uarr;</a><a href='#literate-11706'>&darr;</a></span></div>  (add-hook 'org-export-before-parsing-hook
             (<span class="org-keyword">lambda</span> (backend) (init-block-defs)))</pre>
 </div>
 
@@ -882,7 +882,7 @@ To deal with references,
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="org3cfab4d"><div id='literate-11706'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-11449'>&uarr;</a><a href='#literate-11968'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">noweb-links</span> (src)
+<pre class="src src-elisp" id="orgc3e6b19"><div id='literate-11706'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-11449'>&uarr;</a><a href='#literate-11968'>&darr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">noweb-links</span> (src)
     (replace-regexp-in-string
      <span class="org-string">"&amp;lt;&amp;lt;</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">[</span><span class="org-string"><span class="org-negation-char">^</span></span><span class="org-string">&amp;]+</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">&amp;gt;&amp;gt;"</span>
      <span class="org-string">"&amp;langle;&lt;a class='noweb-ref' href='#\\1'&gt;\\1&lt;/a&gt;&amp;rangle;"</span>
@@ -894,7 +894,7 @@ Definitions take the form of entire code blocks:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp" id="orgf0c16b2"><div id='literate-11968'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-11706'>&uarr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">indent</span> (src)
+<pre class="src src-elisp" id="orgd09ec51"><div id='literate-11968'>&langle;<a href='#literate' class='noweb-ref'>literate</a>&rangle; +&equiv; <span class='chunk-chain'><a href='#literate-11706'>&uarr;</a></span></div>  (<span class="org-keyword">defun</span> <span class="org-function-name">indent</span> (src)
     (replace-regexp-in-string <span class="org-string">"^"</span> <span class="org-string">"  "</span> src))
   
   (<span class="org-keyword">defun</span> <span class="org-function-name">block-intro</span> (src)
@@ -1100,7 +1100,7 @@ Definitions take the form of entire code blocks:
   <span class="org-keyword">def</span> <span class="org-function-name">expand</span>(name, chunks):
       <span class="org-keyword">for</span> line <span class="org-keyword">in</span> chunks[name]:
           <span class="org-keyword">if</span> <span class="org-keyword">not</span> isref(line):
-              <span class="org-keyword">if</span> line.strip().startswith(<span class="org-string">',#+'</span>) <span class="org-keyword">or</span> line.strip().startswith(<span class="org-string">',&lt;&lt;'</span>):
+              <span class="org-keyword">if</span> line.strip().startswith(<span class="org-string">','</span>):
                   <span class="org-keyword">yield</span> line.replace(<span class="org-string">','</span>, <span class="org-string">''</span>, 1)
               <span class="org-keyword">else</span>:
                   <span class="org-keyword">yield</span> line
@@ -1112,7 +1112,8 @@ Definitions take the form of entire code blocks:
   <span class="org-keyword">import</span> json
   <span class="org-keyword">import</span> os
   
-  <span class="org-variable-name">xs</span> = doc(<span class="org-builtin">list</span>(sys.stdin))
+  <span class="org-variable-name">xs</span> = doc(<span class="org-builtin">list</span>(sys.stdin <span class="org-keyword">if</span> <span class="org-keyword">not</span> sys.argv[1:] <span class="org-keyword">or</span> sys.argv[1] == <span class="org-string">'-'</span> <span class="org-keyword">else</span> <span class="org-builtin">open</span>(sys.argv[1])))
+  
   <span class="org-keyword">if</span> xs:
       <span class="org-variable-name">parts</span>, <span class="org-variable-name">rest</span> = xs
       <span class="org-keyword">assert</span> <span class="org-keyword">not</span> rest
@@ -1137,6 +1138,13 @@ Definitions take the form of entire code blocks:
           <span class="org-keyword">except</span> <span class="org-type">FileNotFoundError</span>: <span class="org-keyword">pass</span>
           <span class="org-variable-name">body</span> = <span class="org-string">''</span>.join(expand(first, chunks))
           <span class="org-builtin">open</span>(fn, <span class="org-string">'w'</span>).write(body)</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span class="org-keyword">while</span> true; <span class="org-keyword">do</span>
+    inotifywait -e modify $<span class="org-variable-name">1</span>
+    <span class="org-sh-quoted-exec">`dirname $0`</span>/zig $<span class="org-variable-name">1</span>
+<span class="org-keyword">done</span></pre>
 </div>
 </div>
 </div>
