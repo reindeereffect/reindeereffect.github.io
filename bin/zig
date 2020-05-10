@@ -1,0 +1,165 @@
+#! /usr/bin/env python3
+import sys
+
+def seq(*ps):
+    def parse(s):
+        acc = []
+        for p in ps:
+            try:
+                x, s = p(s)
+                acc.append(x)
+            except TypeError: return
+        return acc, s
+    return parse
+
+
+def alt(*ps):
+    def parse(s):
+        for p in ps:
+            try:
+                x, s = p(s)
+                return x, s
+            except TypeError: pass
+    return parse
+
+
+def rep(p):
+    def parse(s):
+        acc = []
+        try:
+            while s:
+                x, s = p(s)
+                acc.append(x)
+        except TypeError: pass
+        return acc, s
+    return parse
+
+
+def startswith(prefix):
+    def ret(lines):
+        if lines:
+            line, rest = lines[0], lines[1:]
+            if line.strip().lower().startswith(prefix):
+                return line, rest
+    return ret
+
+
+NAME = startswith('#+name:')
+BEGIN_SRC = startswith('#+begin_src')
+END_SRC = startswith('#+end_src')
+
+
+def LINE(lines):
+    try:
+        if not any(p(lines) for p in (NAME, BEGIN_SRC, END_SRC)):
+            return lines[0], lines[1:]
+    except IndexError: pass
+
+
+def block_body(lines):
+    return rep(alt(named_block, anon_block, LINE))(lines)
+
+
+def named_block(lines):
+    xs = seq(NAME, BEGIN_SRC, block_body, END_SRC)(lines)
+    if xs:
+        (name, begin, body, end), rest = xs
+        return {'name': name,
+                'begin': begin,
+                'body': body,
+                'end': end}, rest
+
+    
+def anon_block(lines):
+    xs = seq(BEGIN_SRC, block_body, END_SRC)(lines)
+    if xs:
+        (begin, body, end), rest = xs
+        return {'name': None,
+                'begin': begin,
+                'body': body,
+                'end': end}, rest
+
+
+def doc(lines):
+    return rep(alt(named_block, anon_block, LINE))(lines)
+
+import itertools as it
+def indentation(s):
+    return ''.join(it.takewhile(str.isspace, s))
+
+def isref(line):
+    line = line.strip()
+    return line.startswith('<<') and line.endswith('>>')
+
+def crackref(line):
+    return line.strip()[2:-2]
+
+def dump_block(b):
+    name = b['name'].split(':', 1)[1].strip() if b['name'] else None
+    top = ':tangle' in b['begin']
+    filename = None
+    leading = indentation(b['begin'])
+
+    if top:
+        filename = b['begin'][b['begin'].index(':tangle'):].split()[1]
+    elif not name: return
+
+
+    try:
+        assert all(line.startswith(leading) for line in b['body'] if line.strip())
+    except AssertionError as e:
+        print(b['name'])
+        print([line for line in b['body'] if line.strip() and not line.startswith(leading)])
+        raise
+    
+    body = [line.replace(leading, '', 1) for line in b['body']]
+
+    return (name, body, filename)
+
+def shebang(b):
+    if ':shebang' not in b['begin']: return ''
+    shebang = b['begin'].split(':shebang')[1].strip()
+    if '"' in shebang: shebang = shebang.split('"')[1].replace('\\n', '')
+    return shebang.strip() + '\n'
+
+def expand(name, chunks):
+    for line in chunks[name]:
+        if not isref(line):
+            if line.strip().startswith(','):
+                yield line.replace(',', '', 1)
+            else:
+                yield line
+        else:
+            leading = indentation(line)
+            for line2 in expand(crackref(line), chunks):
+                yield leading + line2
+            
+import json
+import os
+
+xs = doc(list(sys.stdin if not sys.argv[1:] or sys.argv[1] == '-' else open(sys.argv[1])))
+
+if xs:
+    parts, rest = xs
+    assert not rest
+    chunks = {}
+    start = {}
+    for part in parts:
+        if type(part) == dict:
+            try:
+                name, body, filename = dump_block(part)
+            except TypeError: continue
+            assert name or filename
+            name = name if name else filename
+            chunks.setdefault(name, []).extend(body)
+            if filename:
+                start[filename] = name
+                chunks[name].insert(0, shebang(part))
+                
+    for fn, first in start.items():
+        #fn = os.path.join('test', fn)
+        try: os.makedirs(os.path.dirname(fn))
+        except FileExistsError: pass
+        except FileNotFoundError: pass
+        body = ''.join(expand(first, chunks))
+        open(fn, 'w').write(body)

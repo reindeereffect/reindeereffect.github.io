@@ -20,9 +20,14 @@
 	 :with-toc t
 	 :html-toc-no-heading t
 	)
-                                        ;<<supporting files>>
+                                        ;("supporting"
+                                        ; :base-directory ""
+                                        ; :base-extension "png\\|jpg\\|css\\|html\\|py"
+                                        ; :publishing-directory ""
+                                        ; :publishing-function org-publish-attachment
+                                        ; :recursive t)
 	))
-; <<default/formatting>>
+; 
 (setq org-html-preamble-format
       '(("en"
 	 "
