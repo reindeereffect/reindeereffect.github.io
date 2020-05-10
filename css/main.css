@@ -102,8 +102,16 @@ pre.src:hover:before {
     display: inline;
 }
 
-.index-entry .title {
+.index-entry .post-title {
     font-size: 24px; 
+}
+
+.index-entry .post-tags {
+    font-size: small;
+}
+
+.index-entry .pubdate {
+    font-size: small;
 }
 
 .index-entry {
@@ -111,3 +119,7 @@ pre.src:hover:before {
 }
 
 table { margin: auto; }
+
+.post-pubdate {
+    font-size: small;
+}

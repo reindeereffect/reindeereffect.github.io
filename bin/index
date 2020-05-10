@@ -5,9 +5,12 @@ function entry() {
 	#+begin_pubdate
 		`property DATE $1`
 	#+end_pubdate
-	#+begin_title
+	#+begin_post-title
 		`post-title $1`
-	#+end_title
+	#+end_post-title
+        #+begin_post-tags
+                `post-tags $1`
+        #+end_post-tags
 	#+begin_abstract
 		`post-abstract $1`
 	#+end_abstract
@@ -25,7 +28,7 @@ function post-tags() {
 }
 
 function extract-tags() {
-    property FILETAGS $1 | sed -re 's/:/ /g; s/^\s+//; s/\s+$//'
+    property FILETAGS $1 | sed -re 's/:/ /g; s/^\s+//; s/\s+$//; s/\s+/\n/g' | sort
 }
 function post-abstract() {
     awk '
@@ -37,7 +40,14 @@ emit                {print}
 function property() {
     egrep "#\+${1}:" $2 | cut -d: -f2- | sed -re 's/^\s+//; s/\s+$//'
 }
-echo '#+OPTIONS: toc:nil title:nil'
+
+cat <<EOF
+#+TITLE: R E I N D E E R E F F E C T
+#+OPTIONS: toc:nil title:nil
+#+HTML_HEAD_EXTRA: <style>.title {display:none;} .abstract {display:inline} </style>
+
+EOF
+
 pushd $1 >/dev/null
 find ./???? -type f -name '*.org' | sort -r | while read post; do
     entry $post
