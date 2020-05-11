@@ -599,7 +599,7 @@ far, suitable for my needs.
 <<zig defs>>
 
 if __name__ == '__main__':
-    <<zig main>
+    <<zig main>>
 #+END_SRC
 
 **** Parsing
