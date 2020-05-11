@@ -407,12 +407,14 @@ work, requires that the =ID= or =CUSTOM_ID= property be set.
 
 ** Literate Programming
 *** Weaving
+At the moment, weaving relies on =org-html-export-to-html=. No work has yet been
+done for Latex, and a standalone utility (probably named =zag=) has not been
+created.
+
 Chunk definitions in literate org files exist as named source blocks. Since we
 aim to eventually link initial and continuation chunks together, we need to
 maintain just enough data for the task, i.e., a name and some kind of ID or
-sequence number. Since we also need a way to easily find full
-We only need a small amount of information about each source block, i.e., the
-name and its starting position (or positions, if there are continuation blocks).
+sequence number. 
 
 #+NAME: literate
 #+BEGIN_SRC elisp
@@ -589,12 +591,15 @@ To that end, =zig= provides a lightweight method of tangling from an Org. It
 does not provide all of the functionality of the Emacs method, but it is, so
 far, suitable for my needs.
 
+=zig='s overall structure is
 
 #+NAME: zig
 #+BEGIN_SRC python :tangle bin/zig :shebang "#! /usr/bin/env python3"
 <<zig imports>>
 <<zig defs>>
-<<zig main>>
+
+if __name__ == '__main__':
+    <<zig main>
 #+END_SRC
 
 **** Parsing
@@ -708,10 +713,60 @@ def startswith(prefix):
     return ret
 #+END_SRC
 
+**** Processing
+
+Once we've parsed an Org into a series of blocks and lines
+#+NAME: zig imports
+#+BEGIN_SRC python
+import sys
+#+END_SRC
+
+#+NAME: zig main
+#+BEGIN_SRC python
+xs = doc(list(sys.stdin if not sys.argv[1:] or sys.argv[1] == '-' else open(sys.argv[1])))
+#+END_SRC
+
+we can then process the blocks:
 
 #+NAME: zig imports
 #+BEGIN_SRC python
-import itertools as it
+import os
+#+END_SRC
+
+#+NAME: zig main
+#+BEGIN_SRC python
+if xs:
+    parts, rest = xs
+    assert not rest
+    <<build chunk graph>>
+    <<tangle files>>
+#+END_SRC
+
+#+NAME: build chunk graph
+#+BEGIN_SRC python
+chunks = {}
+start = {}
+for part in parts:
+    if type(part) == dict:
+        try:
+            name, body, filename = dump_block(part)
+        except TypeError: continue
+        assert name or filename
+        name = name if name else filename
+        chunks.setdefault(name, []).extend(body)
+        if filename:
+            start[filename] = name
+            chunks[name].insert(0, shebang(part))
+#+END_SRC
+
+#+NAME: tangle files
+#+BEGIN_SRC python
+for fn, first in start.items():
+    try: os.makedirs(os.path.dirname(fn))
+    except FileExistsError: pass
+    except FileNotFoundError: pass
+    body = ''.join(expand(first, chunks))
+    open(fn, 'w').write(body)
 #+END_SRC
 
 #+NAME: zig defs
@@ -723,6 +778,27 @@ def isref(line):
 def crackref(line):
     return line.strip()[2:-2]
 
+def expand(name, chunks):
+    for line in chunks[name]:
+        if not isref(line):
+            if line.strip().startswith(','):
+                yield line.replace(',', '', 1)
+            else:
+                yield line
+        else:
+            leading = indentation(line)
+            for line2 in expand(crackref(line), chunks):
+                yield leading + line2
+
+#+END_SRC
+
+#+NAME: zig imports
+#+BEGIN_SRC python
+import itertools as it
+#+END_SRC
+
+#+NAME: zig defs
+#+BEGIN_SRC python
 def indentation(s):
     return ''.join(it.takewhile(str.isspace, s))
 
@@ -755,59 +831,17 @@ def shebang(b):
     if '"' in shebang: shebang = shebang.split('"')[1].replace('\\n', '')
     return shebang.strip() + '\n'
 
-def expand(name, chunks):
-    for line in chunks[name]:
-        if not isref(line):
-            if line.strip().startswith(','):
-                yield line.replace(',', '', 1)
-            else:
-                yield line
-        else:
-            leading = indentation(line)
-            for line2 in expand(crackref(line), chunks):
-                yield leading + line2
+
 #+END_SRC
 
-#+NAME: zig imports
-#+BEGIN_SRC python
-import json
-import os
-#+END_SRC
 
-#+NAME: zig imports
-#+BEGIN_SRC python
-import sys
-#+END_SRC
+*** A Tangle Daemon
 
-#+NAME: zig main
-#+BEGIN_SRC python
-xs = doc(list(sys.stdin if not sys.argv[1:] or sys.argv[1] == '-' else open(sys.argv[1])))
-
-if xs:
-    parts, rest = xs
-    assert not rest
-    chunks = {}
-    start = {}
-    for part in parts:
-        if type(part) == dict:
-            try:
-                name, body, filename = dump_block(part)
-            except TypeError: continue
-            assert name or filename
-            name = name if name else filename
-            chunks.setdefault(name, []).extend(body)
-            if filename:
-                start[filename] = name
-                chunks[name].insert(0, shebang(part))
-                
-    for fn, first in start.items():
-        #fn = os.path.join('test', fn)
-        try: os.makedirs(os.path.dirname(fn))
-        except FileExistsError: pass
-        except FileNotFoundError: pass
-        body = ''.join(expand(first, chunks))
-        open(fn, 'w').write(body)
-#+END_SRC
+In a normal programming workflow, one edits a file, saves it, and is ready
+immediately to use it however the language prescribes (e.g., running a Python
+file, or compiling a C file). Adding another step does not make life better, so
+let's eliminate it. =ziggy= monitors an Org, automatically tangling when it
+detects changes.
 
 #+BEGIN_SRC shell :tangle bin/ziggy :shebang "#! /bin/bash\n"
 while true; do
@@ -815,6 +849,7 @@ while true; do
     `dirname $0`/zig $1
 done
 #+END_SRC
+
 * File Listings
 Following are complete file listings, with all chunk references expanded.
 ** default.el
