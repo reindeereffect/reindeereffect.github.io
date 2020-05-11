@@ -574,11 +574,91 @@ the fragment navigation links:
  #+END_SRC
 *** Tangling
 
-#+NAME: bin/zig
-#+BEGIN_SRC python :tangle bin/zig :shebang "#! /usr/bin/env python3" :noweb no
-import sys
+There are two supported methods for extracting source from Org files:
+- the usual C-c C-v t combo
+- a helper utility, =zig=
 
+Tangling via Emacs has a couple problems:
+- It's slow. While writing the article on Sudoku, tangling would routinely take
+  several seconds each time.
+- It ties everything to Emacs. I have no problem with this, but, if I were to
+  collaborate with someone who wishes to use something else, life would become
+  difficult.
+
+To that end, =zig= provides a lightweight method of tangling from an Org. It
+does not provide all of the functionality of the Emacs method, but it is, so
+far, suitable for my needs.
+
+
+#+NAME: zig
+#+BEGIN_SRC python :tangle bin/zig :shebang "#! /usr/bin/env python3"
+<<zig imports>>
+<<zig defs>>
+<<zig main>>
+#+END_SRC
+
+**** Parsing
+An org file can be thought of a series of lines and code blocks, interleaved:
+
+#+NAME: zig defs
+#+BEGIN_SRC python
+def doc(lines):
+    'doc: {named_block | anon_block | LINE}'
+    return rep(alt(named_block, anon_block, LINE))(lines)
+#+END_SRC
+
+where
+
+#+NAME: zig defs
+#+BEGIN_SRC python
+def named_block(lines):
+    'named_block: NAME BEGIN_SRC block_body END_SRC'
+    xs = seq(NAME, BEGIN_SRC, block_body, END_SRC)(lines)
+    if xs:
+        (name, begin, body, end), rest = xs
+        return {'name': name,
+                'begin': begin,
+                'body': body,
+                'end': end}, rest
+
+    
+def anon_block(lines):
+    'anon_block: BEGIN_SRC block_body END_SRC'
+    xs = seq(BEGIN_SRC, block_body, END_SRC)(lines)
+    if xs:
+        (begin, body, end), rest = xs
+        return {'name': None,
+                'begin': begin,
+                'body': body,
+                'end': end}, rest
+
+def LINE(lines):
+    try:
+        if not any(p(lines) for p in (NAME, BEGIN_SRC, END_SRC)):
+            return lines[0], lines[1:]
+    except IndexError: pass
+#+END_SRC
+
+and
+
+#+NAME: zig defs
+#+BEGIN_SRC python
+def NAME(s): return startswith('#+name:')(s)
+def BEGIN_SRC(s): return startswith('#+begin_src')(s)
+def END_SRC(s): return startswith('#+end_src')(s)
+
+def block_body(lines):
+    'block_body: {named_block anon_block LINE}'
+    return rep(alt(named_block, anon_block, LINE))(lines)
+#+END_SRC
+
+The following are utilities for composing recursive descent parsers mirroring
+the EBNF:
+
+#+NAME: zig defs
+#+BEGIN_SRC python
 def seq(*ps):
+    'P0 P1 ...'
     def parse(s):
         acc = []
         for p in ps:
@@ -591,6 +671,7 @@ def seq(*ps):
 
 
 def alt(*ps):
+    'P0 | P1 ...'
     def parse(s):
         for p in ps:
             try:
@@ -601,6 +682,7 @@ def alt(*ps):
 
 
 def rep(p):
+    '{P}'
     def parse(s):
         acc = []
         try:
@@ -610,8 +692,13 @@ def rep(p):
         except TypeError: pass
         return acc, s
     return parse
+#+END_SRC
 
+For our line-oriented parsing approach, the following suffices to create the
+terminal parsers:
 
+#+NAME: zig defs
+#+BEGIN_SRC python
 def startswith(prefix):
     def ret(lines):
         if lines:
@@ -619,57 +706,26 @@ def startswith(prefix):
             if line.strip().lower().startswith(prefix):
                 return line, rest
     return ret
+#+END_SRC
 
 
-NAME = startswith('#+name:')
-BEGIN_SRC = startswith('#+begin_src')
-END_SRC = startswith('#+end_src')
-
-
-def LINE(lines):
-    try:
-        if not any(p(lines) for p in (NAME, BEGIN_SRC, END_SRC)):
-            return lines[0], lines[1:]
-    except IndexError: pass
-
-
-def block_body(lines):
-    return rep(alt(named_block, anon_block, LINE))(lines)
-
-
-def named_block(lines):
-    xs = seq(NAME, BEGIN_SRC, block_body, END_SRC)(lines)
-    if xs:
-        (name, begin, body, end), rest = xs
-        return {'name': name,
-                'begin': begin,
-                'body': body,
-                'end': end}, rest
-
-    
-def anon_block(lines):
-    xs = seq(BEGIN_SRC, block_body, END_SRC)(lines)
-    if xs:
-        (begin, body, end), rest = xs
-        return {'name': None,
-                'begin': begin,
-                'body': body,
-                'end': end}, rest
-
-
-def doc(lines):
-    return rep(alt(named_block, anon_block, LINE))(lines)
-
+#+NAME: zig imports
+#+BEGIN_SRC python
 import itertools as it
-def indentation(s):
-    return ''.join(it.takewhile(str.isspace, s))
+#+END_SRC
 
+#+NAME: zig defs
+#+BEGIN_SRC python
 def isref(line):
     line = line.strip()
-    return line.startswith('<<') and line.endswith('>>')
+    return line.startswith('\x3c<') and line.endswith('>>')
 
 def crackref(line):
     return line.strip()[2:-2]
+
+def indentation(s):
+    return ''.join(it.takewhile(str.isspace, s))
+
 
 def dump_block(b):
     name = b['name'].split(':', 1)[1].strip() if b['name'] else None
@@ -710,10 +766,21 @@ def expand(name, chunks):
             leading = indentation(line)
             for line2 in expand(crackref(line), chunks):
                 yield leading + line2
-            
+#+END_SRC
+
+#+NAME: zig imports
+#+BEGIN_SRC python
 import json
 import os
+#+END_SRC
 
+#+NAME: zig imports
+#+BEGIN_SRC python
+import sys
+#+END_SRC
+
+#+NAME: zig main
+#+BEGIN_SRC python
 xs = doc(list(sys.stdin if not sys.argv[1:] or sys.argv[1] == '-' else open(sys.argv[1])))
 
 if xs:
