@@ -19,6 +19,22 @@ this one's for you.
 #+end_index-entry
 #+begin_index-entry
 	#+begin_pubdate
+		2018-06-24
+	#+end_pubdate
+	#+begin_post-title
+		[[./2018/06/24/index.org][Under the Hood: Regular Expressions]]
+	#+end_post-title
+        #+begin_post-tags
+                [[./tags.org::*automata][automata]] [[./tags.org::*regex][regex]] [[./tags.org::*state-machines][state-machines]] 
+        #+end_post-tags
+	#+begin_abstract
+		Have you ever wondered what the hell it really means when you use a regular
+expression, or why you shouldn't use regexes to parse HTML?  Then read on to
+learn the foundations of how regular expression engines work.
+	#+end_abstract
+#+end_index-entry
+#+begin_index-entry
+	#+begin_pubdate
 		2018-03-08
 	#+end_pubdate
 	#+begin_post-title

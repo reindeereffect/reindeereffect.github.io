@@ -1,0 +1,1584 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-05-16 Sat 19:31 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Under the Hood: Regular Expressions</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Kevin M. Stout" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel='stylesheet' type='text/css' href='/css/syntax.css'>
+	 <link rel='stylesheet' type='text/css' href='/css/main.css'>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div class='site-header'>
+  <a class='site-title' href='/'>R E I N D E E R E F F E C T</a>
+  <div class='nav' style='float:right;'>
+    <a class='page-link' href='/about.html'>About</a>&nbsp;
+    <a class='page-link' href='/links.html'>Links</a>&nbsp;
+    <a class='page-link' href='/tags.html'>Tags</a>
+  </div>
+  <hr style='height:0.5px'>
+</div>
+<div class='post-head'>
+  <div class='post-pubdate'>2018-06-24</div>
+  <h1 class='title'>Under the Hood: Regular Expressions</h1>
+</div>
+</div>
+<div id="content">
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#introduction">1. <a href="#introduction">Introduction</a></a></li>
+<li><a href="#example-1-ipv4-addresses">2. <a href="#example-1-ipv4-addresses">Example 1: IPv4 Addresses</a></a></li>
+<li><a href="#welcome-to-the-finite-state-machine">3. <a href="#welcome-to-the-finite-state-machine">Welcome to the (Finite State) Machine</a></a></li>
+<li><a href="#example-2-losing-prize-strings">4. <a href="#example-2-losing-prize-strings">Example 2: Losing Prize Strings</a></a></li>
+<li><a href="#converting-nfas-to-dfas">5. <a href="#converting-nfas-to-dfas">Converting NFAs to DFAs</a></a></li>
+<li><a href="#dfa-minimization">6. <a href="#dfa-minimization">DFA Minimization</a></a></li>
+<li><a href="#example-1-ipv4-addressesrevisited">7. <a href="#example-1-ipv4-addressesrevisited">Example 1: IPv4 Addresses&#x2014;Revisited</a></a></li>
+<li><a href="#regex-equality">8. <a href="#regex-equality">Regex Equality</a></a></li>
+<li><a href="#the-limits-of-regular-expressions">9. <a href="#the-limits-of-regular-expressions">The Limits of Regular Expressions</a></a></li>
+</ul>
+</div>
+<div class="abstract">
+<p>
+Have you ever wondered what the hell it really means when you use a regular
+expression, or why you shouldn&rsquo;t use regexes to parse HTML?  Then read on to
+learn the foundations of how regular expression engines work.
+</p>
+
+</div>
+
+<p>
+<i>[This post was derived from a <a href="https://github.com/reindeereffect/reindeereffect.github.io/tree/master/production/notebooks/regex.ipynb">Jupyter notebook</a>.]</i>
+</p>
+
+<div id="outline-container-org76000d5" class="outline-2">
+<h2 id="introduction"><a id="org76000d5"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
+<div class="outline-text-2" id="text-introduction">
+<p>
+Not long ago, I responded to a question on building a regular expression to
+handle a pair of cases, and subsequent discussion briefly referenced the limits
+of what can and should be done with regexes. Besides being the perfect excuse to
+trot out perhaps the most famous <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">Stackoverflow answer of all time</a>, it also
+brought my mind back to the post I did earlier this year, <a href="../../../01/20/euler-191">wherein I began the
+solution of a math problem with a regular expression</a>. Given those things, and
+the fact that we as programmers often use and misuse regexes to great effect, it
+pays to take a closer look at what they are, what they can and cannot represent,
+and why.
+</p>
+
+<p>
+Since there is considerable variation in how different regular expression
+engines work, I&rsquo;m actually going to focus on the fundamental theory that
+animates them and, in the process, sketch out how to get from the theory to a
+working regex engine. Along the way, I&rsquo;ll show how it&rsquo;s possible to compare two
+regular expressions for equality, and I&rsquo;ll raise the possibility of an
+interesting compilation target. Finally, I&rsquo;ll wrap up with a discussion of why
+it is that &ldquo;[e]very time you attempt to parse HTML with regular expressions, the
+unholy child weeps the blood of virgins, and Russian hackers pwn your webapp.&rdquo;
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8eb84c4" class="outline-2">
+<h2 id="example-1-ipv4-addresses"><a id="org8eb84c4"></a><span class="section-number-2">2</span> <a href="#example-1-ipv4-addresses">Example 1: IPv4 Addresses</a></h2>
+<div class="outline-text-2" id="text-example-1-ipv4-addresses">
+<p>
+An IP4 address is typically written in dotted quad notation, e.g.,
+192.168.0.1. It&rsquo;s a fairly common occurrence that we might need to break them
+out of otherwise unstructured text, and the typical tool for the job is a
+regular expression. For example, if we only focus on the basic idea of four
+digit groupings separated by periods, without worrying about whether we even
+have a valid IP address, we might try:
+</p>
+
+<pre class="example">
+/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
+</pre>
+
+<p>
+Depending on the flavor of regex syntax available, we might even lean on
+built-in character classes to shorten the expression; however, syntactic sugar
+is entirely beside the point. Instead, I want to focus on a different question:
+When you pound that regex into <code>re.compile</code>, or <code>grep</code>, or anything else, what
+happens?
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2fec576" class="outline-2">
+<h2 id="welcome-to-the-finite-state-machine"><a id="org2fec576"></a><span class="section-number-2">3</span> <a href="#welcome-to-the-finite-state-machine">Welcome to the (Finite State) Machine</a></h2>
+<div class="outline-text-2" id="text-welcome-to-the-finite-state-machine">
+<p>
+Suppose the Python regular expression library did not exist, and suppose you had
+to write a function to test whether a given string is an IP address. How would
+you do it? Most likely, you&rsquo;d start by scanning the string one character at a
+time, keeping track of how many dots you&rsquo;ve encountered and whether the most
+recent character was a digit, as well as immediately failing on any character
+that doesn&rsquo;t belong in an IP address. A possible implementation might look like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">is_ip</span>(s):
+    <span class="org-variable-name">dots</span> = 0
+    <span class="org-variable-name">read_digits</span> = <span class="org-constant">False</span>
+    <span class="org-keyword">for</span> c <span class="org-keyword">in</span> s:
+        <span class="org-keyword">if</span> read_digits <span class="org-keyword">and</span> c == <span class="org-string">'.'</span>:
+            <span class="org-variable-name">dots</span> += 1
+            <span class="org-variable-name">read_digits</span> = <span class="org-constant">False</span>
+            <span class="org-keyword">if</span> dots &gt; 3: <span class="org-keyword">return</span> <span class="org-constant">False</span>
+        <span class="org-keyword">elif</span> c.isdigit(): <span class="org-variable-name">read_digits</span> = <span class="org-constant">True</span>
+        <span class="org-keyword">else</span>: <span class="org-keyword">return</span> <span class="org-constant">False</span>
+    <span class="org-keyword">return</span> dots == 3 <span class="org-keyword">and</span> read_digits</pre>
+</div>
+
+<p>
+With only a smattering of cleverness, this works. All we had to do was
+track a couple bits of state and, depending on the current state and the
+character we&rsquo;re processing, decide how to change the state in response,
+immediately failing when we observe anything out of place in an IP
+address. Denoting the state by pairs <code>(dots, read_digits)</code>, we can
+explicate the state transitions as follows:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">State</th>
+<th scope="col" class="org-left">0-9</th>
+<th scope="col" class="org-left">.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">0, False</td>
+<td class="org-left">0, True</td>
+<td class="org-left">fail</td>
+</tr>
+
+<tr>
+<td class="org-left">0, True</td>
+<td class="org-left">0, True</td>
+<td class="org-left">1, False</td>
+</tr>
+
+<tr>
+<td class="org-left">1, False</td>
+<td class="org-left">1, True</td>
+<td class="org-left">fail</td>
+</tr>
+
+<tr>
+<td class="org-left">1, True</td>
+<td class="org-left">1, True</td>
+<td class="org-left">2, False</td>
+</tr>
+
+<tr>
+<td class="org-left">2, False</td>
+<td class="org-left">2, True</td>
+<td class="org-left">fail</td>
+</tr>
+
+<tr>
+<td class="org-left">2, True</td>
+<td class="org-left">2, True</td>
+<td class="org-left">3, False</td>
+</tr>
+
+<tr>
+<td class="org-left">3, False</td>
+<td class="org-left">3, True</td>
+<td class="org-left">fail</td>
+</tr>
+
+<tr>
+<td class="org-left">3, True</td>
+<td class="org-left">3, True</td>
+<td class="org-left">fail</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Or, for the graphically inclined, and omitting the transitions to the
+failure state:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_4_0.png" alt="2018-06-24-regex_4_0.png" />
+</p>
+</div>
+
+<p>
+What we now have are two different representations of a finite state
+machine; more specifically, since our state machine features at most one
+transition from any given state on a given input (i.e., the transition
+for a given state on a given input is <i>uniquely determined</i>), it is a
+deterministic finite automaton (DFA). It is no accident that we began
+with a regular expression and reasoned our way to a DFA, for it is a
+fundamental result in the theory of computation that regular expressions
+and DFAs are equivalent.
+</p>
+
+<p>
+Since DFAs are useful conceptual tools, let&rsquo;s come up with a way to
+express them in code succinctly. In much more formal discussions of
+DFAs, they&rsquo;re specified by the tuples
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_6_0.png" alt="2018-06-24-regex_6_0.png" />
+</p>
+</div>
+
+<p>
+where <i>Q</i> is a set of states; <i>q/0 ∈ /Q</i> is the starting state; <i>F</i> ⊆ <i>Q</i> is the
+set of <i>accepting</i> states; Σ is the set of valid input symbols; and δ is the
+transition function, mapping initial state/input symbol pairs to next states
+(or, to be more mathematical, δ: <i>Q</i> × Σ → <i>Q</i>).
+</p>
+
+<p>
+While we certainly need to be careful in how we specify DFAs in code, we can, as
+a practical matter, trim back what needs to be explicitly specified. For
+example, we can infer both Σ and <i>Q</i> from δ whenever we need them. We can also
+omit from δ any transitions that would place the DFA into a failing state with
+no hope of recovery (also called a <i>trap state</i>). With these things in mind,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">dfa</span>:
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, start, accepts, delta):
+        <span class="org-doc">'''</span>
+<span class="org-doc">        Initialize a new DFA.</span>
+<span class="org-doc">        q_0 -&gt; start</span>
+<span class="org-doc">        F -&gt; accepts</span>
+<span class="org-doc">        transition function -&gt; delta</span>
+<span class="org-doc">        '''</span>
+        <span class="org-keyword">self</span>.start = start
+        <span class="org-keyword">self</span>.accepts = <span class="org-builtin">set</span>(accepts)
+        <span class="org-keyword">self</span>.delta = delta
+
+    <span class="org-keyword">def</span> <span class="org-function-name">step</span>(<span class="org-keyword">self</span>, state, x):
+        <span class="org-doc">''' </span>
+<span class="org-doc">        Evaluate the state transition function, self.delta, for  (state, x).</span>
+<span class="org-doc">        '''</span>
+        <span class="org-keyword">return</span> <span class="org-keyword">self</span>.delta[state][x]
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, xs):
+        <span class="org-doc">'''</span>
+<span class="org-doc">        Starting in state self.start, determine whether input  sequence xs will </span>
+<span class="org-doc">        place the DFA in an accepting state.</span>
+<span class="org-doc">        '''</span>
+        <span class="org-variable-name">state</span> = <span class="org-keyword">self</span>.start
+        <span class="org-keyword">for</span> x <span class="org-keyword">in</span> xs:
+            <span class="org-keyword">try</span>: <span class="org-variable-name">state</span> = <span class="org-keyword">self</span>.step(state, x)
+            <span class="org-keyword">except</span> <span class="org-type">KeyError</span>: <span class="org-keyword">return</span> <span class="org-constant">False</span>
+        <span class="org-keyword">return</span> state <span class="org-keyword">in</span> <span class="org-keyword">self</span>.accepts</pre>
+</div>
+
+<p>
+Next, we&rsquo;ll create a couple utilities to stand in for character classes:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter"># </span><span class="org-comment">the idea here is to generate sequences of (symbol, next_state) pairs that can </span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">then be composed, converted to dictionaries, and grafted into a delta </span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">specification</span>
+
+<span class="org-keyword">def</span> <span class="org-function-name">charclass</span>(cs_): 
+    <span class="org-variable-name">cs</span> = <span class="org-builtin">set</span>(cs_)
+    <span class="org-keyword">return</span> <span class="org-keyword">lambda</span> to: [(c, to) <span class="org-keyword">for</span> c <span class="org-keyword">in</span> cs]
+
+<span class="org-variable-name">digits</span> = charclass(<span class="org-builtin">str</span>(i) <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(10))
+<span class="org-variable-name">dot_</span> = <span class="org-keyword">lambda</span> to: [(<span class="org-string">'.'</span>, to)]</pre>
+</div>
+
+<p>
+And now, we can specify a DFA that recognizes IP addresses, like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">is_ip</span> = dfa(
+    <span class="org-string">"0 f"</span>,
+    [<span class="org-string">"3 t"</span>],
+    {
+        <span class="org-string">'0 f'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'0 t'</span>)),
+        <span class="org-string">'0 t'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'0 t'</span>) + dot_(<span class="org-string">'1 f'</span>)),
+        <span class="org-string">'1 f'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'1 t'</span>)),
+        <span class="org-string">'1 t'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'1 t'</span>) + dot_(<span class="org-string">'2 f'</span>)),
+        <span class="org-string">'2 f'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'2 t'</span>)),
+        <span class="org-string">'2 t'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'2 t'</span>) + dot_(<span class="org-string">'3 f'</span>)),
+        <span class="org-string">'3 f'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'3 t'</span>)),
+        <span class="org-string">'3 t'</span>: <span class="org-builtin">dict</span>(digits(<span class="org-string">'3 t'</span>))
+    }
+)</pre>
+</div>
+
+<p>
+Which responds as expected to various test inputs:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">for</span> s <span class="org-keyword">in</span> (<span class="org-string">'127.0.0.1'</span>, 
+          <span class="org-string">'1.2.3'</span>, 
+          <span class="org-string">'255.255.256.255'</span>, <span class="org-comment-delimiter"># </span><span class="org-comment">invalid, but still fits our pattern</span>
+          <span class="org-string">'10.0.zero.1'</span>): 
+    <span class="org-keyword">print</span>(<span class="org-string">"%-16s"</span> % s, is_ip(s))</pre>
+</div>
+
+<pre class="example">
+127.0.0.1        True
+1.2.3            False
+255.255.256.255  True
+10.0.zero.1      False
+</pre>
+
+<p>
+Keep in mind that our search pattern is technically underspecified, which is why
+our DFA is saying that 255.255.256.255 is a valid address.  We know it isn&rsquo;t,
+but we don&rsquo;t yet have good tools for creating a state machine that does the
+right thing. Until we do, let&rsquo;s shift gears to a different problem.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org17b023f" class="outline-2">
+<h2 id="example-2-losing-prize-strings"><a id="org17b023f"></a><span class="section-number-2">4</span> <a href="#example-2-losing-prize-strings">Example 2: Losing Prize Strings</a></h2>
+<div class="outline-text-2" id="text-example-2-losing-prize-strings">
+<p>
+In <a href="../../../01/20/euler-191">an earlier post</a> I began the solution to a problem, <a href="https://projecteuler.net/problem=191">counting winning prize
+strings from a school attendance contest</a>, by expressing its complement, i.e.,
+describing all losing prize strings. The regular expression I used (over an
+input alphabet of {O, L, A}) was
+</p>
+
+<pre class="example">
+/^.*AAA.*$|^.*L.*L.*$/
+</pre>
+
+<p>
+and the DFA that I crafted based on it was
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_17_0.png" alt="2018-06-24-regex_17_0.png" />
+</p>
+</div>
+
+<p>
+The reasoning behind this DFA is pretty simple:
+</p>
+
+<ul class="org-ul">
+<li>A losing sequence will contain:
+
+<ul class="org-ul">
+<li>at least two late arrivals (L); or,</li>
+<li>three consecutive absences (A).</li>
+</ul></li>
+
+<li>Given the rule of lateness, I was able to partition the machine into two major
+stages, with state transitioning from the first major stage to the second on
+encountering the first &rsquo;L&rsquo;, and from the second to the accepting state (i.e,
+losing) on the second &rsquo;L&rsquo;.</li>
+
+<li>Given the rule of absences, in each major stage, I had to keep watch for three
+consecutive &rsquo;A&rsquo;s, transitioning straight to the accepting state whenever that
+condition was met.</li>
+</ul>
+
+<p>
+This artisanal DFA allowed me to do what I needed to do, but, had the rules of
+the game been more complicated, requiring a more complicated regex, crafting the
+transition function myself would hardly have been a picnic. Luckily, we have
+these fantastic devices that do precisely as they&rsquo;re told.
+</p>
+
+<p>
+Unfortunately, a process requiring even a little cleverness is hardly suitable
+for automation, and designing with DFAs requires entirely too much cleverness:
+To manually construct a DFA that can handle multiple choices, as the above does,
+we have to figure out how to accomodate a set of possibilities until we have
+enough information to make a decision. Depending on the regular expression, we
+could easily require a huge number of states fitted together in ways that aren&rsquo;t
+necessarily obvious. As a way out of this madness, let&rsquo;s add some design
+options:
+</p>
+
+<ul class="org-ul">
+<li>We&rsquo;ll relax the requirement that each state transition be uniquely
+determined. Instead, we&rsquo;ll allow the machine to exist in set of states, and,
+for each input symbol/initial state pairing, we&rsquo;ll allow a set of possible
+next states; and,</li>
+<li>We&rsquo;ll allow transitions between states triggered by an imaginary symbol called
+ε, which represents an empty string. We&rsquo;ll use this as a method for changing
+the behavior of a state machine (e.g., adding repetition) or combining state
+machines merely by adding dummy states and ε-transitions. (Some texts on this
+subject use λ, but we&rsquo;re working in Python, and <code>lambda</code> is a Python keyword.)</li>
+</ul>
+
+<p>
+Either one of these is sufficient to introduce nondeterminism to our state
+machines, resulting in nondeterministic finite automata (NFAs), which are a bit
+easier to create and compose mechanically. We can instantiate and interpret NFAs
+in a manner similar to DFAs:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">epsilon_closure</span>(state, delta):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    From an initial state, identify all states reachable by epsilon  transitions </span>
+<span class="org-doc">    alone.</span>
+<span class="org-doc">    '''</span>
+    <span class="org-variable-name">old</span>, <span class="org-variable-name">new</span> = 0, <span class="org-builtin">len</span>(state)
+    <span class="org-variable-name">visited</span> = <span class="org-builtin">set</span>()
+    <span class="org-keyword">while</span> new &gt; old:
+        <span class="org-keyword">for</span> substate <span class="org-keyword">in</span> <span class="org-builtin">set</span>(state):
+            <span class="org-keyword">if</span> substate <span class="org-keyword">in</span> visited: <span class="org-keyword">continue</span>
+            visited.add(substate)
+            <span class="org-variable-name">state</span> |= delta.get(substate, {}).get(<span class="org-constant">None</span>, <span class="org-builtin">set</span>())
+        <span class="org-variable-name">old</span>, <span class="org-variable-name">new</span> = new, <span class="org-builtin">len</span>(state)
+
+<span class="org-keyword">class</span> <span class="org-type">nfa</span>:
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, start, accepts, delta):
+        <span class="org-keyword">self</span>.start = start
+        <span class="org-keyword">self</span>.accepts = <span class="org-builtin">set</span>(accepts)
+        <span class="org-keyword">self</span>.delta = delta
+
+    <span class="org-keyword">def</span> <span class="org-function-name">step</span>(<span class="org-keyword">self</span>, state, x):
+        <span class="org-variable-name">state_</span> = <span class="org-builtin">set</span>()
+        <span class="org-keyword">for</span> substate <span class="org-keyword">in</span> epsilon_closure(state, <span class="org-keyword">self</span>.delta):
+            <span class="org-variable-name">state_</span> |= <span class="org-builtin">set</span>(<span class="org-keyword">self</span>.delta.get(substate, {}).get(x, <span class="org-builtin">set</span>()))
+        <span class="org-keyword">return</span> epsilon_closure(state_, <span class="org-keyword">self</span>.delta)
+
+<span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, xs):
+        <span class="org-variable-name">state</span> = epsilon_closure(<span class="org-builtin">set</span>((<span class="org-keyword">self</span>.start,)), <span class="org-keyword">self</span>.delta)
+        <span class="org-keyword">for</span> x <span class="org-keyword">in</span> xs: <span class="org-variable-name">state</span> = <span class="org-keyword">self</span>.step(state, x)
+        <span class="org-keyword">return</span> state &amp; <span class="org-keyword">self</span>.accepts &gt; <span class="org-builtin">set</span>()</pre>
+</div>
+
+<p>
+Note that the <code>delta</code> is evaluated over a set of possibilities, resulting in a
+new set of possibilities. Note also the calls to <code>epsilon_closure</code>, which
+iteratively evaluates all of the ε transitions from a given state.
+</p>
+
+<p>
+With the flexibility of nondeterminism, we can think about how to systematically
+compose automata for various patterns into automata for larger patterns. Suppose
+we have the expression <code>/a/</code>; the NFA for it looks like:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_21_0.png" alt="2018-06-24-regex_21_0.png" />
+</p>
+</div>
+
+<p>
+The NFA for <code>/b/</code> would look much alike. Now, let&rsquo;s think about <code>/ab/</code>.  We&rsquo;ll
+start with NFAs for the individual components:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_23_0.png" alt="2018-06-24-regex_23_0.png" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_23_1.png" alt="2018-06-24-regex_23_1.png" />
+</p>
+</div>
+
+<p>
+Next, we&rsquo;ll introduce new start and accept states:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_25_0.png" alt="2018-06-24-regex_25_0.png" />
+</p>
+</div>
+
+<p>
+Tying those new states into the existing NFAs with ε-transitions, we get:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_27_0.png" alt="2018-06-24-regex_27_0.png" />
+</p>
+</div>
+
+<p>
+Finally, connecting the components with an ε-transition gives the finished
+result:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_29_0.png" alt="2018-06-24-regex_29_0.png" />
+</p>
+</div>
+
+<p>
+We can work in a similar manner for <code>/a|b/</code>:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_31_0.png" alt="2018-06-24-regex_31_0.png" />
+</p>
+</div>
+
+<p>
+And for <code>/a*/</code>:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_33_0.png" alt="2018-06-24-regex_33_0.png" />
+</p>
+</div>
+
+<p>
+Accomodating <code>/a+/</code> isn&rsquo;t necessary, since we can get there with <code>/aa*/</code>, but
+it&rsquo;s convenient to have and easy to do:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_35_0.png" alt="2018-06-24-regex_35_0.png" />
+</p>
+</div>
+
+<p>
+Based on these transformations, let&rsquo;s craft some tools to manage creating and
+composing NFAs. First, we&rsquo;ll need to add some utilities to <code>nfa</code> to keep us from
+directly manipulating the dictionary that implements its <code>delta</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">nfa</span>:
+
+    ...
+
+    <span class="org-keyword">def</span> <span class="org-function-name">add_transition</span>(<span class="org-keyword">self</span>, src, sym, *dests):
+        <span class="org-keyword">for</span> dest <span class="org-keyword">in</span> dests:
+            <span class="org-keyword">self</span>.delta.setdefault(src, {}).setdefault(sym, <span class="org-builtin">set</span>()).add(dest)
+
+<span class="org-keyword">def</span> <span class="org-function-name">add_delta</span>(<span class="org-keyword">self</span>, other):
+        <span class="org-variable-name">delta</span> = other.delta
+        <span class="org-keyword">for</span> src <span class="org-keyword">in</span> delta:
+            <span class="org-keyword">for</span> sym <span class="org-keyword">in</span> delta[src]: 
+                <span class="org-keyword">self</span>.add_transition(src, sym, *delta[src][sym])
+        <span class="org-keyword">return</span> <span class="org-keyword">self</span></pre>
+</div>
+
+<p>
+Now we can construct a wrapper to actually do the NFA composition. For
+converting regexes to Python expressions, we&rsquo;ll change the regex notation just a
+little bit, in the following ways:
+</p>
+
+<ul class="org-ul">
+<li>For concatenation, we&rsquo;ll overload multiplication. Thus, <code>/ab/</code> will be written
+as <code>a * b</code>.</li>
+<li>Rather than use the pipe character (<code>|</code>) to represent alternatives, we&rsquo;ll use
+the plus sign (<code>+</code>); so, <code>/a|b/</code> will be written as <code>a + b</code>.</li>
+<li>For ε-transitions, we&rsquo;ll use <code>None</code> as our input symbol.</li>
+<li>We&rsquo;ll provide methods <code>plus</code> and <code>star</code> for their respective operations.</li>
+</ul>
+
+<p>
+And Python gives us parenthesized expressions for free. By the way, I selected
+these changes of notation for two reasons:
+</p>
+
+<ul class="org-ul">
+<li>I had to make a decision about how to co-opt Python&rsquo;s operators to represent
+regex concatenation, since implying concatenation by juxtaposition only works
+for string literals; and,</li>
+<li>Using <code>*</code> and <code>+</code> for concatenation and alternation, respectively, puts us
+closer to the notation used in most formal treatments of regular expressions,
+finite automata, and regular languages.</li>
+</ul>
+
+<p>
+The wrapper code is as follows:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter">## </span><span class="org-comment">why Python provides sum but not product is a great mystery</span>
+<span class="org-keyword">def</span> <span class="org-function-name">product</span>(xs, start=1):
+    <span class="org-doc">'''Return the product of a sequence of items and `start`.'''</span>
+    <span class="org-keyword">for</span> x <span class="org-keyword">in</span> xs: <span class="org-variable-name">start</span> *= x
+    <span class="org-keyword">return</span> start
+
+<span class="org-keyword">class</span> <span class="org-type">RE</span>:
+    <span class="org-doc">'''</span>
+<span class="org-doc">    Wrapper for NFAs, allowing us to combine NFAs recognizing simple regexes </span>
+<span class="org-doc">    into NFAs recognizing more complex regexes.</span>
+<span class="org-doc">    '''</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Each machine gets a unique identifier on creation, which is used for </span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">naming nodes.This tactic simplifies adding transitions from other </span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">machines.</span>
+
+    <span class="org-variable-name">RE_id</span> = 0 <span class="org-comment-delimiter"># </span><span class="org-comment">next machine id</span>
+    <span class="org-keyword">def</span> <span class="org-function-name">node</span>(<span class="org-keyword">self</span>, i): <span class="org-keyword">return</span> <span class="org-string">'q_%s_%s'</span> % (<span class="org-keyword">self</span>.<span class="org-builtin">id</span>, i)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, c=<span class="org-constant">None</span>):
+        <span class="org-doc">'''Create a NFA recognizing a single item /c/.'''</span>
+        <span class="org-keyword">self</span>.<span class="org-builtin">id</span> = RE.RE_id
+        <span class="org-variable-name">RE.RE_id</span> += 1
+
+        <span class="org-keyword">self</span>.c = c
+        <span class="org-keyword">self</span>.start = <span class="org-keyword">self</span>.node(0)
+        <span class="org-keyword">self</span>.accept = <span class="org-keyword">self</span>.node(1)
+        <span class="org-keyword">self</span>.m = nfa(<span class="org-keyword">self</span>.start, [<span class="org-keyword">self</span>.accept], {})
+
+        <span class="org-keyword">if</span> c == <span class="org-constant">None</span>: <span class="org-keyword">self</span>.m.delta = {}
+        <span class="org-keyword">else</span>:
+            <span class="org-keyword">self</span>.m.add_transition(<span class="org-keyword">self</span>.start,
+                                 <span class="org-constant">None</span> <span class="org-keyword">if</span> c == <span class="org-string">''</span> <span class="org-keyword">else</span> c,
+                                 <span class="org-keyword">self</span>.accept)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">from_string</span>(s):
+        <span class="org-doc">'''Create a NFA matching a sequence of items /s/.'''</span>
+        <span class="org-keyword">return</span> product(<span class="org-builtin">map</span>(RE, s), RE(<span class="org-string">''</span>))
+
+    <span class="org-keyword">def</span> <span class="org-function-name">from_alts</span>(xs):
+        <span class="org-doc">'''Create a NFA matching any of a set of items.'''</span>
+        <span class="org-keyword">return</span> <span class="org-builtin">sum</span>(<span class="org-builtin">map</span>(RE, xs[1:]), RE(xs[0]))
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, xs): 
+        <span class="org-doc">'''Run the underlying NFA on the sequence `xs`.'''</span>
+        <span class="org-keyword">return</span> <span class="org-keyword">self</span>.m(xs)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">with_deltas</span>(<span class="org-keyword">self</span>, other):
+        <span class="org-doc">'''</span>
+<span class="org-doc">        new.m.step(q0, s) = self.m.step(q0, s) | other.m.step(q0, s)</span>
+<span class="org-doc">        '''</span>
+        <span class="org-variable-name">new</span> = <span class="org-keyword">self</span>.__class__()
+        new.m.add_delta(<span class="org-keyword">self</span>.m)
+        new.m.add_delta(other.m)
+        <span class="org-keyword">return</span> new
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__mul__</span>(<span class="org-keyword">self</span>, other):
+        <span class="org-doc">'''Concatenate self and other: /ab/'''</span>
+        <span class="org-variable-name">new</span> = <span class="org-keyword">self</span>.with_deltas(other)
+        new.m.add_transition(new.start,    <span class="org-constant">None</span>, <span class="org-keyword">self</span>.start)
+        new.m.add_transition(<span class="org-keyword">self</span>.accept,  <span class="org-constant">None</span>, other.start)
+        new.m.add_transition(other.accept, <span class="org-constant">None</span>, new.accept)
+        <span class="org-keyword">return</span> new
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__add__</span>(<span class="org-keyword">self</span>, other):
+        <span class="org-doc">'''Alternation: /a|b/'''</span>
+        <span class="org-variable-name">new</span> = <span class="org-keyword">self</span>.with_deltas(other)
+        new.m.add_transition(new.start,    <span class="org-constant">None</span>, <span class="org-keyword">self</span>.start, other.start)
+        new.m.add_transition(<span class="org-keyword">self</span>.accept,  <span class="org-constant">None</span>, new.accept)
+        new.m.add_transition(other.accept, <span class="org-constant">None</span>, new.accept)
+        <span class="org-keyword">return</span> new
+
+    <span class="org-keyword">def</span> <span class="org-function-name">star</span>(<span class="org-keyword">self</span>):
+        <span class="org-doc">'''Kleene star: /a*/'''</span>
+        <span class="org-variable-name">new</span> = <span class="org-keyword">self</span>.plus()
+        new.m.add_transition(new.start, <span class="org-constant">None</span>, new.accept)
+        <span class="org-keyword">return</span> new
+
+    <span class="org-keyword">def</span> <span class="org-function-name">plus</span>(<span class="org-keyword">self</span>):
+        <span class="org-doc">'''At least one: /a+/'''</span>
+        <span class="org-variable-name">new</span> = <span class="org-keyword">self</span>.with_deltas(<span class="org-keyword">self</span>)
+        new.m.add_transition(new.start,   <span class="org-constant">None</span>, <span class="org-keyword">self</span>.start)
+        new.m.add_transition(<span class="org-keyword">self</span>.accept, <span class="org-constant">None</span>, new.accept)
+        new.m.add_transition(new.accept,  <span class="org-constant">None</span>, new.start)
+        <span class="org-keyword">return</span> new</pre>
+</div>
+
+<p>
+Returning to the example of losing prize strings, let&rsquo;s first define a few
+conveniences:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">ola</span> = <span class="org-keyword">lambda</span>: RE.from_alts(<span class="org-string">'OLA'</span>)
+<span class="org-variable-name">a</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'A'</span>)
+<span class="org-variable-name">l</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'L'</span>)</pre>
+</div>
+
+<p>
+Now we can express the two major ways to lose:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">aaa</span> = ola().star() * a() * a() * a() * ola().star()</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_44_0.png" alt="2018-06-24-regex_44_0.png" />
+</p>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">ll</span> = ola().star() * l() * ola().star() * l() * ola().star()</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_46_0.png" alt="2018-06-24-regex_46_0.png" />
+</p>
+</div>
+
+<p>
+Putting them together, we have,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">loss</span> = aaa + ll</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_49_0.png" alt="2018-06-24-regex_49_0.png" />
+</p>
+</div>
+
+<p>
+Which, of course, looks nothing at all like the artisanal DFA from
+before. Although it looks quite different, it really does recognize precisely
+the same set of strings, i.e., the set of all strings resulting in a loss
+according to the rules of the contest. To prove it, though, we&rsquo;ll have to clear
+a couple of hurdles.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org08e3b0e" class="outline-2">
+<h2 id="converting-nfas-to-dfas"><a id="org08e3b0e"></a><span class="section-number-2">5</span> <a href="#converting-nfas-to-dfas">Converting NFAs to DFAs</a></h2>
+<div class="outline-text-2" id="text-converting-nfas-to-dfas">
+<p>
+Though there&rsquo;s quite a difference in both the appearance and interpretation of
+DFAs and NFAs, are they fundamentally different? More to the point, is there
+anything an NFA can do that some DFA cannot? It turns out that the answer is no,
+and the reason is hinted at in the NFA <code>__call__</code> method, in the use of the
+terms <i>state</i> and <i>substate</i>. The <code>delta</code> is not regarded as a state transition
+function, but rather as a substate transition function; the NFA state is
+actually a set of substates, each varying independently from the others
+according to <code>delta</code> and the input. Whenever one of the substates is among the
+<code>accepts</code>, the entire NFA is regarded to be in an accepting state. From this
+interpretation, we can arrive at a couple of conclusions:
+</p>
+
+<ul class="org-ul">
+<li>Because the number of substates is finite, the number of states is also finite
+(it&rsquo;s bounded by the magnitude of the powerset of substates); and,</li>
+<li>Because the state response to an input is the union of the substate responses
+(ε-closures included), we can show that there will be one overall state
+transition for each input and initial state pairing&#x2014;i.e., the overall state
+transition for each input is uniquely determined.</li>
+</ul>
+
+<p>
+From these, it isn&rsquo;t hard to see that the NFA is really nothing more than a
+highly compressed representation of a (potentially much larger) DFA. Given that,
+there must exist at least one DFA for any given NFA, which means that there can
+be no fundamental difference in power between NFAs and DFAs as computational
+models. Now to put this into practice.
+</p>
+
+<p>
+The algorithm for converting an NFA to a DFA is based on that of finding the
+transitive closure of a graph from a particular node. In this case, the initial
+node is a starting state {<i>q0</i>}, the edges are state transitions, and the other
+nodes are the reachable states.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">names</span>():
+    <span class="org-doc">'''Provide a convenient way to rename things to integer identifiers.'''</span>
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>): <span class="org-keyword">self</span>.name = {}
+    <span class="org-keyword">def</span> <span class="org-function-name">__getitem__</span>(<span class="org-keyword">self</span>, x): <span class="org-keyword">return</span> <span class="org-keyword">self</span>.name.setdefault(x, <span class="org-builtin">len</span>(<span class="org-keyword">self</span>.name))
+
+<span class="org-variable-name">tuple2</span> = <span class="org-keyword">lambda</span> xs: <span class="org-builtin">tuple</span>(<span class="org-builtin">sorted</span>(<span class="org-builtin">set</span>(xs))) <span class="org-comment-delimiter"># </span><span class="org-comment">leave nothing to chance</span>
+<span class="org-variable-name">entuple</span> = <span class="org-keyword">lambda</span> x: <span class="org-builtin">tuple</span>((x,))
+
+<span class="org-keyword">def</span> <span class="org-function-name">nfa_to_dfa</span>(N):
+    <span class="org-comment-delimiter"># </span><span class="org-comment">compute the alphabet of the language that N recognizes from its delta</span>
+    <span class="org-variable-name">sigma</span> = <span class="org-builtin">set</span>(<span class="org-builtin">sum</span>((<span class="org-builtin">list</span>(vs) <span class="org-keyword">for</span> vs <span class="org-keyword">in</span> N.delta.values()), []))
+    sigma.remove(<span class="org-constant">None</span>)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">the renamer; not entirely necessary, but it's nice to keep state names small</span>
+    <span class="org-variable-name">name</span> = names()
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">initialize the queue, define a couple conveniences to keep the logic clear</span>
+    <span class="org-variable-name">q0</span> = entuple(N.start)
+    <span class="org-variable-name">queue</span> = [q0]
+    <span class="org-variable-name">enqueue</span> = queue.append
+    <span class="org-variable-name">dequeue</span> = <span class="org-keyword">lambda</span>: queue.pop(0)
+
+    <span class="org-variable-name">visited</span> = <span class="org-builtin">set</span>()
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">we'll build these as we go</span>
+    <span class="org-variable-name">delta</span> = {}
+    <span class="org-variable-name">accepts</span> = <span class="org-builtin">set</span>()
+
+    <span class="org-keyword">while</span> queue:
+        <span class="org-variable-name">q</span> = dequeue()
+        <span class="org-keyword">if</span> q <span class="org-keyword">in</span> visited: <span class="org-keyword">continue</span>
+        visited.add(q)
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">q is accepting if any of its substates is accepting</span>
+        <span class="org-keyword">if</span> <span class="org-builtin">set</span>(q) &amp; N.accepts: accepts.add(name[q])
+
+        <span class="org-keyword">for</span> symbol <span class="org-keyword">in</span> sigma:
+            <span class="org-variable-name">q_next</span> = tuple2(N.step(<span class="org-builtin">set</span>(q), symbol))
+            enqueue(tuple2(q_next))
+            delta.setdefault(name[q], {})[symbol] = name[q_next]
+
+    <span class="org-keyword">return</span> dfa(name[q0], accepts, delta)</pre>
+</div>
+
+<p>
+Turning this on the NFA for recognizing losers, we get:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">loss_d</span> = nfa_to_dfa(loss.m)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_55_0.png" alt="2018-06-24-regex_55_0.png" />
+</p>
+</div>
+
+<p>
+This still looks quite different from the original DFA that I produced, but, if
+you squint, you can begin to make out some high-level commonalities, right up to
+the profusion of accepting states. Is it possible that there are redundancies in
+this DFA? What if we could remove them? Automatically?
+</p>
+</div>
+</div>
+
+<div id="outline-container-org025ba5c" class="outline-2">
+<h2 id="dfa-minimization"><a id="org025ba5c"></a><span class="section-number-2">6</span> <a href="#dfa-minimization">DFA Minimization</a></h2>
+<div class="outline-text-2" id="text-dfa-minimization">
+<p>
+The key to minimizing a DFA is the idea of indistinguishable states.  Suppose we
+start at state <i>q</i>, and we apply every possible sequence of inputs; for each
+input, we would land in either an accepting or non-accepting state. Let&rsquo;s call
+this association between input sequences and acceptance the subsequent response
+for state <i>q</i>. Suppose we do this also for state <i>p</i>. If the subsequent
+responses for states <i>p</i> and <i>q</i> are the same, then they are indistinguishable
+from one another; likewise, if they differ at all, even for the empty string ε
+(i.e., one is accepting and the other isn&rsquo;t), then they are
+distinguishable. Using this idea, we can partition the states of a DFA into
+<i>equivalence classes</i>, where each state in a given equivalence class is
+indistinguishable from the others. That done, we can merge all the states in
+each class, with each transition to a constituent state being replaced by a
+transition to the new merged state.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">from</span> itertools <span class="org-keyword">import</span> combinations
+
+<span class="org-keyword">def</span> <span class="org-function-name">pairs</span>(xs): <span class="org-keyword">return</span> combinations(xs, 2)
+
+<span class="org-keyword">class</span> <span class="org-type">guarded_memoize</span>:
+    <span class="org-doc">'''</span>
+<span class="org-doc">    Memoize a function, initializing each new entry with a guard value before </span>
+<span class="org-doc">    calling the function f; this tactic avoids infinite recursion.</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, f, guard=<span class="org-constant">False</span>):
+        <span class="org-keyword">self</span>.f = f
+        <span class="org-keyword">self</span>.cache = {}
+        <span class="org-keyword">self</span>.guard = guard
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, *a, **kw):
+        <span class="org-variable-name">key</span> = <span class="org-string">'%s %s'</span> % (a, kw)
+        <span class="org-keyword">if</span> key <span class="org-keyword">not</span> <span class="org-keyword">in</span> <span class="org-keyword">self</span>.cache:
+            <span class="org-keyword">self</span>.cache[key] = <span class="org-keyword">self</span>.guard
+            <span class="org-keyword">self</span>.cache[key] = <span class="org-keyword">self</span>.f(*a, **kw)
+        <span class="org-keyword">return</span> <span class="org-keyword">self</span>.cache[key]
+
+<span class="org-type">@guarded_memoize</span>
+<span class="org-keyword">def</span> <span class="org-function-name">dist</span>(p, q, m):
+    <span class="org-doc">'''Determine whether two states p and q are distinguishable.'''</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">two states are distinguishable if one is accepting and the other isn't</span>
+    <span class="org-keyword">if</span> (p <span class="org-keyword">in</span> m.accepts) != (q <span class="org-keyword">in</span> m.accepts): <span class="org-keyword">return</span> <span class="org-constant">True</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">or if there is a sequence of inputs that leads them to distinguishable</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">states</span>
+    <span class="org-variable-name">sigma</span> = <span class="org-builtin">set</span>(m.delta[p]) | <span class="org-builtin">set</span>(m.delta[q])
+    <span class="org-keyword">return</span> <span class="org-builtin">any</span>(dist(m.delta[p][s], m.delta[q][s], m) <span class="org-keyword">for</span> s <span class="org-keyword">in</span> sigma)
+
+<span class="org-keyword">def</span> <span class="org-function-name">equivs</span>(m):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    Compute a renaming of states in m such that equivalent states will be </span>
+<span class="org-doc">    renamed equivalently.</span>
+<span class="org-doc">    '''</span>
+    <span class="org-variable-name">states</span> = <span class="org-builtin">set</span>(m.delta)
+    <span class="org-keyword">for</span> q <span class="org-keyword">in</span> m.delta: <span class="org-variable-name">states</span> |= <span class="org-builtin">set</span>(m.delta[q].values())
+    <span class="org-variable-name">indis</span> = {(p,q) <span class="org-keyword">for</span> (p,q) <span class="org-keyword">in</span> pairs(states) <span class="org-keyword">if</span> <span class="org-keyword">not</span> dist(p,q,m)}
+    <span class="org-variable-name">acc</span> = {q:<span class="org-builtin">set</span>((q,)) <span class="org-keyword">for</span> q <span class="org-keyword">in</span> states}
+    <span class="org-keyword">for</span> (p,q) <span class="org-keyword">in</span> indis:
+        acc[p].add(q)
+        acc[q].add(p)
+    <span class="org-keyword">return</span> {q: <span class="org-string">'_'</span>.join(<span class="org-builtin">map</span>(<span class="org-builtin">str</span>, r)) <span class="org-keyword">for</span> (q,r) <span class="org-keyword">in</span> acc.items()}
+
+<span class="org-keyword">def</span> <span class="org-function-name">dfa_min</span>(m):
+    <span class="org-doc">'''Minimize a DFA.'''</span>
+    <span class="org-variable-name">eq</span> = equivs(m)
+    <span class="org-variable-name">rename</span> = <span class="org-keyword">lambda</span> q: eq[q]
+    <span class="org-variable-name">delta</span> = {rename(q): {s:rename(m.delta[q][s]) <span class="org-keyword">for</span> s <span class="org-keyword">in</span> m.delta[q]} 
+             <span class="org-keyword">for</span> q <span class="org-keyword">in</span> m.delta}
+    <span class="org-keyword">return</span> dfa(rename(m.start), <span class="org-builtin">set</span>(<span class="org-builtin">map</span>(rename, m.accepts)), delta)</pre>
+</div>
+
+<p>
+Applying this minimization technique to <code>loss_d</code>,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">loss_d_min</span> = dfa_min(loss_d)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_61_0.png" alt="2018-06-24-regex_61_0.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5f941a5" class="outline-2">
+<h2 id="example-1-ipv4-addressesrevisited"><a id="org5f941a5"></a><span class="section-number-2">7</span> <a href="#example-1-ipv4-addressesrevisited">Example 1: IPv4 Addresses&#x2014;Revisited</a></h2>
+<div class="outline-text-2" id="text-example-1-ipv4-addressesrevisited">
+<p>
+With these tools in hand, we can begin describing IP addresses in a systematic,
+declarative fashion:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter"># </span><span class="org-comment">0 to 9</span>
+<span class="org-variable-name">digit</span> = <span class="org-keyword">lambda</span>: RE.from_alts(<span class="org-string">'0123456789'</span>)
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">any run of digits</span>
+<span class="org-variable-name">digits</span> = <span class="org-keyword">lambda</span>: digit().plus()
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">period</span>
+<span class="org-variable-name">per</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'.'</span>)
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">IPv4 address</span>
+<span class="org-variable-name">is_ip</span> = digits() * per() * digits() * per() * digits() * per() * digits()</pre>
+</div>
+
+<p>
+And the underlying NFA looks like:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_66_0.png" alt="2018-06-24-regex_66_0.png" />
+</p>
+</div>
+
+<p>
+Our new state machine performs exactly as the hand-rolled DFA from before:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">for</span> s <span class="org-keyword">in</span> (<span class="org-string">'127.0.0.1'</span>, 
+          <span class="org-string">'1.2.3'</span>, 
+          <span class="org-string">'255.255.256.255'</span>, <span class="org-comment-delimiter"># </span><span class="org-comment">invalid, but still fits our pattern</span>
+          <span class="org-string">'10.0.zero.1'</span>): 
+    <span class="org-keyword">print</span>(<span class="org-string">"%-16s"</span> % s, is_ip(s))</pre>
+</div>
+
+<pre class="example">
+127.0.0.1        True
+1.2.3            False
+255.255.256.255  True
+10.0.zero.1      False
+</pre>
+
+<p>
+because of the way in which we failed to constrain each quad&rsquo;s value.  Recall
+that each part of an IP address has to be in the range 0 to 255 inclusive;
+instead, we&rsquo;re matching any sequence of digits. The way out of this is to break
+down the range of valid values into one, two, and three digit numbers, with
+optional leading zeroes; and to divide the three digit groupings into those from
+100 to 199, from 200 to 249, and from 250 to 255. With that partitioning in
+mind,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter"># </span><span class="org-comment">one and two digits</span>
+<span class="org-variable-name">d1</span> = digit
+<span class="org-variable-name">d2</span> = <span class="org-keyword">lambda</span>: digit() * digit()
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">100 to 199</span>
+<span class="org-variable-name">d3_1xx</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'1'</span>) * d2() 
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">200 to 249</span>
+<span class="org-variable-name">d3_200_249</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'2'</span>) * RE.from_alts(<span class="org-string">'01234'</span>) * digit()
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">250 to 255</span>
+<span class="org-variable-name">d3_250_255</span> = <span class="org-keyword">lambda</span>: RE.from_string(<span class="org-string">'25'</span>) * RE.from_alts(<span class="org-string">'012345'</span>)
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">three digits, 100 to 255</span>
+<span class="org-variable-name">d3</span> = <span class="org-keyword">lambda</span>: d3_1xx() + d3_200_249() + d3_250_255()
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">0 to 255, with any number of leading zeroes</span>
+<span class="org-variable-name">digits</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'0'</span>).star() * (d1() + d2() + d3())
+
+<span class="org-comment-delimiter"># </span><span class="org-comment">IPv4 address</span>
+<span class="org-variable-name">is_ip</span> = digits() * per() * digits() * per() * digits() * per() * digits()</pre>
+</div>
+
+<p>
+This results in the rather large, well-organized NFA:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_72_0.png" alt="2018-06-24-regex_72_0.png" />
+</p>
+</div>
+
+<p>
+that performs precisely as we require:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">for</span> s <span class="org-keyword">in</span> (<span class="org-string">'127.0.0.1'</span>, 
+          <span class="org-string">'1.2.3'</span>, 
+          <span class="org-string">'255.255.256.255'</span>, <span class="org-comment-delimiter"># </span><span class="org-comment">we now fail on this, as we should</span>
+          <span class="org-string">'10.0.zero.1'</span>): 
+    <span class="org-keyword">print</span>(<span class="org-string">"%-16s"</span> % s, is_ip(s))</pre>
+</div>
+
+<pre class="example">
+127.0.0.1        True
+1.2.3            False
+255.255.256.255  False
+10.0.zero.1      False
+</pre>
+
+<p>
+The size of the NFA owes largely to the multitude of states having only
+ε-transitions created by <code>RE</code> as it&rsquo;s operators did their work.  Converting it
+to DFA and minimizing it yields something much more compact:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">is_ip_d_min</span> = dfa_min(nfa_to_dfa(is_ip.m))</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_76_0.png" alt="2018-06-24-regex_76_0.png" />
+</p>
+</div>
+
+<p>
+With a bit more work, you could use this as the basis of, say, an FPGA-based
+device to monitor a data stream for textual IP addresses.  Associate output
+signals with the different states to transform this into a <a href="https://en.wikipedia.org/wiki/Moore_machine">Moore machine</a>, design
+a storage method triggered by those signals, and you could have a piece of
+hardware to parse IP addresses from otherwise unstructured data. If you were so
+inclined, of course.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb62e00b" class="outline-2">
+<h2 id="regex-equality"><a id="orgb62e00b"></a><span class="section-number-2">8</span> <a href="#regex-equality">Regex Equality</a></h2>
+<div class="outline-text-2" id="text-regex-equality">
+<p>
+Given two regular expressions, is it possible to determine whether they are
+actually equivalent, i.e., whether they match precisely the same set of input
+strings? The answer, it turns out, is yes. Our DFA minimization didn&rsquo;t just
+compute <i>a</i> minimal DFA, it computed <i>the</i> minimal DFA.  Suppose I had written
+the original regular expression
+</p>
+
+<pre class="example">
+/.*AAA.*|.*L.*L.*/
+</pre>
+
+<p>
+in the more factored form
+</p>
+
+<pre class="example">
+/.*(AAA|L.*L).*/
+</pre>
+
+<p>
+Using the tools we already have, I could have constructed the NFA like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">aaa</span> = RE(<span class="org-string">'A'</span>) * RE(<span class="org-string">'A'</span>) * RE(<span class="org-string">'A'</span>)
+<span class="org-variable-name">ll</span> = RE(<span class="org-string">'L'</span>) * ola().star() * RE(<span class="org-string">'L'</span>)
+<span class="org-variable-name">loss</span> = ola().star() * (aaa + ll) * ola().star()</pre>
+</div>
+
+<p>
+Converting to DFA and minimizing would then give:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">loss_d_min</span> = dfa_min(nfa_to_dfa(loss.m))</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2018-06-24-regex_82_0.png" alt="2018-06-24-regex_82_0.png" />
+</p>
+</div>
+
+<p>
+Which looks damned familiar, yes? It turns out that we can use the idea of state
+distinguishability that we saw earlier to compare two different DFAs. All we
+have to do is adapt the <code>dist</code> from above to operate on input states from two
+different machines:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@guarded_memoize</span>
+<span class="org-keyword">def</span> <span class="org-function-name">dist2</span>(p, q, pm, qm):
+    <span class="org-doc">'''Determine whether two states p (from pm) and q (from qm) are distinguishable.'''</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">two states are distinguishable if one is accepting and the other isn't</span>
+    <span class="org-keyword">if</span> (p <span class="org-keyword">in</span> pm.accepts) != (q <span class="org-keyword">in</span> qm.accepts): <span class="org-keyword">return</span> <span class="org-constant">True</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">or if there is a sequence of inputs that leads them to distinguishable</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">states</span>
+    <span class="org-keyword">try</span>:
+        <span class="org-variable-name">sigma</span> = <span class="org-builtin">set</span>(pm.delta[p]) | <span class="org-builtin">set</span>(qm.delta[q])
+    <span class="org-keyword">except</span> <span class="org-type">KeyError</span>: <span class="org-keyword">return</span> <span class="org-constant">True</span>
+    <span class="org-keyword">return</span> <span class="org-builtin">any</span>(dist2(pm.delta[p].get(s),qm.delta[q].get(s), pm, qm) <span class="org-keyword">for</span> s <span class="org-keyword">in</span> sigma)</pre>
+</div>
+
+<p>
+Then, we just need to use it to determine whether two machines&rsquo; starting states
+are distinguishable:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">dfa_eq</span>(m, n):
+    <span class="org-keyword">return</span> <span class="org-keyword">not</span> dist2(m.start, n.start, m, n)</pre>
+</div>
+
+<p>
+As an example, say we have a couple DFAs both recognizing <code>/123456789/</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">a</span> = nfa_to_dfa((RE.from_string(<span class="org-string">'123456'</span>) * RE(<span class="org-string">''</span>) * RE.from_string(<span class="org-string">'789'</span>)).m)
+<span class="org-variable-name">b</span> = nfa_to_dfa(RE.from_string(<span class="org-string">'123456789'</span>).m)</pre>
+</div>
+
+<p>
+And one recognizing <code>/(0123456789)*/</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">c</span> = nfa_to_dfa(RE.from_alts(<span class="org-string">'0123456789'</span>).star().m)</pre>
+</div>
+
+<p>
+Using <code>dfa_eq</code> to perform a couple of comparisons gives the expected results:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">print</span>(<span class="org-string">'''</span>
+<span class="org-string">a == b -&gt; %s</span>
+<span class="org-string">b == c -&gt; %s</span>
+<span class="org-string">'''</span>
+      % (dfa_eq(a, b), dfa_eq(b, c)))</pre>
+</div>
+
+<pre class="example">
+a == b -&gt; True
+b == c -&gt; False
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org66a2761" class="outline-2">
+<h2 id="the-limits-of-regular-expressions"><a id="org66a2761"></a><span class="section-number-2">9</span> <a href="#the-limits-of-regular-expressions">The Limits of Regular Expressions</a></h2>
+<div class="outline-text-2" id="text-the-limits-of-regular-expressions">
+<p>
+We&rsquo;ve made it quite a long way from the beginning, where we were stuck trying to
+break things out of text without a regular expression library.  We can
+</p>
+
+<ol class="org-ol">
+<li>Write Python based on regexes to construct NFAs that recognize interesting
+patterns;</li>
+<li>Convert those NFAs to DFAs and minimize them; and,</li>
+<li>Test DFAs for equivalence.</li>
+</ol>
+
+<p>
+And then there&rsquo;s the possibility of transforming minimal DFAs to circuitry. If
+we wanted, we could write a back-end using <a href="http://www.myhdl.org/">MyHDL</a> to generate synthesizable
+Verilog and a front end to parse regular expressions, thereby automating much of
+the path from regular expression to silicon. Before going down that road,
+however, let&rsquo;s talk about parsing regular expressions. In particular, let&rsquo;s talk
+about why we can&rsquo;t do that just yet.
+</p>
+
+<p>
+Consider that regular expressions consist of literal characters and
+metacharacters, i.e., characters with special significance to the regex
+engine. If we limit the entire set of metacharacters to the class <code>[|*+\]</code>, we
+could describe some regular expressions using the regular expression facilities
+we have so far:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">metas</span> = <span class="org-builtin">set</span>(<span class="org-string">'|+*\\'</span>)
+<span class="org-variable-name">literals</span> = {<span class="org-builtin">chr</span>(i) <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(256)} - metas
+
+<span class="org-variable-name">literal</span> = <span class="org-keyword">lambda</span>: RE.from_alts(<span class="org-builtin">list</span>(literals))
+<span class="org-variable-name">meta</span> = <span class="org-keyword">lambda</span>: RE.from_alts(<span class="org-builtin">list</span>(metas))
+<span class="org-variable-name">escaped</span> = <span class="org-keyword">lambda</span>: RE(<span class="org-string">'\\'</span>) * (literal() + meta())
+<span class="org-variable-name">char</span> = <span class="org-keyword">lambda</span>: literal() + escaped()
+<span class="org-variable-name">star</span> = <span class="org-keyword">lambda</span>: char() * RE(<span class="org-string">'*'</span>)
+<span class="org-variable-name">plus</span> = <span class="org-keyword">lambda</span>: char() * RE(<span class="org-string">'+'</span>)
+<span class="org-variable-name">basic_sequence</span> = <span class="org-keyword">lambda</span>: (char() + star() + plus()).star()
+
+<span class="org-variable-name">regex</span> = basic_sequence() * (RE(<span class="org-string">'|'</span>) * basic_sequence()).star()</pre>
+</div>
+
+<p>
+With this, we can recognize valid regexes (in our limited syntax) when we see
+them, and recognition is the first step to parsing. There&rsquo;s something missing,
+though&#x2014;parentheses. Without the ability to delimit subexpressions, we&rsquo;re
+extremely limited in what we can write. For example, something as simple as
+<code>/(ab)*/</code> would be out of the question, let alone describing a C comment, a
+floating point number, or even an IP address. So, how do we work them in? More
+fundamentally, if regular expressions are the most powerful tool we have, can
+use them to recognize valid regular expressions?
+</p>
+
+<p>
+In the theory of computation, we have the <a href="https://en.wikipedia.org/wiki/Pumping_lemma_for_regular_languages">pumping lemma</a> for regular languages
+(i.e., the set of all languages that can be described by regular expressions)
+which describes a property that all regular languages have. This lemma states
+that if a string of sufficient length matches a regular expression, then it will
+have caused the equivalent minimal DFA to visit at least one state more than
+once. If we can identify the substring that caused the DFA to move in a cycle of
+states, we can insert an arbitrary number of repetitions of that substring to
+give a new string that will also match the regex.
+</p>
+
+<p>
+Now, let&rsquo;s imagine that there exists a regex, and thus a DFA, that can describe
+a language that consists only of balanced parentheses; we&rsquo;d need that capability
+to add parenthesization to our regex language, and considering other characters
+will clutter the discussion. We don&rsquo;t yet know how long a string we need to make
+the DFA revisit a state, but we&rsquo;ll call it <i>p</i>. Now, let&rsquo;s say we have a string
+of <i>p</i> open parentheses followed by <i>p</i> closed parentheses; this string is
+obviously a member of the balanced-paren language.
+</p>
+
+<p>
+The pumping lemma states that, since the length of the string is at least <i>p</i>,
+there must be at least one state that was revisited; we also know that, since
+the revisitation happened by the /p/th character, the substring that caused the
+cycle had to have occurred in the first half, i.e., it consisted only of open
+parentheses. According to the pumping lemma, we&rsquo;re able to insert an arbitrary
+number of repetitions of that substring and still end up with a string matching
+the regex describing balanced parentheses; however, we know that inserting
+additional open parentheses into a balanced-paren string will lead to an
+imbalance, and therefore the result can&rsquo;t match the regex. Since our assumption
+that such a regex exists leads to a contradiction, we can only conclude that
+strings with balanced parentheses cannot be comprehensively described using
+regular expressions. Furthermore, since a complete regular expression syntax
+requires balanced parentheses in addition to the literals and other
+metacharacters, we also know that we cannot use regular expressions to describe
+regular expressions.
+</p>
+
+<p>
+A different way to think about this is that matching parentheses requires our
+recognition device to remember how many unmatched open parentheses there
+are. Since the only way for a DFA to remember anything is to be in one of a set
+of states corresponding to it, and since the unmatched open parentheses could
+easily outnumber the available states, we can see that the fundamental
+limitation of a DFA is that it can store only a finite amount of information
+(remember the &rsquo;F&rsquo; in DFA?). This limitation applies to any string matching task
+that involves recursive structures or algebraic relationships between
+substrings. It is why &ldquo;HTML and regex go together like love, marriage, and
+ritual infanticide.&rdquo;
+</p>
+
+<p>
+We need two things to break out of this rut:
+</p>
+
+<ul class="org-ul">
+<li>A memory structure that can accomodate an arbirary amount of information; and,</li>
+<li>A notation that allows us to represent arbitrarily nested expressions.</li>
+</ul>
+
+<p>
+What we need is to crawl up the <a href="https://en.wikipedia.org/wiki/Chomsky_hierarchy">Chomsky hierarchy</a> to a more powerful language
+representation and corresponding computational model. But not in this post. It&rsquo;s
+really gotten quite long.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr style='height:0.5px'>
+<small>R E I N D E E R E F F E C T</small>
+</div>
+</body>
+</html>

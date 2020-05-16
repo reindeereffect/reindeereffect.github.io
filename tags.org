@@ -2,6 +2,9 @@
 #+OPTIONS: toc:nil
 #+TOC_NO_HEADING: t
 
+* automata
+- [[./2018/06/24/index.org][Under the Hood: Regular Expressions]]
+
 * backtracking
 - [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
 
@@ -23,10 +26,14 @@
 * options
 - [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
 
+* regex
+- [[./2018/06/24/index.org][Under the Hood: Regular Expressions]]
+
 * search
 - [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
 
 * state-machines
+- [[./2018/06/24/index.org][Under the Hood: Regular Expressions]]
 - [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
 
 * sudoku
