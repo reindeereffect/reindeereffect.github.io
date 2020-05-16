@@ -4,6 +4,20 @@
 
 #+begin_index-entry
 	#+begin_pubdate
+		9999-12-31
+	#+end_pubdate
+	#+begin_post-title
+		[[./9999/12/31/index.org][This is a draft]]
+	#+end_post-title
+        #+begin_post-tags
+                
+        #+end_post-tags
+	#+begin_abstract
+		This is an abstract. It's abstract.
+	#+end_abstract
+#+end_index-entry
+#+begin_index-entry
+	#+begin_pubdate
 		2020-05-05
 	#+end_pubdate
 	#+begin_post-title

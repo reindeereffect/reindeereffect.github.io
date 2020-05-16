@@ -87,7 +87,8 @@ def isref(line):
 def crackref(line):
     return line.strip()[2:-2]
 
-def expand(name, chunks):
+def expand(name, chunks, top=False):
+    # if not top: yield '#<< ' + name + '\n'
     for line in chunks[name]:
         if not isref(line):
             if line.strip().startswith(','):
@@ -96,9 +97,11 @@ def expand(name, chunks):
                 yield line
         else:
             leading = indentation(line)
-            for line2 in expand(crackref(line), chunks):
-                yield leading + line2
-
+            try:
+                for line2 in expand(crackref(line), chunks):
+                    yield leading + line2
+            except KeyError: yield line
+    # if not top: yield '#>> ' + name + '\n'
 def indentation(s):
     return ''.join(it.takewhile(str.isspace, s))
 
@@ -131,8 +134,6 @@ def shebang(b):
     if '"' in shebang: shebang = shebang.split('"')[1].replace('\\n', '')
     return shebang.strip() + '\n'
 
-
-
 if __name__ == '__main__':
     xs = doc(list(sys.stdin if not sys.argv[1:] or sys.argv[1] == '-' else open(sys.argv[1])))
     if xs:
@@ -155,5 +156,5 @@ if __name__ == '__main__':
             try: os.makedirs(os.path.dirname(fn))
             except FileExistsError: pass
             except FileNotFoundError: pass
-            body = ''.join(expand(first, chunks))
+            body = ''.join(expand(first, chunks, top=True))
             open(fn, 'w').write(body)

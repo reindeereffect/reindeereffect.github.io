@@ -779,7 +779,7 @@ def crackref(line):
     return line.strip()[2:-2]
 
 def expand(name, chunks, top=False):
-    if not top: yield '#<< ' + name + '\n'
+    # if not top: yield '#<< ' + name + '\n'
     for line in chunks[name]:
         if not isref(line):
             if line.strip().startswith(','):
@@ -792,7 +792,7 @@ def expand(name, chunks, top=False):
                 for line2 in expand(crackref(line), chunks):
                     yield leading + line2
             except KeyError: yield line
-    if not top: yield '#>> ' + name + '\n'
+    # if not top: yield '#>> ' + name + '\n'
 #+END_SRC
 
 #+NAME: zig imports
