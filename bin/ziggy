@@ -1,5 +1,4 @@
 #! /bin/bash
-
 while true; do
     inotifywait -e modify $1
     `dirname $0`/zig $1

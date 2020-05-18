@@ -8,7 +8,7 @@ expression, or why you shouldn't use regexes to parse HTML?  Then read on to
 learn the foundations of how regular expression engines work.
 #+END_abstract
 
-/[This post was derived from a [[https://github.com/reindeereffect/reindeereffect.github.io/tree/master/production/notebooks/regex.ipynb][Jupyter notebook]].]/
+/[This post was derived from a [[./nb/regex.ipynb][Jupyter notebook]].]/
 
 ** Introduction
    :PROPERTIES:
@@ -18,7 +18,7 @@ learn the foundations of how regular expression engines work.
 Not long ago, I responded to a question on building a regular expression to
 handle a pair of cases, and subsequent discussion briefly referenced the limits
 of what can and should be done with regexes. Besides being the perfect excuse to
-trot out perhaps the most famous [[https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454][Stackoverflow answer of all time]], it also
+trot out perhaps the most famous [[https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454][Stack Overflow answer of all time]], it also
 brought my mind back to the post I did earlier this year, [[../../../01/20/euler-191][wherein I began the
 solution of a math problem with a regular expression]]. Given those things, and
 the fact that we as programmers often use and misuse regexes to great effect, it
@@ -47,7 +47,7 @@ digit groupings separated by periods, without worrying about whether we even
 have a valid IP address, we might try:
 
 #+BEGIN_EXAMPLE
-    /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
+/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/
 #+END_EXAMPLE
 
 Depending on the flavor of regex syntax available, we might even lean on
@@ -89,16 +89,16 @@ immediately failing when we observe anything out of place in an IP
 address. Denoting the state by pairs =(dots, read_digits)=, we can
 explicate the state transitions as follows:
 
-| State      | 0-9       | .          |
-|------------+-----------+------------|
-| 0, False   | 0, True   | fail       |
-| 0, True    | 0, True   | 1, False   |
-| 1, False   | 1, True   | fail       |
-| 1, True    | 1, True   | 2, False   |
-| 2, False   | 2, True   | fail       |
-| 2, True    | 2, True   | 3, False   |
-| 3, False   | 3, True   | fail       |
-| 3, True    | 3, True   | fail       |
+| State    | 0-9     | .        |
+|----------+---------+----------|
+| 0, False | 0, True | fail     |
+| 0, True  | 0, True | 1, False |
+| 1, False | 1, True | fail     |
+| 1, True  | 1, True | 2, False |
+| 2, False | 2, True | fail     |
+| 2, True  | 2, True | 3, False |
+| 3, False | 3, True | fail     |
+| 3, True  | 3, True | fail     |
 
 Or, for the graphically inclined, and omitting the transitions to the
 failure state:
@@ -120,7 +120,7 @@ DFAs, they're specified by the tuples
 
 [[./aux/2018-06-24-regex_6_0.png]]
 
-where /Q/ is a set of states; /q/0 ∈ /Q/ is the starting state; /F/ ⊆ /Q/ is the
+where /Q/ is a set of states; /q_0/ ∈ /Q/ is the starting state; /F/ ⊆ /Q/ is the
 set of /accepting/ states; Σ is the set of valid input symbols; and δ is the
 transition function, mapping initial state/input symbol pairs to next states
 (or, to be more mathematical, δ: /Q/ × Σ → /Q/).
@@ -229,7 +229,7 @@ describing all losing prize strings. The regular expression I used (over an
 input alphabet of {O, L, A}) was
 
 #+BEGIN_EXAMPLE
-    /^.*AAA.*$|^.*L.*L.*$/
+/^.*AAA.*$|^.*L.*L.*$/
 #+END_EXAMPLE
 
 and the DFA that I crafted based on it was
@@ -370,7 +370,7 @@ class nfa:
         for dest in dests:
             self.delta.setdefault(src, {}).setdefault(sym, set()).add(dest)
 
-def add_delta(self, other):
+    def add_delta(self, other):
         delta = other.delta
         for src in delta:
             for sym in delta[src]: 
@@ -799,7 +799,7 @@ for s in ('127.0.0.1',
 #+END_EXAMPLE
 
 The size of the NFA owes largely to the multitude of states having only
-ε-transitions created by =RE= as it's operators did their work.  Converting it
+ε-transitions created by =RE= as its operators did their work.  Converting it
 to DFA and minimizing it yields something much more compact:
 
 #+BEGIN_SRC python

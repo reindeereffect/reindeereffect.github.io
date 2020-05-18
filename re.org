@@ -1091,6 +1091,15 @@ pre.src:hover:before {
 
 table { margin: auto; }
 
+table td + td, table th + th {
+    border-left: 1px solid black;
+}
+
+td, th {
+    vertical-align: top;
+    padding-inline: 1em;
+}
+
 .post-pubdate {
     font-size: small;
 }

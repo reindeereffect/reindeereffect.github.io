@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-16 Sat 19:31 -->
+<!-- 2020-05-18 Mon 13:09 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Under the Hood: Regular Expressions</title>
@@ -270,7 +270,7 @@ learn the foundations of how regular expression engines work.
 </div>
 
 <p>
-<i>[This post was derived from a <a href="https://github.com/reindeereffect/reindeereffect.github.io/tree/master/production/notebooks/regex.ipynb">Jupyter notebook</a>.]</i>
+<i>[This post was derived from a <a href="./nb/regex.ipynb">Jupyter notebook</a>.]</i>
 </p>
 
 <div id="outline-container-org76000d5" class="outline-2">
@@ -280,7 +280,7 @@ learn the foundations of how regular expression engines work.
 Not long ago, I responded to a question on building a regular expression to
 handle a pair of cases, and subsequent discussion briefly referenced the limits
 of what can and should be done with regexes. Besides being the perfect excuse to
-trot out perhaps the most famous <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">Stackoverflow answer of all time</a>, it also
+trot out perhaps the most famous <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">Stack Overflow answer of all time</a>, it also
 brought my mind back to the post I did earlier this year, <a href="../../../01/20/euler-191">wherein I began the
 solution of a math problem with a regular expression</a>. Given those things, and
 the fact that we as programmers often use and misuse regexes to great effect, it
@@ -465,7 +465,7 @@ DFAs, they&rsquo;re specified by the tuples
 </div>
 
 <p>
-where <i>Q</i> is a set of states; <i>q/0 ∈ /Q</i> is the starting state; <i>F</i> ⊆ <i>Q</i> is the
+where <i>Q</i> is a set of states; <i>q<sub>0</sub></i> ∈ <i>Q</i> is the starting state; <i>F</i> ⊆ <i>Q</i> is the
 set of <i>accepting</i> states; Σ is the set of valid input symbols; and δ is the
 transition function, mapping initial state/input symbol pairs to next states
 (or, to be more mathematical, δ: <i>Q</i> × Σ → <i>Q</i>).
@@ -804,7 +804,7 @@ directly manipulating the dictionary that implements its <code>delta</code>:
         <span class="org-keyword">for</span> dest <span class="org-keyword">in</span> dests:
             <span class="org-keyword">self</span>.delta.setdefault(src, {}).setdefault(sym, <span class="org-builtin">set</span>()).add(dest)
 
-<span class="org-keyword">def</span> <span class="org-function-name">add_delta</span>(<span class="org-keyword">self</span>, other):
+    <span class="org-keyword">def</span> <span class="org-function-name">add_delta</span>(<span class="org-keyword">self</span>, other):
         <span class="org-variable-name">delta</span> = other.delta
         <span class="org-keyword">for</span> src <span class="org-keyword">in</span> delta:
             <span class="org-keyword">for</span> sym <span class="org-keyword">in</span> delta[src]: 
@@ -1308,7 +1308,7 @@ that performs precisely as we require:
 
 <p>
 The size of the NFA owes largely to the multitude of states having only
-ε-transitions created by <code>RE</code> as it&rsquo;s operators did their work.  Converting it
+ε-transitions created by <code>RE</code> as its operators did their work.  Converting it
 to DFA and minimizing it yields something much more compact:
 </p>
 
