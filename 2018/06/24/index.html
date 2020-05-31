@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-18 Mon 13:24 -->
+<!-- 2020-05-31 Sun 19:31 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Under the Hood: Regular Expressions</title>
@@ -273,8 +273,8 @@ learn the foundations of how regular expression engines work.
 <i>[This post was derived from a <a href="./nb/regex.ipynb">Jupyter notebook</a>.]</i>
 </p>
 
-<div id="outline-container-org4c51fe5" class="outline-2">
-<h2 id="introduction"><a id="org4c51fe5"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
+<div id="outline-container-org04fa805" class="outline-2">
+<h2 id="introduction"><a id="org04fa805"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
 <div class="outline-text-2" id="text-introduction">
 <p>
 Not long ago, I responded to a question on building a regular expression to
@@ -301,8 +301,8 @@ unholy child weeps the blood of virgins, and Russian hackers pwn your webapp.&rd
 </div>
 </div>
 
-<div id="outline-container-org36f92ea" class="outline-2">
-<h2 id="example-1-ipv4-addresses"><a id="org36f92ea"></a><span class="section-number-2">2</span> <a href="#example-1-ipv4-addresses">Example 1: IPv4 Addresses</a></h2>
+<div id="outline-container-org72facb4" class="outline-2">
+<h2 id="example-1-ipv4-addresses"><a id="org72facb4"></a><span class="section-number-2">2</span> <a href="#example-1-ipv4-addresses">Example 1: IPv4 Addresses</a></h2>
 <div class="outline-text-2" id="text-example-1-ipv4-addresses">
 <p>
 An IP4 address is typically written in dotted quad notation, e.g.,
@@ -327,8 +327,8 @@ happens?
 </div>
 </div>
 
-<div id="outline-container-org52ffe92" class="outline-2">
-<h2 id="welcome-to-the-finite-state-machine"><a id="org52ffe92"></a><span class="section-number-2">3</span> <a href="#welcome-to-the-finite-state-machine">Welcome to the (Finite State) Machine</a></h2>
+<div id="outline-container-org9cbb282" class="outline-2">
+<h2 id="welcome-to-the-finite-state-machine"><a id="org9cbb282"></a><span class="section-number-2">3</span> <a href="#welcome-to-the-finite-state-machine">Welcome to the (Finite State) Machine</a></h2>
 <div class="outline-text-2" id="text-welcome-to-the-finite-state-machine">
 <p>
 Suppose the Python regular expression library did not exist, and suppose you had
@@ -576,8 +576,8 @@ right thing. Until we do, let&rsquo;s shift gears to a different problem.
 </div>
 </div>
 
-<div id="outline-container-org71309ff" class="outline-2">
-<h2 id="example-2-losing-prize-strings"><a id="org71309ff"></a><span class="section-number-2">4</span> <a href="#example-2-losing-prize-strings">Example 2: Losing Prize Strings</a></h2>
+<div id="outline-container-org05c4c78" class="outline-2">
+<h2 id="example-2-losing-prize-strings"><a id="org05c4c78"></a><span class="section-number-2">4</span> <a href="#example-2-losing-prize-strings">Example 2: Losing Prize Strings</a></h2>
 <div class="outline-text-2" id="text-example-2-losing-prize-strings">
 <p>
 In <a href="../../01/20/index.html">an earlier post</a> I began the solution to a problem, <a href="https://projecteuler.net/problem=191">counting winning prize
@@ -992,8 +992,8 @@ a couple of hurdles.
 </div>
 </div>
 
-<div id="outline-container-orgfea671a" class="outline-2">
-<h2 id="converting-nfas-to-dfas"><a id="orgfea671a"></a><span class="section-number-2">5</span> <a href="#converting-nfas-to-dfas">Converting NFAs to DFAs</a></h2>
+<div id="outline-container-orgf0a49be" class="outline-2">
+<h2 id="converting-nfas-to-dfas"><a id="orgf0a49be"></a><span class="section-number-2">5</span> <a href="#converting-nfas-to-dfas">Converting NFAs to DFAs</a></h2>
 <div class="outline-text-2" id="text-converting-nfas-to-dfas">
 <p>
 Though there&rsquo;s quite a difference in both the appearance and interpretation of
@@ -1100,8 +1100,8 @@ this DFA? What if we could remove them? Automatically?
 </div>
 </div>
 
-<div id="outline-container-orgd9ae8c8" class="outline-2">
-<h2 id="dfa-minimization"><a id="orgd9ae8c8"></a><span class="section-number-2">6</span> <a href="#dfa-minimization">DFA Minimization</a></h2>
+<div id="outline-container-orgabf0d9f" class="outline-2">
+<h2 id="dfa-minimization"><a id="orgabf0d9f"></a><span class="section-number-2">6</span> <a href="#dfa-minimization">DFA Minimization</a></h2>
 <div class="outline-text-2" id="text-dfa-minimization">
 <p>
 The key to minimizing a DFA is the idea of indistinguishable states.  Suppose we
@@ -1192,8 +1192,8 @@ Applying this minimization technique to <code>loss_d</code>,
 </div>
 </div>
 
-<div id="outline-container-org8f73fd7" class="outline-2">
-<h2 id="example-1-ipv4-addressesrevisited"><a id="org8f73fd7"></a><span class="section-number-2">7</span> <a href="#example-1-ipv4-addressesrevisited">Example 1: IPv4 Addresses&#x2014;Revisited</a></h2>
+<div id="outline-container-orgbb3969b" class="outline-2">
+<h2 id="example-1-ipv4-addressesrevisited"><a id="orgbb3969b"></a><span class="section-number-2">7</span> <a href="#example-1-ipv4-addressesrevisited">Example 1: IPv4 Addresses&#x2014;Revisited</a></h2>
 <div class="outline-text-2" id="text-example-1-ipv4-addressesrevisited">
 <p>
 With these tools in hand, we can begin describing IP addresses in a systematic,
@@ -1333,8 +1333,8 @@ inclined, of course.
 </div>
 </div>
 
-<div id="outline-container-org635e2e2" class="outline-2">
-<h2 id="regex-equality"><a id="org635e2e2"></a><span class="section-number-2">8</span> <a href="#regex-equality">Regex Equality</a></h2>
+<div id="outline-container-org5713aec" class="outline-2">
+<h2 id="regex-equality"><a id="org5713aec"></a><span class="section-number-2">8</span> <a href="#regex-equality">Regex Equality</a></h2>
 <div class="outline-text-2" id="text-regex-equality">
 <p>
 Given two regular expressions, is it possible to determine whether they are
@@ -1449,8 +1449,8 @@ b == c -&gt; False
 </div>
 </div>
 
-<div id="outline-container-org84b548a" class="outline-2">
-<h2 id="the-limits-of-regular-expressions"><a id="org84b548a"></a><span class="section-number-2">9</span> <a href="#the-limits-of-regular-expressions">The Limits of Regular Expressions</a></h2>
+<div id="outline-container-orge94d7a3" class="outline-2">
+<h2 id="the-limits-of-regular-expressions"><a id="orge94d7a3"></a><span class="section-number-2">9</span> <a href="#the-limits-of-regular-expressions">The Limits of Regular Expressions</a></h2>
 <div class="outline-text-2" id="text-the-limits-of-regular-expressions">
 <p>
 We&rsquo;ve made it quite a long way from the beginning, where we were stuck trying to

@@ -4,6 +4,7 @@
 
 * automata
 - [[./2018/06/24/index.org][Under the Hood: Regular Expressions]]
+- [[./2018/12/08/index.org][Beyond Regular Expressions: Recursive Descent Parsing]]
 
 * backtracking
 - [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]
@@ -13,6 +14,9 @@
 
 * dynamic-programming
 - [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
+
+* grammar
+- [[./2018/12/08/index.org][Beyond Regular Expressions: Recursive Descent Parsing]]
 
 * matrix-product
 - [[./2018/01/20/index.org][Skipping School with Finite State Machines]]
@@ -26,8 +30,12 @@
 * options
 - [[./2018/03/08/index.org][Dynamic Programming for Fun and Profit]]
 
+* parsing
+- [[./2018/12/08/index.org][Beyond Regular Expressions: Recursive Descent Parsing]]
+
 * regex
 - [[./2018/06/24/index.org][Under the Hood: Regular Expressions]]
+- [[./2018/12/08/index.org][Beyond Regular Expressions: Recursive Descent Parsing]]
 
 * search
 - [[./2020/05/05/index.org][Making and Slaying Monster Sudoku]]

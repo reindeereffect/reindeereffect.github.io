@@ -19,6 +19,22 @@ this one's for you.
 #+end_index-entry
 #+begin_index-entry
 	#+begin_pubdate
+		2018-12-08
+	#+end_pubdate
+	#+begin_post-title
+		[[./2018/12/08/index.org][Beyond Regular Expressions: Recursive Descent Parsing]]
+	#+end_post-title
+        #+begin_post-tags
+                [[./tags.org::*automata][automata]] [[./tags.org::*grammar][grammar]] [[./tags.org::*parsing][parsing]] [[./tags.org::*regex][regex]] 
+        #+end_post-tags
+	#+begin_abstract
+		Your eyes are bleeding, and trying to reliably extract information from C header
+files using regular expressions has driven you to the brink of insanity. You can
+admit that you've got a problem, but now what?
+	#+end_abstract
+#+end_index-entry
+#+begin_index-entry
+	#+begin_pubdate
 		2018-06-24
 	#+end_pubdate
 	#+begin_post-title
