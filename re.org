@@ -963,7 +963,17 @@ tag_info $1 | fmt_entries
 ** bin/jk2org
 
 #+BEGIN_SRC sh :tangle bin/jk2org :shebang "#! /bin/bash"
-pandoc -f markdown -t org $1 | sed -re 's|/aux/2018.*files/|aux/|g' | grep -v CAPTION
+function unliquify() {
+    awk '
+    /{% highlight/ {print "```"$3; next}; 
+    /{% endhighlight/ {print "```"; next}; 
+    //' $@
+}
+
+unliquify $@ \
+    | pandoc -f markdown -t org \
+    | sed -re 's|/aux/2018.*files/|./aux/|g' \
+    | grep -v CAPTION
 #+END_SRC
 ** org/css/main.css
 
