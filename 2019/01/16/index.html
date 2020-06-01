@@ -1,0 +1,1810 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-05-31 Sun 22:06 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Recursive Descent: The Next Iteration</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Kevin M. Stout" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel='stylesheet' type='text/css' href='/css/syntax.css'>
+	 <link rel='stylesheet' type='text/css' href='/css/main.css'>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div class='site-header'>
+  <a class='site-title' href='/'>R E I N D E E R E F F E C T</a>
+  <div class='nav' style='float:right;'>
+    <a class='page-link' href='/about.html'>About</a>&nbsp;
+    <a class='page-link' href='/links.html'>Links</a>&nbsp;
+    <a class='page-link' href='/tags.html'>Tags</a>
+  </div>
+  <hr style='height:0.5px'>
+</div>
+<div class='post-head'>
+  <div class='post-pubdate'>2019-01-16</div>
+  <h1 class='title'>Recursive Descent: The Next Iteration</h1>
+</div>
+</div>
+<div id="content">
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#introduction">1. <a href="#introduction">Introduction</a></a></li>
+<li><a href="#the-limits-of-determinism">2. <a href="#the-limits-of-determinism">The Limits of Determinism</a></a></li>
+<li><a href="#backtracking-implementation">3. <a href="#backtracking-implementation">Backtracking Implementation</a></a></li>
+<li><a href="#backtracking-to-binary-palindromes">4. <a href="#backtracking-to-binary-palindromes">Backtracking to Binary Palindromes</a></a></li>
+<li><a href="#bnf-parsing-revisited">5. <a href="#bnf-parsing-revisited">BNF Parsing, Revisited</a></a></li>
+<li><a href="#extended-bnf">6. <a href="#extended-bnf">Extended BNF</a></a></li>
+<li><a href="#ebnf-in-ebnf">7. <a href="#ebnf-in-ebnf">EBNF in EBNF</a></a></li>
+<li><a href="#parsing-ebnf-grammars">8. <a href="#parsing-ebnf-grammars">Parsing EBNF Grammars</a></a></li>
+<li><a href="#a-recursive-descent-parser-generator">9. <a href="#a-recursive-descent-parser-generator">A Recursive Descent Parser Generator</a></a></li>
+<li><a href="#our-very-own-programming-language">10. <a href="#our-very-own-programming-language">Our Very Own Programming Language</a></a></li>
+<li><a href="#semantic-analysis-revisited">11. <a href="#semantic-analysis-revisited">Semantic Analysis, Revisited</a></a></li>
+<li><a href="#a-new-programming-language-in-100-lines">12. <a href="#a-new-programming-language-in-100-lines">A New Programming Language in &lt; 100 Lines</a></a></li>
+<li><a href="#wrapping-up">13. <a href="#wrapping-up">Wrapping Up</a></a></li>
+</ul>
+</div>
+<div class="abstract">
+<p>
+You&rsquo;ve been tasked to implement a parser for yet another language&#x2014;one with the
+brevity of COBOL and the readability of APL. You&rsquo;re sick of writing
+parsers. Surely a computer can do it, right?
+</p>
+
+</div>
+
+<p>
+<i>This post was derived from a <a href="%7B%7Bsite.repo%7D%7D/production/notebooks/recursive-descent/part2.ipynb">Jupyter notebook</a>.</i>
+</p>
+
+<div id="outline-container-orgb4727a8" class="outline-2">
+<h2 id="introduction"><a id="orgb4727a8"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
+<div class="outline-text-2" id="text-introduction">
+<p>
+So there you are, sitting for a job interview, when you&rsquo;re asked to solve the
+<a href="https://blog.codinghorror.com/why-cant-programmers-program/">famous FizzBuzz problem</a>. You can use any language you like, and you&rsquo;re given as
+much time as you need. If only there were a programming language you liked. Then
+you think, &ldquo;Surely, they&rsquo;ll hire me if I design and implement a programming
+language, and then use <i>that</i> to solve FizzBuzz!  I&rsquo;d be a shoo-in, right?&rdquo;
+Maybe, maybe not. (And don&rsquo;t call me &ldquo;Shirley.&rdquo;) Regardless, it&rsquo;s a long road to
+dazzling/baffling your interviewer in this way.
+</p>
+
+<p>
+At the outset of the <a href="../../../2018/12/08">previous post</a>, we couldn&rsquo;t even recognize strings of
+balanced parentheses properly; by the end, we had developed an array of parsing
+techniques, introduced syntax-directed translation, and implemented a very basic
+calculator program. Along the way, we dealt with a number of problems that arise
+in implementing parsers.
+</p>
+
+<p>
+One of those problems had its origin in <a href="../../../2018/12/08/index.html#parsing-bnf-grammars">writing a parser for BNF grammars</a>,
+specifically that the absence of a rule end delimiter led to confusion in how to
+interpret the identifiers introducing new rules. For example, the toy grammar
+</p>
+
+<pre class="example">
+a : b c d
+d : e f g
+</pre>
+
+<p>
+could not be properly analyzed by a parser that only considered one token of
+<a href="../../../2018/12/08/index.html#lookahead"><i>lookahead</i></a> at a time (or, at least, at all times). Our way through it last time
+was to strategically outfit the parser with lookahead predicates&#x2014;additional
+parsers that, while consuming no input, nevertheless enforced conditions on the
+input stream. For handwritten parsers for a wide range of practical languages,
+it&rsquo;s a good strategy, since the parsing behavior is easy to reason about. There
+is, however, another option that is both generally applicable and that doesn&rsquo;t
+require modifying the grammar.
+</p>
+
+<p>
+There&rsquo;s much to discuss. In brief, we will:
+</p>
+
+<ul class="org-ul">
+<li>Highlight the limits of deterministic parsing methods and introduce the
+technique of backtracking;</li>
+<li>Reimplement our parsing utilities to use a backtracking strategy by default;</li>
+<li>Use those utilities to construct a parser for BNF grammars;</li>
+<li>Extend the syntax of BNF to more easily describe languages we actually care
+about;</li>
+<li>Automatically generate parsers from EBNF grammars; and,</li>
+<li>Use a generated parser to implement a programming language.</li>
+</ul>
+
+<p>
+We&rsquo;ll end with an implementation of FizzBuzz in our very own programming
+language, implemented in turn with our very own parser generator.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc1f9f79" class="outline-2">
+<h2 id="the-limits-of-determinism"><a id="orgc1f9f79"></a><span class="section-number-2">2</span> <a href="#the-limits-of-determinism">The Limits of Determinism</a></h2>
+<div class="outline-text-2" id="text-the-limits-of-determinism">
+<p>
+Consider the following toy grammar:
+</p>
+
+<pre class="example">
+bin_palin :
+          | ZERO 
+          | ONE
+          | ZERO bin_palin ZERO
+          | ONE  bin_palin ONE        
+</pre>
+
+<p>
+This describes all bit strings that also happen to be palindromic (i.e., the
+same forward and backward). Implementing this using the <a href="../../../2018/12/08/index.html#basic-expression-parsing">parsing utilities from
+before</a>,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">ONE</span>(s): <span class="org-keyword">return</span> literal(<span class="org-string">'1'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">ZERO</span>(s): <span class="org-keyword">return</span> literal(<span class="org-string">'0'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">bin_palin</span>(s):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    bin_palin :</span>
+<span class="org-doc">              | ZERO</span>
+<span class="org-doc">              | ONE</span>
+<span class="org-doc">              | ZERO bin_palin ZERO</span>
+<span class="org-doc">              | ONE  bin_palin ONE</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">return</span> alt(seq(ONE, bin_palin, ONE),
+               seq(ZERO, bin_palin, ZERO),
+               ONE,
+               ZERO,
+               EPSILON)(s)</pre>
+</div>
+
+<p>
+Now let&rsquo;s try a few cases. First, an empty string:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">bin_palin(<span class="org-string">''</span>)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_5_0.png" alt="2019-01-16-part2_5_0.png" />
+</p>
+</div>
+
+<p>
+Now, a zero:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">bin_palin(<span class="org-string">'0'</span>)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_7_0.png" alt="2019-01-16-part2_7_0.png" />
+</p>
+</div>
+
+<p>
+So far, so good. Now, let&rsquo;s try a pair of zeros:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">bin_palin(<span class="org-string">'00'</span>)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_9_0.png" alt="2019-01-16-part2_9_0.png" />
+</p>
+</div>
+
+<p>
+Here, it seems to have confused itself for some reason. To find that reason,
+let&rsquo;s look at the <a href="file:///home/kmstout/dev/re/2019/01/2018/12/08#pushdown-automata">transition function</a> for a PDA that can recognize this
+language:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">state</th>
+<th scope="col" class="org-left">stack</th>
+<th scope="col" class="org-left">input</th>
+<th scope="col" class="org-left">stack operations</th>
+<th scope="col" class="org-left">next state</th>
+<th scope="col" class="org-left">consume input?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">scan</td>
+<td class="org-left">&rsquo;0&rsquo;</td>
+<td class="org-left">&rsquo;0&rsquo;</td>
+<td class="org-left">pop</td>
+<td class="org-left">scan</td>
+<td class="org-left">yes</td>
+</tr>
+
+<tr>
+<td class="org-left">scan</td>
+<td class="org-left">&rsquo;1&rsquo;</td>
+<td class="org-left">&rsquo;1&rsquo;</td>
+<td class="org-left">pop</td>
+<td class="org-left">scan</td>
+<td class="org-left">yes</td>
+</tr>
+
+<tr>
+<td class="org-left">scan</td>
+<td class="org-left"><code>bin_palin</code></td>
+<td class="org-left">any</td>
+<td class="org-left">pop</td>
+<td class="org-left">scan</td>
+<td class="org-left">no</td>
+</tr>
+
+<tr>
+<td class="org-left">scan</td>
+<td class="org-left"><code>bin_palin</code></td>
+<td class="org-left">any</td>
+<td class="org-left">poppush &rsquo;0&rsquo;, <code>bin_palin</code>, &rsquo;0&rsquo;</td>
+<td class="org-left">scan</td>
+<td class="org-left">no</td>
+</tr>
+
+<tr>
+<td class="org-left">scan</td>
+<td class="org-left"><code>bin_palin</code></td>
+<td class="org-left">any</td>
+<td class="org-left">poppush &rsquo;1&rsquo;, <code>bin_palin</code>, &rsquo;1&rsquo;</td>
+<td class="org-left">scan</td>
+<td class="org-left">no</td>
+</tr>
+
+<tr>
+<td class="org-left">scan</td>
+<td class="org-left">&rsquo;$&rsquo;</td>
+<td class="org-left">&rsquo;$&rsquo;</td>
+<td class="org-left">pop</td>
+<td class="org-left">accept</td>
+<td class="org-left">yes</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+The expansion of <code>bin_palin</code> is not uniquely determined&#x2014;i.e., our PDA is a
+non-deterministic PDA (NPDA). What&rsquo;s more, every parsing mechanism we&rsquo;ve
+implemented so far operates deterministically. This is the very problem that led
+us to considering an additional symbol of input for the BNF parser: If we were
+to write a transition table for that language, we&rsquo;d find that it&rsquo;s
+non-deterministic if we only considered one token of input at a time. By looking
+ahead one more token, we in a sense created a new PDA whose transition function
+used pairs of tokens instead of single tokens (though, for brevity, it ignored
+that second input token most of the time).
+</p>
+
+<p>
+Unlike the BNF parsing problem, however, there is no amount of lookahead that
+will help us here, as palindromic strings do not have any sort of marker to help
+us identify the middle of the input stream. While we could write a parser that
+uses a huge amount of lookahead that allows us to deal with any string we might
+<i>likely</i> encounter, we know perfectly well that longer strings are theoretically
+possible, and it&rsquo;s only a matter of time before technology or an attacker throws
+one at us and breaks our parser. What we need is a way to simulate
+non-determinism.  The simplest is to allow the parser to consume the same input
+at different times, i.e., to backtrack arbitrarily far in the input stream and
+try something else.
+</p>
+
+<p>
+Before moving on, it should be clear that NPDAs can recognize languages that
+deterministic PDAs (DPDAs) cannot&#x2014;specifically, DPDAs can recognize a class of
+languages called deterministic context-free languages, while NPDAs can recognize
+<i>all</i> context-free languages.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge2ed436" class="outline-2">
+<h2 id="backtracking-implementation"><a id="orge2ed436"></a><span class="section-number-2">3</span> <a href="#backtracking-implementation">Backtracking Implementation</a></h2>
+<div class="outline-text-2" id="text-backtracking-implementation">
+<p>
+While there are more pieces to implementing backtracking than for lookahead
+predicates, it&rsquo;s still quite straightforward. The key is to get <code>alt</code> to return
+all possible parses from the current input position.  Since there might be quite
+a lot of them, we&rsquo;ll put generators to good use:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">alt</span>(*ps):
+    <span class="org-keyword">def</span> <span class="org-function-name">parse</span>(s):
+        <span class="org-keyword">return</span> (item <span class="org-keyword">for</span> p <span class="org-keyword">in</span> ps <span class="org-keyword">for</span> item <span class="org-keyword">in</span> p(s))
+    <span class="org-keyword">return</span> parse</pre>
+</div>
+
+<p>
+Now, since an <code>alt</code>-parser will produce a series of possible parses, it follows
+that a <code>seq</code>-parser that calls one will, too:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">seq</span>(*ps):
+    <span class="org-keyword">def</span> <span class="org-function-name">parse</span>(s):
+        <span class="org-keyword">if</span> ps:
+            <span class="org-keyword">for</span> first, rest <span class="org-keyword">in</span> ps[0](s):
+                <span class="org-keyword">if</span> ps[1:]:
+                    <span class="org-keyword">for</span> cont, rest2 <span class="org-keyword">in</span> seq(*ps[1:])(rest):
+                        <span class="org-keyword">yield</span> [first] + cont, rest2
+                <span class="org-keyword">else</span>: <span class="org-keyword">yield</span> [first], rest
+    <span class="org-keyword">return</span> parse</pre>
+</div>
+
+<p>
+Since <code>alt</code> and <code>seq</code> now expect generators, we&rsquo;ll make our terminal parsers
+into generators as well:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">literal</span>(spec, s):
+    <span class="org-variable-name">spec</span> = spec.strip()
+    <span class="org-variable-name">n</span> = <span class="org-builtin">len</span>(spec)
+    <span class="org-variable-name">s</span> = s.lstrip()
+    <span class="org-keyword">if</span> s[:n] == spec: <span class="org-keyword">yield</span> spec, s[n:]
+
+<span class="org-keyword">def</span> <span class="org-function-name">match</span>(spec, s):
+    <span class="org-variable-name">s</span> = s.lstrip()
+    <span class="org-variable-name">m</span> = re.match(<span class="org-string">'(%s)'</span> % spec, s)
+    <span class="org-keyword">if</span> m:
+        <span class="org-variable-name">g</span> = m.group(0)
+        <span class="org-keyword">yield</span> g, s[<span class="org-builtin">len</span>(g):]</pre>
+</div>
+
+<p>
+And we&rsquo;ll finish up by modifying the wrapper class for parser functions:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">parser</span>:
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, f): <span class="org-keyword">self</span>.f = f
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, s):
+        <span class="org-keyword">for</span> matched, rest <span class="org-keyword">in</span> <span class="org-keyword">self</span>.f(s):
+            <span class="org-variable-name">sym</span> = symbol(<span class="org-keyword">self</span>.f.<span class="org-builtin">__name__</span>, matched)
+            <span class="org-keyword">yield</span> parse_result((sym, rest))
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">EPSILON</span>(s): <span class="org-keyword">yield</span> <span class="org-string">''</span>, s</pre>
+</div>
+
+<p>
+In general, we&rsquo;re only interested in parses that consume the entire input
+stream:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">parses</span>(start, s):
+    <span class="org-keyword">for</span> x <span class="org-keyword">in</span> start(s):
+        <span class="org-variable-name">p</span>, <span class="org-variable-name">rest</span> = x
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> rest.strip(): <span class="org-keyword">yield</span> p</pre>
+</div>
+
+<p>
+Very often, we&rsquo;re happy with the first such parse:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">parse</span>(start, s): <span class="org-keyword">return</span> <span class="org-builtin">next</span>(parses(start, s))</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5fbe2ec" class="outline-2">
+<h2 id="backtracking-to-binary-palindromes"><a id="org5fbe2ec"></a><span class="section-number-2">4</span> <a href="#backtracking-to-binary-palindromes">Backtracking to Binary Palindromes</a></h2>
+<div class="outline-text-2" id="text-backtracking-to-binary-palindromes">
+<p>
+We&rsquo;re now ready to attack the palindrome problem. The parsing functions look
+just as they did before:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">ZERO</span>(s): <span class="org-keyword">return</span> literal(<span class="org-string">'0'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">ONE</span>(s): <span class="org-keyword">return</span> literal(<span class="org-string">'1'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">bin_palin</span>(s):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    bin_palin :</span>
+<span class="org-doc">              | ZERO</span>
+<span class="org-doc">              | ONE</span>
+<span class="org-doc">              | ZERO bin_palin ZERO</span>
+<span class="org-doc">              | ONE  bin_palin ONE</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">return</span> alt(seq(ZERO, bin_palin, ZERO),
+               seq(ONE, bin_palin, ONE),
+               ZERO,
+               ONE,
+               EPSILON)(s)</pre>
+</div>
+
+<p>
+But we use them a bit differently, since each parser now generates a series of
+parses. For the case &rsquo;00&rsquo;,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">parses(bin_palin, <span class="org-string">'00'</span>)</pre>
+</div>
+
+<p>
+there is precisely one parse, which looks like
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_27_0.png" alt="2019-01-16-part2_27_0.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6c7f80e" class="outline-2">
+<h2 id="bnf-parsing-revisited"><a id="org6c7f80e"></a><span class="section-number-2">5</span> <a href="#bnf-parsing-revisited">BNF Parsing, Revisited</a></h2>
+<div class="outline-text-2" id="text-bnf-parsing-revisited">
+<p>
+With our new-found power, let&rsquo;s try parsing BNF again. The code is the same as
+our <a href="%7B%%20post_url%202018-12-08-recursive-descent-part1%20%%7D#parsing-bnf-grammars">first attempt</a> (the one without additional lookahead):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter">## </span><span class="org-comment">terminals</span>
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">IDENTIFIER</span>(s): <span class="org-keyword">return</span> match(<span class="org-string">'[a-zA-Z_][a-zA-Z_0-9]*'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">COLON</span>(s): <span class="org-keyword">return</span> literal(<span class="org-string">':'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">PIPE</span>(s): <span class="org-keyword">return</span> literal(<span class="org-string">'|'</span>, s)
+
+<span class="org-comment-delimiter">## </span><span class="org-comment">nonterminals</span>
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">production</span>(s):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    production :</span>
+<span class="org-doc">               | IDENTIFIER production</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">return</span> alt(seq(IDENTIFIER, production), EPSILON)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">productions</span>(s):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    production : production PIPE productions</span>
+<span class="org-doc">               | production</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">return</span> alt(production, seq(production, PIPE, productions))(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">rule</span>(s):
+    <span class="org-doc">'rule : IDENTIFIER COLON productions'</span>
+    <span class="org-keyword">return</span> seq(IDENTIFIER, COLON, productions)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">rules</span>(s):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    rules :</span>
+<span class="org-doc">          | rule rules</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">return</span> alt(seq(rule, rules), EPSILON)(s)</pre>
+</div>
+
+<p>
+Applying this to the toy grammar first caused us to stumble now gives the proper
+result:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">parse(rules, 
+      <span class="org-string">'''</span>
+<span class="org-string">      a : b c d</span>
+<span class="org-string">      d : e f</span>
+<span class="org-string">      '''</span>)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_31_0.png" alt="2019-01-16-part2_31_0.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgff3260c" class="outline-2">
+<h2 id="extended-bnf"><a id="orgff3260c"></a><span class="section-number-2">6</span> <a href="#extended-bnf">Extended BNF</a></h2>
+<div class="outline-text-2" id="text-extended-bnf">
+<p>
+All of the grammars we&rsquo;ve looked at so far have used productions like
+</p>
+
+<pre class="example">
+list_of_something :
+                  | something list_of_something
+</pre>
+
+<p>
+and
+</p>
+
+<pre class="example">
+list_of_something : something list_of_something
+                  | something
+</pre>
+
+<p>
+to express repetition. For example, the BNF grammar for BNF grammars from the
+previous post described series of rules as
+</p>
+
+<pre class="example">
+rules       : rule rules
+            | rule
+</pre>
+
+<p>
+and series of productions as
+</p>
+
+<pre class="example">
+productions : production PIPE productions
+            | production
+</pre>
+
+<p>
+while productions themselves were described by
+</p>
+
+<pre class="example">
+production  :
+            | IDENTIFIER production
+</pre>
+
+<p>
+Likewise, we&rsquo;ve used productions like
+</p>
+
+<pre class="example">
+optional_item :
+              | item
+</pre>
+
+<p>
+to describe substitutions that may or may not happen. For example, the toy
+grammar for nested parentheses, braces, etc. was
+</p>
+
+<pre class="example">
+parens : 
+       | LPAREN parens RPAREN parens
+</pre>
+
+<p>
+Whenever we program, we mercilessly root out needless repetition, <i>even of
+form</i>, and the same is true of writing grammars. What we need is a notation that
+allows us to concisely express repetition and optional constructs in a
+grammar. Luckily, we&rsquo;re not the first to desire an Extended Backus-Nauer Form
+(EBNF). There are many flavors of EBNF adding different sets of notational
+conveniences, but we&rsquo;ll stick with just repetition and options.
+</p>
+
+<p>
+First, we&rsquo;ll denote any number of repetitions of a set of productions by
+enclosure in braces; so,
+</p>
+
+<pre class="example">
+foo : {bar}
+</pre>
+
+<p>
+says that a <code>foo</code> is a sequence of any number of <code class="src src-python">bar</code>s. Using this
+notational convenience, we can describe vanilla BNF (i.e., unextended) with the
+much more compact grammar
+</p>
+
+<pre class="example">
+rules       : rule {rule}
+rule        : IDENTIFIER COLON productions
+productions : production {PIPE production}
+production  : {IDENTIFIER}
+</pre>
+
+<p>
+Secondly, we&rsquo;ll denote optional units by enclosing them in bracketes, allowing
+us to write
+</p>
+
+<pre class="example">
+parens : [LPAREN parens RPAREN parens]
+</pre>
+
+<p>
+Now that we understand what we want from these syntactic extensions, let&rsquo;s write
+the code that implements them, starting with repetition.  Because of
+backtracking, a repeated parser might match multiple substrings from the same
+position; this is the same behavior that shaped the backtracking implementation
+of <code>seq</code>. Unlike <code>seq</code>, where we know how many symbols (determined by the
+grammar) are to be parsed from the input, we have no idea how many repetitions
+we&rsquo;ll see&#x2014;it&rsquo;s entirely data dependent, and depending on the data source it
+might be quite large. Rather than risk a <code>RuntimeError</code> due to excessive
+recursion, we&rsquo;ll use an iterative implementation with an explicit stack to
+manage the search for a valid parse.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">rep</span>(p):
+    <span class="org-keyword">def</span> <span class="org-function-name">parse</span>(s):
+        <span class="org-variable-name">stack</span> = [([], s)]
+        <span class="org-keyword">while</span> stack:
+            <span class="org-variable-name">path</span>, <span class="org-variable-name">s</span> = stack.pop(-1)
+            <span class="org-keyword">yield</span> path, s
+            <span class="org-keyword">for</span> x, rest <span class="org-keyword">in</span> p(s):
+                <span class="org-keyword">if</span> <span class="org-builtin">len</span>(rest) &lt; <span class="org-builtin">len</span>(s): <span class="org-comment-delimiter"># </span><span class="org-comment">EPSILON can cause infinite loopiness</span>
+                    stack.append((path + [x], rest))
+    <span class="org-keyword">return</span> parse</pre>
+</div>
+
+<p>
+The utility to create optional parsers is much more boring:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">opt</span>(p): <span class="org-keyword">return</span> alt(p, EPSILON)</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb631e28" class="outline-2">
+<h2 id="ebnf-in-ebnf"><a id="orgb631e28"></a><span class="section-number-2">7</span> <a href="#ebnf-in-ebnf">EBNF in EBNF</a></h2>
+<div class="outline-text-2" id="text-ebnf-in-ebnf">
+<p>
+Describing BNF with EBNF is nice, but if we&rsquo;re going to try writing grammars in
+EBNF, it might be worth considering how that notation should really look&#x2014;i.e.,
+let&rsquo;s try to come up with a grammar for EBNF. We&rsquo;ll start with a series of
+rules, defined as before:
+</p>
+
+<pre class="example">
+rules        : {rule}
+rule         : IDENTIFIER COLON productions
+</pre>
+
+<p>
+Productions are unchanged:
+</p>
+
+<pre class="example">
+productions  : production {PIPE production}
+</pre>
+
+<p>
+It&rsquo;s in <code>productions</code> that we want to start bending the syntax. Rather than
+saying
+</p>
+
+<pre class="example">
+production   : {IDENTIFIER}
+</pre>
+
+<p>
+we&rsquo;ll have the more general idea of a <i>substitution</i>:
+</p>
+
+<pre class="example">
+production   : {substitution}
+</pre>
+
+<p>
+What kind of substitutions? Well, we know we want to be able to reference other
+rules (like before). We also want to be able to use the repeated and optional
+syntaxes that we just discussed; and, since we&rsquo;re enclosing things in brackets
+and braces, let&rsquo;s allow parentheses for simple grouping:
+</p>
+
+<pre class="example">
+substitution : repeated 
+             | optional 
+             | enclosed 
+             | IDENTIFIER
+
+repeated     : LBRACE productions RBRACE
+optional     : LBRACK productions RBRACK
+enclosed     : LPAREN productions RPAREN
+</pre>
+
+<p>
+For the final increment of convenience, let&rsquo;s allow direct usage of string
+literals and regular expressions. With that,
+</p>
+
+<pre class="example">
+substitution : repeated 
+             | optional 
+             | enclosed 
+             | IDENTIFIER
+             | STRING_LITERAL 
+             | REGEX
+</pre>
+
+<p>
+There&rsquo;s one more development, and it&rsquo;s purely to simplify things later:
+identifiers play a dual role in EBNF, allowing us to name rules and to reference
+other rules. To capture that, we&rsquo;ll factor substitution just a bit:
+</p>
+
+<pre class="example">
+substitution : repeated 
+             | optional 
+             | enclosed 
+             | reference
+             | STRING_LITERAL 
+             | REGEX
+
+reference    : IDENTIFIER
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org635b472" class="outline-2">
+<h2 id="parsing-ebnf-grammars"><a id="org635b472"></a><span class="section-number-2">8</span> <a href="#parsing-ebnf-grammars">Parsing EBNF Grammars</a></h2>
+<div class="outline-text-2" id="text-parsing-ebnf-grammars">
+<p>
+You&rsquo;ll notice that, despite allowing for in-line regexes and string literals in
+a grammar, our EBNF grammar still doesn&rsquo;t use such conveniences. That&rsquo;s
+intentional, as we don&rsquo;t yet have the machinery for dealing with them, and we&rsquo;re
+trying to maintain a close correspondence between our grammars and our
+code. We&rsquo;ll get to use the full power of our EBNF soon enough.
+</p>
+
+<p>
+First, let&rsquo;s define some utilities to help us:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter">### </span><span class="org-comment">Something not discussed above is that it might be nice to have comments in</span>
+<span class="org-comment-delimiter">### </span><span class="org-comment">a grammar. Rather than clutter the EBNF grammar directly, we'll just build</span>
+<span class="org-comment-delimiter">### </span><span class="org-comment">comment handling into the first part of parsing terminals.</span>
+
+<span class="org-keyword">def</span> <span class="org-function-name">skip_comment</span>(s):
+    <span class="org-variable-name">s2</span> = re.sub(<span class="org-string">'^#[^\n]*'</span>, <span class="org-string">''</span>, s.lstrip()).lstrip()
+    <span class="org-keyword">while</span> s2 != s:
+        <span class="org-variable-name">s</span> = s2
+        <span class="org-variable-name">s2</span> = re.sub(<span class="org-string">'^#[^\n]*'</span>, <span class="org-string">''</span>, s.lstrip()).lstrip()
+    <span class="org-keyword">return</span> s
+
+<span class="org-keyword">def</span> <span class="org-function-name">literal2</span>(spec, s): 
+    <span class="org-keyword">return</span> literal(spec, skip_comment(s))
+
+<span class="org-keyword">def</span> <span class="org-function-name">match2</span>(spec, s): 
+    <span class="org-keyword">return</span> match(spec, skip_comment(s))</pre>
+</div>
+
+<p>
+The terminal parsers that we really want to define:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">IDENTIFIER</span>(s): <span class="org-keyword">return</span> match2(r<span class="org-string">'[a-zA-Z_][a-zA-Z0-9_]*'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">STRING_LITERAL</span>(s): 
+    <span class="org-keyword">return</span> match2(r<span class="org-string">"\'(\\.|[^\\'])*\'"</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">REGEX</span>(s): <span class="org-keyword">return</span> match2(r<span class="org-string">'/(\\.|[^\\/])+/'</span>, s)</pre>
+</div>
+
+<p>
+And the terminal parsers that we&rsquo;re defining because we still have to:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">LBRACE</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">'{'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">RBRACE</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">'}'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">LBRACK</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">'['</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">RBRACK</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">']'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">LPAREN</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">'('</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">RPAREN</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">')'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">COLON</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">':'</span>, s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">PIPE</span>(s): <span class="org-keyword">return</span> literal2(<span class="org-string">'|'</span>, s)</pre>
+</div>
+
+<p>
+Now we can focus on the main grammar:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">rules</span>(s):
+    <span class="org-doc">'rules : {rule}'</span>
+    <span class="org-keyword">return</span> rep(rule)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">rule</span>(s):
+    <span class="org-doc">'rule : IDENTIFIER COLON productions'</span>
+    <span class="org-keyword">return</span> seq(IDENTIFIER, COLON, productions)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">productions</span>(s):
+    <span class="org-doc">'productions : production {PIPE production}'</span>
+    <span class="org-keyword">return</span> seq(production, rep(seq(PIPE, production)))(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">production</span>(s): 
+    <span class="org-doc">'production : {substitution}'</span>
+    <span class="org-keyword">return</span> rep(substitution)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">substitution</span>(s):
+    <span class="org-doc">'''</span>
+<span class="org-doc">    substitution : repeated </span>
+<span class="org-doc">                 | optional </span>
+<span class="org-doc">                 | enclosed </span>
+<span class="org-doc">                 | reference </span>
+<span class="org-doc">                 | STRING_LITERAL </span>
+<span class="org-doc">                 | REGEX'</span>
+<span class="org-doc">    '''</span>
+    <span class="org-keyword">return</span> alt(repeated, 
+               optional, 
+               enclosed, 
+               reference, 
+               STRING_LITERAL, 
+               REGEX)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">enclosed</span>(s):
+    <span class="org-doc">'enclosed : LPAREN productions RPAREN'</span>
+    <span class="org-keyword">return</span> seq(LPAREN, productions, RPAREN)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">repeated</span>(s):
+    <span class="org-doc">'repeated : LBRACE productions RBRACE'</span>
+    <span class="org-keyword">return</span> seq(LBRACE, productions, RBRACE)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">optional</span>(s):
+    <span class="org-doc">'optional : LBRACK productions RBRACK'</span>
+    <span class="org-keyword">return</span> seq(LBRACK, productions, RBRACK)(s)
+
+<span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">reference</span>(s):
+    <span class="org-doc">'reference : IDENTIFIER'</span>
+    <span class="org-keyword">return</span> IDENTIFIER(s)</pre>
+</div>
+
+<p>
+With that, we can rewrite the grammar for the &ldquo;calculator&rdquo; language <a href="../../../2018/12/08/index.html#expressions-revisited">from before</a>
+like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">CALCULATOR</span> = <span class="org-string">'''</span>
+<span class="org-string">statements : {statement}</span>
+
+<span class="org-string">statement  : assignment </span>
+<span class="org-string">           | expression</span>
+
+<span class="org-string">assignment : IDENTIFIER '=' expression</span>
+<span class="org-string">expression : term {/[+-]/ term}</span>
+<span class="org-string">term       : factor {/[*\/]/ factor}</span>
+
+<span class="org-string">factor     : reference </span>
+<span class="org-string">           | NUMBER </span>
+<span class="org-string">           | enclosed</span>
+
+<span class="org-string">reference  : IDENTIFIER</span>
+<span class="org-string">enclosed   : '(' expression ')'</span>
+<span class="org-string">IDENTIFIER : /[A-Za-z_]\w+/</span>
+<span class="org-string">NUMBER     : /[0-9]+/</span>
+<span class="org-string">'''</span></pre>
+</div>
+
+<p>
+When parsed with <code>rules</code>, we get the following structure:
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_47_0.png" alt="2019-01-16-part2_47_0.png" />
+</p>
+</div>
+
+<p>
+The empty circles you see are the anonymous nonterminals produced by <code>rep</code> and
+<code>opt</code>&#x2014;remember, they&rsquo;re containers for sets of productions.  You&rsquo;ll notice that
+some have no child nodes; those each correspond to zero repetitions of the
+relevant nonterminal. For example, the first rule in the calculator grammar,
+</p>
+
+<pre class="example">
+statements : {statement}
+</pre>
+
+<p>
+has only one production, so the list of alternative productions, described in
+the grammar for EBNF as
+</p>
+
+<pre class="example">
+{PIPE production}
+</pre>
+
+<p>
+is empty. The leftmost and topmost of the nameless, childless circles in the
+tree above corresponds to that empty list.
+</p>
+
+<p>
+This is also a good time to point out that the body of that repetition is
+actually an anonymous <code>seq</code>,
+</p>
+
+<pre class="example">
+PIPE production
+</pre>
+
+<p>
+which is why the immediate descendents of the nodes representing lists of
+alternate productions are themselves anonymous nonterminals.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org88bfd8f" class="outline-2">
+<h2 id="a-recursive-descent-parser-generator"><a id="org88bfd8f"></a><span class="section-number-2">9</span> <a href="#a-recursive-descent-parser-generator">A Recursive Descent Parser Generator</a></h2>
+<div class="outline-text-2" id="text-a-recursive-descent-parser-generator">
+<p>
+Consider how we&rsquo;ve been writing parsers so far: We define a grammar, perhaps
+something like
+</p>
+
+<pre class="example">
+uberpwn      : pleasantries order condition COMMA recipient PERIOD
+pleasantries : YOU MAY
+order        : FIRE
+condition    : WHEN YOU ARE READY
+recipient    : GRIDLEY
+</pre>
+
+<p>
+and then we write parsing functions by inspection that are little more than the
+rules with some boilerplate:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-type">@parser</span>
+<span class="org-keyword">def</span> <span class="org-function-name">uberpwn</span>(s):
+    <span class="org-doc">'uberpwn : pleasantries order condition COMMA recipient PERIOD'</span>
+    <span class="org-keyword">return</span> seq(pleasantries, order, condition, COMMA, recipient, PERIOD)(s)</pre>
+</div>
+
+<p>
+We could avoid a great deal of typing, and potential for bugs, if we could
+somehow generate the parsing functions from the grammar. A program that allows
+us to do that is called a parser generator. Leaning on the existing parsing
+functions for EBNF, as well as a custom postorder evaluator for the parse tree
+of an input grammar, a workable solution might look like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter">## </span><span class="org-comment">utilities to clean things up</span>
+
+<span class="org-keyword">def</span> <span class="org-function-name">dummy_parser</span>(parsefn):
+    parsefn.<span class="org-builtin">__name__</span> = <span class="org-string">''</span>
+    <span class="org-keyword">return</span> parser(parsefn)
+
+<span class="org-keyword">def</span> <span class="org-function-name">Literal</span>(spec): <span class="org-keyword">return</span> dummy_parser(<span class="org-keyword">lambda</span> s: literal2(spec, s))
+<span class="org-keyword">def</span> <span class="org-function-name">Match</span>(spec)  : <span class="org-keyword">return</span> dummy_parser(<span class="org-keyword">lambda</span> s: match2(spec, s))
+
+<span class="org-keyword">def</span> <span class="org-function-name">enclosure</span>(sym): <span class="org-keyword">return</span> <span class="org-builtin">type</span>(sym) == <span class="org-builtin">list</span>
+
+<span class="org-keyword">def</span> <span class="org-function-name">nonterminal</span>(sym): <span class="org-keyword">return</span> <span class="org-keyword">not</span> (<span class="org-builtin">isinstance</span>(sym, symbol) <span class="org-keyword">and</span> sym.terminal)
+
+<span class="org-keyword">def</span> <span class="org-function-name">combine</span>(parts, fn):
+    <span class="org-keyword">if</span>   <span class="org-builtin">len</span>(parts) == 0: <span class="org-keyword">return</span> EPSILON
+    <span class="org-keyword">elif</span> <span class="org-builtin">len</span>(parts) == 1: <span class="org-keyword">return</span> parts[0]
+    <span class="org-keyword">else</span>                : <span class="org-keyword">return</span> fn(*parts)
+
+<span class="org-keyword">def</span> <span class="org-function-name">parserize</span>(parsefn):
+    <span class="org-keyword">return</span> parsefn <span class="org-keyword">if</span> <span class="org-builtin">isinstance</span>(parsefn, parser) <span class="org-keyword">else</span> parser(parsefn)
+
+<span class="org-comment-delimiter">## </span><span class="org-comment">the parser generator</span>
+
+<span class="org-keyword">class</span> <span class="org-type">Parser</span>:
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, start, grammar, **symbols):
+        <span class="org-keyword">self</span>.start   = start
+        <span class="org-keyword">self</span>.grammar = grammar
+        <span class="org-keyword">self</span>.symbols = symbols
+
+        <span class="org-keyword">self</span>._eval(<span class="org-builtin">next</span>(parses(rules, grammar)))
+
+    <span class="org-keyword">def</span> <span class="org-function-name">handle</span>(<span class="org-keyword">self</span>, sym):
+        <span class="org-variable-name">handler</span> = <span class="org-builtin">getattr</span>(<span class="org-keyword">self</span>, <span class="org-string">'h_'</span> + sym.<span class="org-builtin">type</span>, <span class="org-constant">None</span>)
+        <span class="org-keyword">if</span> handler:
+            <span class="org-variable-name">hargs</span> = [sym.value] <span class="org-keyword">if</span> sym.terminal <span class="org-keyword">else</span> sym.value
+            <span class="org-variable-name">sym.result</span> = handler(*hargs)
+            <span class="org-keyword">return</span> sym.result
+
+    <span class="org-keyword">def</span> <span class="org-function-name">subeval</span>(<span class="org-keyword">self</span>, sym):
+        <span class="org-keyword">for</span> child <span class="org-keyword">in</span> sym: <span class="org-keyword">self</span>._eval(child)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">_eval</span>(<span class="org-keyword">self</span>, sym):
+        <span class="org-keyword">self</span>.subeval(sym)
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> enclosure(sym): <span class="org-keyword">self</span>.handle(sym)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, s):
+        <span class="org-keyword">return</span> parse(<span class="org-keyword">self</span>.symbols[<span class="org-keyword">self</span>.start], s)
+
+    <span class="org-comment-delimiter">#### </span><span class="org-comment">handlers</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_enclosed</span>(<span class="org-keyword">self</span>, _, body, __): <span class="org-keyword">return</span> body.result
+    <span class="org-keyword">def</span> <span class="org-function-name">h_optional</span>(<span class="org-keyword">self</span>, _, body, __): <span class="org-keyword">return</span> opt(body.result)
+    <span class="org-keyword">def</span> <span class="org-function-name">h_repeated</span>(<span class="org-keyword">self</span>, _, body, __): <span class="org-keyword">return</span> rep(body.result)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_substitution</span>(<span class="org-keyword">self</span>, subst) : <span class="org-keyword">return</span> subst.result
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_STRING_LITERAL</span>(<span class="org-keyword">self</span>, s): <span class="org-keyword">return</span> Literal(s[1:-1])
+    <span class="org-keyword">def</span> <span class="org-function-name">h_REGEX</span>         (<span class="org-keyword">self</span>, r): <span class="org-keyword">return</span> Match  (r[1:-1])
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_reference</span>(<span class="org-keyword">self</span>, name):
+        <span class="org-keyword">return</span> <span class="org-keyword">lambda</span> s: <span class="org-keyword">self</span>.symbols[name.value](s)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_production</span>(<span class="org-keyword">self</span>, *substs_):
+        <span class="org-variable-name">substs</span> = [subst.result <span class="org-keyword">for</span> subst <span class="org-keyword">in</span> substs_ <span class="org-keyword">if</span> subst]
+        <span class="org-keyword">return</span> combine(substs, seq)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_productions</span>(<span class="org-keyword">self</span>, first, rest):
+        <span class="org-variable-name">prods</span> = [first.result] + [prod.result <span class="org-keyword">for</span> (_, prod) <span class="org-keyword">in</span> rest]
+        <span class="org-keyword">return</span> combine(prods, alt)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">h_rule</span>(<span class="org-keyword">self</span>, name_, _, prods):
+        <span class="org-variable-name">parsefn</span> = parserize(prods.result)
+        parsefn.f.<span class="org-builtin">__name__</span> = <span class="org-variable-name">name</span> = name_.value
+        <span class="org-keyword">self</span>.symbols[name] = parsefn</pre>
+</div>
+
+<p>
+Of particular interest is how evaluation is controlled. Before, we used a purely
+syntax-directed strategy to control statement evaluation in our interactive
+calculator. The parser for that language, though, was deterministic, so we knew
+that there would never be more than one parsing from a given position in the
+input stream. The parser for EBNF employs backtracking to simulate
+nondeterminism. If we were to invoke a handler for a symbol immediately on
+recognition, all of the work performed by that handler would be wasted were we
+to backtrack later.  What&rsquo;s more, any of that handler&rsquo;s side effects would
+persist, possibly leading to strange interactions between parsing attempts.
+</p>
+
+<p>
+Rather than use that excellent recipe for bugs, we instead adopted the approach
+of finding a valid parse tree for the entire input first, and only then trying
+to evaluate it. Thus, <code>Parser.eval</code> is written to traverse a finished parse
+tree, invoking handlers for the various symbols as it encounters them. (To be
+clear, <code>Parser.eval</code> is meant only to apply to the parse trees of EBNF grammars;
+we&rsquo;ll write something more general shortly.)
+</p>
+
+<p>
+Applying <code>Parser</code> to the calculator grammar
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">calc_parser</span> = Parser(<span class="org-string">'statements'</span>, CALCULATOR)</pre>
+</div>
+
+<p>
+gives us a ready tool for analyzing expressions and assignments, just as before:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">calc_parser(<span class="org-string">'4 + 5*6 - 7'</span>)</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_53_0.png" alt="2019-01-16-part2_53_0.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org69fa41c" class="outline-2">
+<h2 id="our-very-own-programming-language"><a id="org69fa41c"></a><span class="section-number-2">10</span> <a href="#our-very-own-programming-language">Our Very Own Programming Language</a></h2>
+<div class="outline-text-2" id="text-our-very-own-programming-language">
+<p>
+Now that we can automatically generate parsers for interesting languages, let&rsquo;s
+create a more interesting language&#x2014;let&rsquo;s turn our &ldquo;calculator&rdquo; language into a
+programming language. For this demonstration, all we&rsquo;ll do is bolt on syntax for
+loops, conditionals, and output:
+</p>
+
+<pre class="example">
+statements     : {statement}
+
+statement      : print          # new syntax
+               | loop           # new syntax
+               | conditional    # new syntax
+               | assignment     
+               | expression     
+
+assignment     : IDENTIFIER '=' expression
+expression     : term {/[+-]/ term}
+term           : factor {/[%*\/]/ factor}
+
+factor         : reference 
+               | NUMBER 
+               | enclosed
+
+reference      : IDENTIFIER
+enclosed       : '(' expression ')'
+print          : 'print' (expression | STRING_LITERAL)
+loop           : 'while' expression statements 'end'
+conditional    : 'if' expression statements 'end'
+NUMBER         : /[-]?[0-9]+/
+STRING_LITERAL : /\'(\\.|[^\\'])*\'/
+
+# it's critical that IDENTIFIER not pick up any reserved words
+
+IDENTIFIER     : /(?!print|while|if|end)[a-zA-Z_][a-zA-Z_0-9]*/
+</pre>
+
+<p>
+After building a parser from this grammar,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">Parser(<span class="org-string">'statements'</span>, <span class="org-string">'''</span>
+<span class="org-string">statements     : {statement}</span>
+<span class="org-string">...</span>
+<span class="org-string">'''</span>)</pre>
+</div>
+
+<p>
+we can parse programs written in the language it describes. For example, a
+program to count from 0 to 4 might look like:
+</p>
+
+<pre class="example">
+x = 0
+while 5 - x
+    print x
+    x = x + 1
+end
+</pre>
+
+<p>
+Parsing that program with our grammar gives
+</p>
+
+
+<div class="figure">
+<p><img src="./aux/2019-01-16-part2_55_0.png" alt="2019-01-16-part2_55_0.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgaf64da3" class="outline-2">
+<h2 id="semantic-analysis-revisited"><a id="orgaf64da3"></a><span class="section-number-2">11</span> <a href="#semantic-analysis-revisited">Semantic Analysis, Revisited</a></h2>
+<div class="outline-text-2" id="text-semantic-analysis-revisited">
+<p>
+Let&rsquo;s ponder how to bring our new language, and programs written in it, to
+life. Let&rsquo;s write an interpreter.
+</p>
+
+<p>
+While a strictly postorder traversal can get us pretty far, this time it&rsquo;s not
+enough. The nature of conditional and loop statements requires us to control the
+evaluation of some portions of the parse tree based on the results of evaluating
+other portions. For example, consider the loop
+</p>
+
+<pre class="example">
+while 5 - x
+    print x
+    x = x + 1
+end
+</pre>
+
+<p>
+The loop itself consists of four major parts: an introductory keyword, a
+condition, a body, and an ending keyword. This is expressed in the grammar above
+as
+</p>
+
+<pre class="example">
+loop  : 'while' expression statements 'end'
+</pre>
+
+<p>
+To deliver the conventional semantics of a while loop, the interpreter has to
+repeatedly evaluate the body
+</p>
+
+<pre class="example">
+print x
+x = x + 1
+</pre>
+
+<p>
+as long as <code>x</code> is not equal to 5. The standard behavior of a postorder
+evaluator, however, is to evaluate each node of the parse tree once in a
+bottom-up, left-to-right order. To gain control of when certain parse subtrees
+are evaluated, we&rsquo;ll introduce an additional bit of state into the
+evaluator. First, we&rsquo;ll split off the introductory keyword, thereby giving us a
+named symbol to which we can attach a handler:
+</p>
+
+<pre class="example">
+loop  : WHILE expression statements 'end'
+WHILE : 'while'
+</pre>
+
+<p>
+Then we&rsquo;ll create two handlers,
+</p>
+
+<ul class="org-ul">
+<li>One for <code>WHILE</code>, which will inform the evaluator to skip normal evaluation of
+the condition, body, and ending keyword; and</li>
+<li>One for <code>loop</code>, which will directly control the evaluation of the condition
+and the body, giving us ample opportunity to implement the semantics we
+desire.</li>
+</ul>
+
+<p>
+The <code>evaluator</code> class below provides the basic mechanism that we need.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">evaluator</span>:
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">self</span>.skip = 0
+        <span class="org-keyword">self</span>.handler = {}
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">If nonzero, self.skip inhibits evaluation of the next self.skip sibling</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">nodes in the parse tree by left-to-right postorder evaluation. It is</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">reset to 0 on moving up the parse tree. This was done to allow setting</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">skip to, say, -1 to inhibit the remaining siblings (however many there</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">are) while allowing handlers higher in the tree to operate normally.</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, sym):
+        <span class="org-doc">'evaluate the subtree rooted at sym'</span>
+        <span class="org-keyword">if</span> <span class="org-keyword">self</span>.skip: <span class="org-keyword">self</span>.skip -= 1
+        <span class="org-keyword">else</span>: <span class="org-keyword">return</span> <span class="org-keyword">self</span>._eval_basic(sym)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">_eval_basic</span>(<span class="org-keyword">self</span>, sym):
+        <span class="org-variable-name">ret</span> = <span class="org-constant">None</span>
+        <span class="org-variable-name">dummy</span> = <span class="org-builtin">type</span>(sym) == <span class="org-builtin">list</span>
+
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> <span class="org-builtin">getattr</span>(sym, <span class="org-string">'terminal'</span>, <span class="org-constant">False</span>):
+            <span class="org-keyword">for</span> child <span class="org-keyword">in</span> sym: <span class="org-variable-name">ret</span> = <span class="org-keyword">self</span>(child)
+            <span class="org-keyword">self</span>.skip = 0
+            <span class="org-keyword">if</span> dummy: <span class="org-keyword">return</span> ret
+
+        <span class="org-keyword">try</span>: <span class="org-variable-name">handler</span> = <span class="org-keyword">self</span>.handler[sym.<span class="org-builtin">type</span>]
+        <span class="org-keyword">except</span> <span class="org-type">KeyError</span>: <span class="org-keyword">return</span>
+        <span class="org-keyword">except</span> <span class="org-type">AttributeError</span>: <span class="org-keyword">return</span>
+
+        <span class="org-variable-name">hargs</span> = [sym.value] <span class="org-keyword">if</span> sym.terminal <span class="org-keyword">else</span> sym.value
+        <span class="org-variable-name">sym.result</span> = handler(*hargs)
+
+        <span class="org-keyword">return</span> sym.result
+
+    <span class="org-keyword">def</span> <span class="org-function-name">on</span>(<span class="org-keyword">self</span>, sym):
+        <span class="org-doc">'set a symbol handler'</span>
+        <span class="org-keyword">def</span> <span class="org-function-name">deco</span>(fn):
+            <span class="org-keyword">self</span>.handler[sym] = fn
+            <span class="org-keyword">return</span> fn
+        <span class="org-keyword">return</span> deco</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org082274f" class="outline-2">
+<h2 id="a-new-programming-language-in-100-lines"><a id="org082274f"></a><span class="section-number-2">12</span> <a href="#a-new-programming-language-in-100-lines">A New Programming Language in &lt; 100 Lines</a></h2>
+<div class="outline-text-2" id="text-a-new-programming-language-in-100-lines">
+<p>
+We&rsquo;re now ready to implement an interpreter for our language, which we&rsquo;ll give
+the highly informative name of ASDF. Using the grammar, parser generator, and
+evaluator, it comes together with very little effort:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> operator <span class="org-keyword">as</span> ops
+
+<span class="org-keyword">class</span> <span class="org-type">asdf_interpreter</span>:
+    <span class="org-doc">'''</span>
+<span class="org-doc">    statements     : {statement}</span>
+
+<span class="org-doc">    statement      : print </span>
+<span class="org-doc">                   | loop </span>
+<span class="org-doc">                   | conditional</span>
+<span class="org-doc">                   | assignment </span>
+<span class="org-doc">                   | expression</span>
+
+<span class="org-doc">    assignment     : IDENTIFIER '=' expression</span>
+<span class="org-doc">    expression     : term {/[+-]/ term}</span>
+<span class="org-doc">    term           : factor {/[%*\/]/ factor}</span>
+
+<span class="org-doc">    factor         : reference </span>
+<span class="org-doc">                   | NUMBER </span>
+<span class="org-doc">                   | enclosed</span>
+
+<span class="org-doc">    reference      : IDENTIFIER</span>
+<span class="org-doc">    enclosed       : '(' expression ')'</span>
+<span class="org-doc">    print          : 'print' (expression | STRING_LITERAL)</span>
+<span class="org-doc">    loop           : WHILE expression statements 'end'</span>
+<span class="org-doc">    conditional    : IF expression statements 'end'</span>
+<span class="org-doc">    NUMBER         : /[-]?[0-9]+/</span>
+<span class="org-doc">    STRING_LITERAL : /\'(\\.|[^\\'])*\'/</span>
+
+<span class="org-doc">    # it's critical that IDENTIFIER not pick up any reserved words</span>
+
+<span class="org-doc">    IDENTIFIER     : /(?!print|while|if|end)[a-zA-Z_][a-zA-Z_0-9]*/</span>
+
+<span class="org-doc">    # we'll put a handler on these introductions so we have the opportunity</span>
+<span class="org-doc">    # to operate the 'skip' mechanism and control evaluation of the bodies</span>
+
+<span class="org-doc">    WHILE          : 'while'</span>
+<span class="org-doc">    IF             : 'if'</span>
+<span class="org-doc">    '''</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">self</span>.calc = <span class="org-variable-name">calc</span> = evaluator()
+        <span class="org-keyword">self</span>.parse = Parser(<span class="org-string">'statements'</span>, <span class="org-keyword">self</span>.__class__.<span class="org-builtin">__doc__</span>)
+        <span class="org-keyword">self</span>.<span class="org-builtin">vars</span> = {}
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'reference'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_reference</span>(name): <span class="org-keyword">return</span> <span class="org-keyword">self</span>.<span class="org-builtin">vars</span>[name.value]
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'NUMBER'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_NUMBER</span>(p): <span class="org-keyword">return</span> <span class="org-builtin">int</span>(p)
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'enclosed'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_enclose</span>(_, inside, __): <span class="org-keyword">return</span> inside.result
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'factor'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_factor</span>(p): <span class="org-keyword">return</span> p.result
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'term'</span>)
+        <span class="org-type">@calc.on</span>(<span class="org-string">'expression'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_apply_ops</span>(first, rest):
+            <span class="org-variable-name">OP</span> = {<span class="org-string">'+'</span>: ops.add, <span class="org-string">'-'</span>: ops.sub, 
+                  <span class="org-string">'*'</span>: ops.mul, <span class="org-string">'/'</span>: ops.truediv, <span class="org-string">'%'</span>: ops.mod}
+
+            <span class="org-variable-name">acc</span> = first.result
+
+            <span class="org-keyword">for</span> (op, mag) <span class="org-keyword">in</span> rest: 
+                <span class="org-variable-name">acc</span> = OP[op.value](acc, mag.result)
+
+            <span class="org-keyword">return</span> acc
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'STRING_LITERAL'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_STRING_LITERAL</span>(s): <span class="org-keyword">return</span> s[1:-1]
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'assignment'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_assignment</span>(name, _, val): 
+            <span class="org-keyword">self</span>.<span class="org-builtin">vars</span>[name.value] = val.result
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'print'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_print</span>(_, out): <span class="org-keyword">print</span>(out.result)
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'WHILE'</span>)
+        <span class="org-type">@calc.on</span>(<span class="org-string">'IF'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_compound_intro</span>(_): <span class="org-variable-name">calc.skip</span> = -1
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'conditional'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_conditional</span>(_, cond, conseq, __):
+            <span class="org-keyword">if</span> calc(cond): calc(conseq)
+
+        <span class="org-type">@calc.on</span>(<span class="org-string">'loop'</span>)
+        <span class="org-keyword">def</span> <span class="org-function-name">h_loop</span>(_, test, body, end):
+            <span class="org-keyword">while</span> calc(test): calc(body)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__call__</span>(<span class="org-keyword">self</span>, prog): <span class="org-keyword">self</span>.calc(<span class="org-keyword">self</span>.parse(prog))</pre>
+</div>
+
+<p>
+That&rsquo;s it. Now all we have to do is instantiate the interpreter,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">ASDF</span> = asdf_interpreter()</pre>
+</div>
+
+<p>
+write a program to solve the FizzBuzz problem,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">fizzbuzz</span> = <span class="org-string">'''</span>
+<span class="org-string">i = 1</span>
+
+<span class="org-string"># for demonstration, stop at 20 iterations</span>
+
+<span class="org-string">while 21 - i</span>
+<span class="org-string">    fizz = 1</span>
+<span class="org-string">    buzz = 1</span>
+<span class="org-string">    emit = 1</span>
+
+<span class="org-string">    if i % 3</span>
+<span class="org-string">        fizz = 0</span>
+<span class="org-string">    end</span>
+
+<span class="org-string">    if i % 5</span>
+<span class="org-string">        buzz = 0</span>
+<span class="org-string">    end</span>
+
+<span class="org-string">    if fizz * buzz</span>
+<span class="org-string">        fizz = 0</span>
+<span class="org-string">        buzz = 0</span>
+<span class="org-string">        emit = 0</span>
+<span class="org-string">        print 'FizzBuzz'</span>
+<span class="org-string">    end</span>
+
+<span class="org-string">    if fizz</span>
+<span class="org-string">        emit = 0</span>
+<span class="org-string">        print 'Fizz'</span>
+<span class="org-string">    end</span>
+
+<span class="org-string">    if buzz</span>
+<span class="org-string">        buzz = 0</span>
+<span class="org-string">        emit = 0</span>
+<span class="org-string">        print 'Buzz'</span>
+<span class="org-string">    end</span>
+
+<span class="org-string">    if emit</span>
+<span class="org-string">        print i</span>
+<span class="org-string">        emit = 0</span>
+<span class="org-string">    end</span>
+<span class="org-string">    i = i + 1</span>
+<span class="org-string">end</span>
+<span class="org-string">'''</span></pre>
+</div>
+
+<p>
+and run it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">ASDF(fizzbuzz)</pre>
+</div>
+
+<pre class="example">
+1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+16
+17
+Fizz
+19
+Buzz
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org25c08ef" class="outline-2">
+<h2 id="wrapping-up"><a id="org25c08ef"></a><span class="section-number-2">13</span> <a href="#wrapping-up">Wrapping Up</a></h2>
+<div class="outline-text-2" id="text-wrapping-up">
+<p>
+It&rsquo;s virtually assured that no other candidate for a given job would dream of
+answering the FizzBuzz question by creating a programming language with which to
+solve it, and the odds that any of your competition would attempt a parser
+generator along the way are infinitesimal. Does this mean you&rsquo;d get the job for
+pulling such a stunt? Not necessarily&#x2014;the interviewer could just as easily call
+security.
+</p>
+
+<p>
+But this was never about just the next gig. In this and the previous two posts
+we&rsquo;ve examined in considerable detail, both theoretical and practical, the
+foundations of regular expression engines and much of what happens in compilers
+and interpreters. In so doing, we&rsquo;ve expanded our understanding of the software
+that we use and build with, and we&rsquo;ve gained an array of design tools&#x2014;and
+options&#x2014;that we didn&rsquo;t have before.
+</p>
+
+<p>
+There&rsquo;s a lot we didn&rsquo;t cover, too. We didn&rsquo;t talk about code generation or
+optimization. We didn&rsquo;t discuss the design of virtual machines. We didn&rsquo;t even
+discuss alternative parsing approaches (like <a href="https://en.wikipedia.org/wiki/LL_parser">LL</a> or <a href="https://en.wikipedia.org/wiki/LR_parser">LR</a> or <a href="https://en.wikipedia.org/wiki/LALR_parser">LALR</a>). That&rsquo;s
+okay. This post has once again run long, and we might visit at least some of
+those topics soon enough.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr style='height:0.5px'>
+<small>R E I N D E E R E F F E C T</small>
+</div>
+</body>
+</html>
