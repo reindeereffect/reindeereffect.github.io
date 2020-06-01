@@ -19,6 +19,22 @@ this one's for you.
 #+end_index-entry
 #+begin_index-entry
 	#+begin_pubdate
+		2019-01-16
+	#+end_pubdate
+	#+begin_post-title
+		[[./2019/01/16/index.org][Recursive Descent: The Next Iteration]]
+	#+end_post-title
+        #+begin_post-tags
+                [[./tags.org::*automata][automata]] [[./tags.org::*ebnf][ebnf]] [[./tags.org::*fizzbuzz][fizzbuzz]] [[./tags.org::*grammar][grammar]] [[./tags.org::*parsing][parsing]] 
+        #+end_post-tags
+	#+begin_abstract
+		You've been tasked to implement a parser for yet another language---one with the
+brevity of COBOL and the readability of APL. You're sick of writing
+parsers. Surely a computer can do it, right?
+	#+end_abstract
+#+end_index-entry
+#+begin_index-entry
+	#+begin_pubdate
 		2018-12-08
 	#+end_pubdate
 	#+begin_post-title
