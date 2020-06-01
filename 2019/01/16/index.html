@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-31 Sun 22:06 -->
+<!-- 2020-05-31 Sun 22:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Recursive Descent: The Next Iteration</title>
@@ -277,8 +277,8 @@ parsers. Surely a computer can do it, right?
 <i>This post was derived from a <a href="%7B%7Bsite.repo%7D%7D/production/notebooks/recursive-descent/part2.ipynb">Jupyter notebook</a>.</i>
 </p>
 
-<div id="outline-container-orgb4727a8" class="outline-2">
-<h2 id="introduction"><a id="orgb4727a8"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
+<div id="outline-container-org283a43e" class="outline-2">
+<h2 id="introduction"><a id="org283a43e"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
 <div class="outline-text-2" id="text-introduction">
 <p>
 So there you are, sitting for a job interview, when you&rsquo;re asked to solve the
@@ -342,8 +342,8 @@ language, implemented in turn with our very own parser generator.
 </div>
 </div>
 
-<div id="outline-container-orgc1f9f79" class="outline-2">
-<h2 id="the-limits-of-determinism"><a id="orgc1f9f79"></a><span class="section-number-2">2</span> <a href="#the-limits-of-determinism">The Limits of Determinism</a></h2>
+<div id="outline-container-org80d8d17" class="outline-2">
+<h2 id="the-limits-of-determinism"><a id="org80d8d17"></a><span class="section-number-2">2</span> <a href="#the-limits-of-determinism">The Limits of Determinism</a></h2>
 <div class="outline-text-2" id="text-the-limits-of-determinism">
 <p>
 Consider the following toy grammar:
@@ -551,8 +551,8 @@ languages called deterministic context-free languages, while NPDAs can recognize
 </div>
 </div>
 
-<div id="outline-container-orge2ed436" class="outline-2">
-<h2 id="backtracking-implementation"><a id="orge2ed436"></a><span class="section-number-2">3</span> <a href="#backtracking-implementation">Backtracking Implementation</a></h2>
+<div id="outline-container-org02bbc16" class="outline-2">
+<h2 id="backtracking-implementation"><a id="org02bbc16"></a><span class="section-number-2">3</span> <a href="#backtracking-implementation">Backtracking Implementation</a></h2>
 <div class="outline-text-2" id="text-backtracking-implementation">
 <p>
 While there are more pieces to implementing backtracking than for lookahead
@@ -644,8 +644,8 @@ Very often, we&rsquo;re happy with the first such parse:
 </div>
 </div>
 
-<div id="outline-container-org5fbe2ec" class="outline-2">
-<h2 id="backtracking-to-binary-palindromes"><a id="org5fbe2ec"></a><span class="section-number-2">4</span> <a href="#backtracking-to-binary-palindromes">Backtracking to Binary Palindromes</a></h2>
+<div id="outline-container-orgd353c9a" class="outline-2">
+<h2 id="backtracking-to-binary-palindromes"><a id="orgd353c9a"></a><span class="section-number-2">4</span> <a href="#backtracking-to-binary-palindromes">Backtracking to Binary Palindromes</a></h2>
 <div class="outline-text-2" id="text-backtracking-to-binary-palindromes">
 <p>
 We&rsquo;re now ready to attack the palindrome problem. The parsing functions look
@@ -696,8 +696,8 @@ there is precisely one parse, which looks like
 </div>
 </div>
 
-<div id="outline-container-org6c7f80e" class="outline-2">
-<h2 id="bnf-parsing-revisited"><a id="org6c7f80e"></a><span class="section-number-2">5</span> <a href="#bnf-parsing-revisited">BNF Parsing, Revisited</a></h2>
+<div id="outline-container-orgf14e418" class="outline-2">
+<h2 id="bnf-parsing-revisited"><a id="orgf14e418"></a><span class="section-number-2">5</span> <a href="#bnf-parsing-revisited">BNF Parsing, Revisited</a></h2>
 <div class="outline-text-2" id="text-bnf-parsing-revisited">
 <p>
 With our new-found power, let&rsquo;s try parsing BNF again. The code is the same as
@@ -769,8 +769,8 @@ result:
 </div>
 </div>
 
-<div id="outline-container-orgff3260c" class="outline-2">
-<h2 id="extended-bnf"><a id="orgff3260c"></a><span class="section-number-2">6</span> <a href="#extended-bnf">Extended BNF</a></h2>
+<div id="outline-container-orgabab9db" class="outline-2">
+<h2 id="extended-bnf"><a id="orgabab9db"></a><span class="section-number-2">6</span> <a href="#extended-bnf">Extended BNF</a></h2>
 <div class="outline-text-2" id="text-extended-bnf">
 <p>
 All of the grammars we&rsquo;ve looked at so far have used productions like
@@ -913,8 +913,8 @@ The utility to create optional parsers is much more boring:
 </div>
 </div>
 
-<div id="outline-container-orgb631e28" class="outline-2">
-<h2 id="ebnf-in-ebnf"><a id="orgb631e28"></a><span class="section-number-2">7</span> <a href="#ebnf-in-ebnf">EBNF in EBNF</a></h2>
+<div id="outline-container-orgcea039a" class="outline-2">
+<h2 id="ebnf-in-ebnf"><a id="orgcea039a"></a><span class="section-number-2">7</span> <a href="#ebnf-in-ebnf">EBNF in EBNF</a></h2>
 <div class="outline-text-2" id="text-ebnf-in-ebnf">
 <p>
 Describing BNF with EBNF is nice, but if we&rsquo;re going to try writing grammars in
@@ -1004,8 +1004,8 @@ reference    : IDENTIFIER
 </div>
 </div>
 
-<div id="outline-container-org635b472" class="outline-2">
-<h2 id="parsing-ebnf-grammars"><a id="org635b472"></a><span class="section-number-2">8</span> <a href="#parsing-ebnf-grammars">Parsing EBNF Grammars</a></h2>
+<div id="outline-container-org87f7706" class="outline-2">
+<h2 id="parsing-ebnf-grammars"><a id="org87f7706"></a><span class="section-number-2">8</span> <a href="#parsing-ebnf-grammars">Parsing EBNF Grammars</a></h2>
 <div class="outline-text-2" id="text-parsing-ebnf-grammars">
 <p>
 You&rsquo;ll notice that, despite allowing for in-line regexes and string literals in
@@ -1225,8 +1225,8 @@ alternate productions are themselves anonymous nonterminals.
 </div>
 </div>
 
-<div id="outline-container-org88bfd8f" class="outline-2">
-<h2 id="a-recursive-descent-parser-generator"><a id="org88bfd8f"></a><span class="section-number-2">9</span> <a href="#a-recursive-descent-parser-generator">A Recursive Descent Parser Generator</a></h2>
+<div id="outline-container-org9a7bd08" class="outline-2">
+<h2 id="a-recursive-descent-parser-generator"><a id="org9a7bd08"></a><span class="section-number-2">9</span> <a href="#a-recursive-descent-parser-generator">A Recursive Descent Parser Generator</a></h2>
 <div class="outline-text-2" id="text-a-recursive-descent-parser-generator">
 <p>
 Consider how we&rsquo;ve been writing parsers so far: We define a grammar, perhaps
@@ -1383,8 +1383,8 @@ gives us a ready tool for analyzing expressions and assignments, just as before:
 </div>
 </div>
 
-<div id="outline-container-org69fa41c" class="outline-2">
-<h2 id="our-very-own-programming-language"><a id="org69fa41c"></a><span class="section-number-2">10</span> <a href="#our-very-own-programming-language">Our Very Own Programming Language</a></h2>
+<div id="outline-container-orgcb6aa99" class="outline-2">
+<h2 id="our-very-own-programming-language"><a id="orgcb6aa99"></a><span class="section-number-2">10</span> <a href="#our-very-own-programming-language">Our Very Own Programming Language</a></h2>
 <div class="outline-text-2" id="text-our-very-own-programming-language">
 <p>
 Now that we can automatically generate parsers for interesting languages, let&rsquo;s
@@ -1459,8 +1459,8 @@ Parsing that program with our grammar gives
 </div>
 </div>
 
-<div id="outline-container-orgaf64da3" class="outline-2">
-<h2 id="semantic-analysis-revisited"><a id="orgaf64da3"></a><span class="section-number-2">11</span> <a href="#semantic-analysis-revisited">Semantic Analysis, Revisited</a></h2>
+<div id="outline-container-orga15ff26" class="outline-2">
+<h2 id="semantic-analysis-revisited"><a id="orga15ff26"></a><span class="section-number-2">11</span> <a href="#semantic-analysis-revisited">Semantic Analysis, Revisited</a></h2>
 <div class="outline-text-2" id="text-semantic-analysis-revisited">
 <p>
 Let&rsquo;s ponder how to bring our new language, and programs written in it, to
@@ -1576,8 +1576,8 @@ The <code>evaluator</code> class below provides the basic mechanism that we need
 </div>
 </div>
 
-<div id="outline-container-org082274f" class="outline-2">
-<h2 id="a-new-programming-language-in-100-lines"><a id="org082274f"></a><span class="section-number-2">12</span> <a href="#a-new-programming-language-in-100-lines">A New Programming Language in &lt; 100 Lines</a></h2>
+<div id="outline-container-org3a455d5" class="outline-2">
+<h2 id="a-new-programming-language-in-100-lines"><a id="org3a455d5"></a><span class="section-number-2">12</span> <a href="#a-new-programming-language-in-100-lines">A New Programming Language in &lt; 100 Lines</a></h2>
 <div class="outline-text-2" id="text-a-new-programming-language-in-100-lines">
 <p>
 We&rsquo;re now ready to implement an interpreter for our language, which we&rsquo;ll give
@@ -1771,8 +1771,8 @@ Buzz
 </div>
 </div>
 
-<div id="outline-container-org25c08ef" class="outline-2">
-<h2 id="wrapping-up"><a id="org25c08ef"></a><span class="section-number-2">13</span> <a href="#wrapping-up">Wrapping Up</a></h2>
+<div id="outline-container-org4f1db59" class="outline-2">
+<h2 id="wrapping-up"><a id="org4f1db59"></a><span class="section-number-2">13</span> <a href="#wrapping-up">Wrapping Up</a></h2>
 <div class="outline-text-2" id="text-wrapping-up">
 <p>
 It&rsquo;s virtually assured that no other candidate for a given job would dream of

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-31 Sun 21:41 -->
+<!-- 2020-05-31 Sun 22:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Beyond Regular Expressions: Recursive Descent Parsing</title>
@@ -299,8 +299,8 @@ admit that you&rsquo;ve got a problem, but now what?
 <i>[This post was derived from a <a href="./nb/part1.ipynb">Jupyter notebook</a>.]</i>
 </p>
 
-<div id="outline-container-orgd9d3502" class="outline-2">
-<h2 id="introduction"><a id="orgd9d3502"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
+<div id="outline-container-org5dc216d" class="outline-2">
+<h2 id="introduction"><a id="org5dc216d"></a><span class="section-number-2">1</span> <a href="#introduction">Introduction</a></h2>
 <div class="outline-text-2" id="text-introduction">
 <p>
 The last post discussed how regular expressions work, from a theoretical
@@ -332,8 +332,8 @@ grouping, and almost civilized error detection and recovery.</li>
 </div>
 </div>
 
-<div id="outline-container-org9565a0a" class="outline-2">
-<h2 id="balanced-parentheses"><a id="org9565a0a"></a><span class="section-number-2">2</span> <a href="#balanced-parentheses">Balanced Parentheses</a></h2>
+<div id="outline-container-org9854113" class="outline-2">
+<h2 id="balanced-parentheses"><a id="org9854113"></a><span class="section-number-2">2</span> <a href="#balanced-parentheses">Balanced Parentheses</a></h2>
 <div class="outline-text-2" id="text-balanced-parentheses">
 <p>
 Before implementing a predicate to check whether a string consists of
@@ -412,8 +412,8 @@ applied in any order.)
 </div>
 </div>
 
-<div id="outline-container-org78a381d" class="outline-2">
-<h2 id="brief-diversion-regular-grammars"><a id="org78a381d"></a><span class="section-number-2">3</span> <a href="#brief-diversion-regular-grammars">Brief Diversion: Regular Grammars</a></h2>
+<div id="outline-container-orgaa521c6" class="outline-2">
+<h2 id="brief-diversion-regular-grammars"><a id="orgaa521c6"></a><span class="section-number-2">3</span> <a href="#brief-diversion-regular-grammars">Brief Diversion: Regular Grammars</a></h2>
 <div class="outline-text-2" id="text-brief-diversion-regular-grammars">
 <p>
 If we were to restrict a CFG such that each production could contain at
@@ -459,8 +459,8 @@ regular expressions.
 </div>
 </div>
 
-<div id="outline-container-orga284a38" class="outline-2">
-<h2 id="back-to-balanced-parentheses"><a id="orga284a38"></a><span class="section-number-2">4</span> <a href="#back-to-balanced-parentheses">Back to Balanced Parentheses</a></h2>
+<div id="outline-container-org22db957" class="outline-2">
+<h2 id="back-to-balanced-parentheses"><a id="org22db957"></a><span class="section-number-2">4</span> <a href="#back-to-balanced-parentheses">Back to Balanced Parentheses</a></h2>
 <div class="outline-text-2" id="text-back-to-balanced-parentheses">
 <p>
 Knowing how to describe balanced paren strings, how can we test whether
@@ -574,8 +574,8 @@ test(is_balanced_parens, *MIXED_ENCLOSURE_TESTS, *PAREN_TESTS)</pre>
 </div>
 </div>
 
-<div id="outline-container-org6b0d066" class="outline-2">
-<h2 id="pushdown-automata"><a id="org6b0d066"></a><span class="section-number-2">5</span> <a href="#pushdown-automata">Pushdown Automata</a></h2>
+<div id="outline-container-org3600f79" class="outline-2">
+<h2 id="pushdown-automata"><a id="org3600f79"></a><span class="section-number-2">5</span> <a href="#pushdown-automata">Pushdown Automata</a></h2>
 <div class="outline-text-2" id="text-pushdown-automata">
 <p>
 Now that we have an approach that&rsquo;s more generally applicable, let&rsquo;s
@@ -735,8 +735,8 @@ recognizes it?
 </div>
 </div>
 
-<div id="outline-container-org200a83d" class="outline-2">
-<h2 id="top-down-parsing"><a id="org200a83d"></a><span class="section-number-2">6</span> <a href="#top-down-parsing">Top-Down Parsing</a></h2>
+<div id="outline-container-orgc762932" class="outline-2">
+<h2 id="top-down-parsing"><a id="orgc762932"></a><span class="section-number-2">6</span> <a href="#top-down-parsing">Top-Down Parsing</a></h2>
 <div class="outline-text-2" id="text-top-down-parsing">
 <p>
 There are two main approaches to programming a PDA, and therefore
@@ -1000,8 +1000,8 @@ method of writing parsers for context free languages by hand.
 </div>
 </div>
 
-<div id="outline-container-orge3923be" class="outline-2">
-<h2 id="alternative-views"><a id="orge3923be"></a><span class="section-number-2">7</span> <a href="#alternative-views">Alternative Views</a></h2>
+<div id="outline-container-org826ddb6" class="outline-2">
+<h2 id="alternative-views"><a id="org826ddb6"></a><span class="section-number-2">7</span> <a href="#alternative-views">Alternative Views</a></h2>
 <div class="outline-text-2" id="text-alternative-views">
 <p>
 We&rsquo;re using CFGs to describe strings that are produced by external
@@ -1059,8 +1059,8 @@ do.</li>
 </div>
 </div>
 
-<div id="outline-container-orga192daa" class="outline-2">
-<h2 id="descending-recursively"><a id="orga192daa"></a><span class="section-number-2">8</span> <a href="#descending-recursively">Descending, Recursively</a></h2>
+<div id="outline-container-org809e087" class="outline-2">
+<h2 id="descending-recursively"><a id="org809e087"></a><span class="section-number-2">8</span> <a href="#descending-recursively">Descending, Recursively</a></h2>
 <div class="outline-text-2" id="text-descending-recursively">
 <p>
 In recursive descent parsing, we represent every symbol by a function
@@ -1135,8 +1135,8 @@ And the new <code>is_balanced_parens</code> responds as expected:
 </div>
 </div>
 
-<div id="outline-container-org5af24ef" class="outline-2">
-<h2 id="basic-expression-parsing"><a id="org5af24ef"></a><span class="section-number-2">9</span> <a href="#basic-expression-parsing">Basic Expression Parsing</a></h2>
+<div id="outline-container-orgd2eb72b" class="outline-2">
+<h2 id="basic-expression-parsing"><a id="orgd2eb72b"></a><span class="section-number-2">9</span> <a href="#basic-expression-parsing">Basic Expression Parsing</a></h2>
 <div class="outline-text-2" id="text-basic-expression-parsing">
 <p>
 Let&rsquo;s try something more ambitious: parsing simple mathematical
@@ -1811,8 +1811,8 @@ test(calc,
 </div>
 </div>
 
-<div id="outline-container-org2f7ade7" class="outline-2">
-<h2 id="parsing-bnf-grammars"><a id="org2f7ade7"></a><span class="section-number-2">10</span> <a href="#parsing-bnf-grammars">Parsing BNF Grammars</a></h2>
+<div id="outline-container-org5f9c67d" class="outline-2">
+<h2 id="parsing-bnf-grammars"><a id="org5f9c67d"></a><span class="section-number-2">10</span> <a href="#parsing-bnf-grammars">Parsing BNF Grammars</a></h2>
 <div class="outline-text-2" id="text-parsing-bnf-grammars">
 <p>
 Now that we have a straightforward way to produce recursive descent
@@ -1984,8 +1984,8 @@ Having rejected the first two options, let&rsquo;s consider the next.
 </div>
 </div>
 
-<div id="outline-container-orgd97f647" class="outline-2">
-<h2 id="lookahead"><a id="orgd97f647"></a><span class="section-number-2">11</span> <a href="#lookahead">Lookahead</a></h2>
+<div id="outline-container-orgbcfd005" class="outline-2">
+<h2 id="lookahead"><a id="orgbcfd005"></a><span class="section-number-2">11</span> <a href="#lookahead">Lookahead</a></h2>
 <div class="outline-text-2" id="text-lookahead">
 <p>
 The basic problem, as discussed, is that <code>production</code> is grabbing
@@ -2078,8 +2078,8 @@ For the curious, the parse tree for our expression grammar looks like:
 </div>
 </div>
 
-<div id="outline-container-orgde487b4" class="outline-2">
-<h2 id="expressions-revisited"><a id="orgde487b4"></a><span class="section-number-2">12</span> <a href="#expressions-revisited">Expressions Revisited</a></h2>
+<div id="outline-container-orgbfdae5d" class="outline-2">
+<h2 id="expressions-revisited"><a id="orgbfdae5d"></a><span class="section-number-2">12</span> <a href="#expressions-revisited">Expressions Revisited</a></h2>
 <div class="outline-text-2" id="text-expressions-revisited">
 <p>
 The expression evaluator is nice, but there&rsquo;s no substitute for the
@@ -2315,8 +2315,8 @@ stmt&gt;
 </div>
 </div>
 
-<div id="outline-container-orgb1a0a39" class="outline-2">
-<h2 id="wrapping-up"><a id="orgb1a0a39"></a><span class="section-number-2">13</span> <a href="#wrapping-up">Wrapping Up</a></h2>
+<div id="outline-container-orgd4577b0" class="outline-2">
+<h2 id="wrapping-up"><a id="orgd4577b0"></a><span class="section-number-2">13</span> <a href="#wrapping-up">Wrapping Up</a></h2>
 <div class="outline-text-2" id="text-wrapping-up">
 <p>
 Our little interpreter leaves a great deal to be desired&#x2014;even though it
