@@ -591,16 +591,6 @@ To that end, =zig= provides a lightweight method of tangling from an Org. It
 does not provide all of the functionality of the Emacs method, but it is, so
 far, suitable for my needs.
 
-=zig='s overall structure is
-
-#+NAME: zig
-#+BEGIN_SRC python :tangle bin/zig :shebang "#! /usr/bin/env python3"
-<<zig imports>>
-<<zig defs>>
-
-if __name__ == '__main__':
-    <<zig main>>
-#+END_SRC
 
 **** Parsing
 An org file can be thought of a series of lines and code blocks, interleaved:
@@ -762,11 +752,25 @@ for part in parts:
 #+NAME: tangle files
 #+BEGIN_SRC python
 for fn, first in start.items():
+    body = ''.join(expand(first, chunks, top=True))
+    if body != old_bytes(fn):
+        mkdir(os.path.dirname(fn))
+        open(fn, 'w').write(body)
+#+END_SRC
+
+where
+
+#+NAME: zig defs
+#+BEGIN_SRC python
+def mkdir(d):
     try: os.makedirs(os.path.dirname(fn))
     except FileExistsError: pass
     except FileNotFoundError: pass
-    body = ''.join(expand(first, chunks, top=True))
-    open(fn, 'w').write(body)
+
+def old_bytes(fn):
+    try: return open(fn).read()
+    except FileNotFoundError: return ''
+    
 #+END_SRC
 
 #+NAME: zig defs
@@ -833,6 +837,19 @@ def shebang(b):
     shebang = b['begin'].split(':shebang')[1].strip()
     if '"' in shebang: shebang = shebang.split('"')[1].replace('\\n', '')
     return shebang.strip() + '\n'
+#+END_SRC
+
+**** Overall Structure
+
+=zig='s overall structure is
+
+#+NAME: zig
+#+BEGIN_SRC python :tangle bin/zig :shebang "#! /usr/bin/env python3"
+<<zig imports>>
+<<zig defs>>
+
+if __name__ == '__main__':
+    <<zig main>>
 #+END_SRC
 
 *** A Tangle Daemon
